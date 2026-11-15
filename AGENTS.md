@@ -364,7 +364,6 @@ Spec completa: `specs/01-integridade.md`. Regras que valem em todo o código:
 - **Arquivo novo nasce num temporário** sincronizado e é publicado por rename atômico.
 - **Exclusão só pela lixeira**, sem fallback para apagar permanentemente.
 - **Disco antes do banco:** se o índice falhar depois, o próximo escaneamento corrige.
-- **Mudanças externas:** na 0.1.0, o Folio detecta na abertura do workspace e ao navegar arquivos criados, removidos, movidos ou renomeados por fora; o hash ajuda a reconectar um arquivo movido ao seu id.
 
 ## Notas para o versionamento futuro
 

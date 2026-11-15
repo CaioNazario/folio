@@ -36,7 +36,7 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 | 02 | [persistencia](02-persistencia.md) | Banco global e do workspace, abertura, migrações, caminhos em bytes, `WorkspaceStore` | S7 | — | Escrita |
 | 03 | [workspace](03-workspace.md) | Modelo de vault, abertura, diretório default, workspace aninhado, operações em projetos e pastas, ícones | — | — | Escrita |
 | 04 | [documentos](04-documentos.md) | Reconhecimento, protegidos por senha, links simbólicos, id estável, tabelas do índice, derivados e avisos de desatualizado | — | — | Escrita |
-| 05 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | S5, S6 | Integridade (mudanças externas) | A escrever |
+| 05 | [indexacao](05-indexacao.md) | Reconciliação, escaneamento em segundo plano, hash, reconexão, ausentes por 30 dias, reindexação | S5, S6 | — | Escrita |
 | 06 | busca-favoritos-recentes | Busca por nome normalizado, filtros, favoritos, recentes | — | Busca, favoritos e recentes | A escrever |
 | 07 | [reader](07-reader.md) | Exibição por formato, modelo de documento, leitores, extração de metadados | S1, S2, S4 | — | Escrita |
 | 08 | [conversao](08-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | S3 | — | Escrita |
@@ -55,22 +55,6 @@ A ordem é a dos números. Cada spec é escrita antes da feature dela, e os spik
 ## Spikes das specs ainda não escritas
 
 Cada spike fica no topo da spec que ele bloqueia. Os destas specs ainda não escritas ficam aqui e vão para a spec quando ela for escrita.
-
-### S5 · Reconectar ao id um arquivo movido por fora
-
-**Bloqueia:** spec 05 (indexação).
-
-**Pergunta:** como reconhecer que um arquivo renomeado ou movido fora do Folio é o mesmo documento: hash do conteúdo, inode, ou os dois?
-
-**Resultado:** pendente.
-
-### S6 · Indexação rápida de workspace grande
-
-**Bloqueia:** spec 05 (indexação).
-
-**Pergunta:** como indexar um workspace com milhares de arquivos na primeira abertura sem travar a interface (escaneamento incremental, hash sob demanda, paralelismo)?
-
-**Resultado:** pendente.
 
 ### S8 · "Copiar arquivo" no Wayland/Hyprland
 

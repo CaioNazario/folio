@@ -121,7 +121,7 @@ Trabalho.pdf ──converted_to──▶ Trabalho.docx
   - "O derivado foi modificado depois da conversão": ele não é mais o resultado exato da conversão.
 
   A relação continua valendo nos dois casos. Os avisos são calculados na consulta, sem tarefa em segundo plano.
-- **A relação some quando um dos lados sai do índice** (excluído, ou sumiu do disco e não foi reconectado). Os arquivos nunca são afetados.
+- **A relação fica oculta enquanto um dos lados está ausente** (excluído, ou sumiu do disco) **e some quando ele sai do índice**, 30 dias depois (spec 05). Os arquivos nunca são afetados.
 - Se o banco for apagado, as relações se perdem e os dois arquivos continuam intactos (spec 01).
 
 ## Documentos protegidos por senha
@@ -148,7 +148,7 @@ Todas seguem a spec 01: no disco primeiro, sem sobrescrita.
 |---|---|
 | Renomear | Edita só o nome, sem a extensão: a extensão é preservada, para um renomear não mudar o formato. Validação de nome da spec 03. Nome já existente é erro |
 | Mover | Para outro projeto, pasta ou para a raiz. Nome já existente no destino gera sufixo (`Trabalho (1).pdf`, spec 01). Usado também pela Entrada (spec 09) |
-| Enviar para a lixeira | Spec 01. O documento sai do índice com as relações, o favorito e o recente dele |
+| Enviar para a lixeira | Spec 01. O documento sai da interface e fica ausente no índice por 30 dias (spec 05): restaurado da lixeira nesse prazo, volta com o mesmo id, favorito e relações |
 
 ## Contagens
 
@@ -184,4 +184,4 @@ Documentos inválidos entram nas contagens: eles aparecem na interface.
 - [ ] Renomear preserva a extensão.
 - [ ] Mover para um destino com o mesmo nome gera sufixo e nunca sobrescreve.
 - [ ] Apagar `document_metadata` e recalcular produz os mesmos metadados.
-- [ ] Excluir um documento remove do índice as relações em que ele aparece, sem tocar no outro arquivo.
+- [ ] Excluir um documento esconde as relações em que ele aparece, sem tocar no outro arquivo.
