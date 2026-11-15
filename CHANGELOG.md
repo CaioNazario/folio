@@ -4,6 +4,10 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 
 ## [Unreleased]
 
+### Security
+
+- The app window has a content security policy: documents cannot load anything from the network.
+
 ### Added
 
 - Interface in Portuguese and English, following the system language.

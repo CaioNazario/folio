@@ -150,7 +150,7 @@ Valem com a visualização de documento aberta e o foco fora de campos de texto:
 
 ### Segurança do webview
 
-A CSP do app (`app.security.csp` no `tauri.conf.json`, hoje `null`) é definida junto com o Reader, antes do Reader de MD:
+A CSP do app fica em `app.security.csp` no `tauri.conf.json`:
 
 ```text
 default-src 'self';
@@ -165,6 +165,7 @@ object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'
 
 - Nenhuma origem de rede: o webview não carrega nada de fora, nem por engano de um documento.
 - `'wasm-unsafe-eval'`: decodificadores de imagem do pdf.js em WebAssembly.
+- **Em desenvolvimento** (`app.security.devCsp`): a mesma lista, com `ws://localhost:1420` e `ws://localhost:1421` a mais no `connect-src`, para o recarregamento do Vite. O build de release usa só a `csp`.
 - `style-src 'unsafe-inline'`: o `docx-preview` injeta os estilos do documento.
 - `blob:`: worker do pdf.js e imagens e fontes do `docx-preview`.
 
