@@ -4,6 +4,8 @@ use std::path::{Path, PathBuf};
 
 use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
 
+use super::os_bytes;
+
 /// Path relative to the workspace root, stored as the exact bytes on disk
 /// with `/` as separator. Never absolute, empty, with `.` or `..`, or inside
 /// `.folio/`.
@@ -36,13 +38,11 @@ impl RelativePath {
     }
 
     /// The path of `path` relative to the workspace at `root`.
-    #[cfg(unix)]
     pub fn from_absolute(root: &Path, path: &Path) -> Result<Self, InvalidRelativePath> {
-        use std::os::unix::ffi::OsStrExt;
         let relative = path
             .strip_prefix(root)
             .map_err(|_| InvalidRelativePath::OutsideRoot)?;
-        Self::from_bytes(relative.as_os_str().as_bytes())
+        Self::from_bytes(os_bytes::as_bytes(relative.as_os_str()))
     }
 
     /// The stored bytes, `/`-separated.
@@ -60,10 +60,8 @@ impl RelativePath {
     ///
     /// On Unix the stored `/` is already the system separator. Windows will
     /// convert here, at the edge (spec 02).
-    #[cfg(unix)]
     pub fn resolve(&self, root: &Path) -> PathBuf {
-        use std::os::unix::ffi::OsStrExt;
-        root.join(std::ffi::OsStr::from_bytes(&self.0))
+        root.join(os_bytes::from_bytes(&self.0))
     }
 }
 

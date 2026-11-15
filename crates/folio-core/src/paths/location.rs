@@ -1,11 +1,11 @@
 //! Absolute reference to a directory (workspace or Downloads), stored only in
 //! the global database (spec 02).
 
-use std::ffi::OsStr;
-use std::os::unix::ffi::OsStrExt;
 use std::path::PathBuf;
 
 use rusqlite::types::{FromSql, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
+
+use super::os_bytes;
 
 /// Where a directory lives. Desktop uses a path; Android will add a
 /// persisted SAF URI variant.
@@ -18,21 +18,23 @@ pub enum Location {
 impl ToSql for Location {
     fn to_sql(&self) -> rusqlite::Result<ToSqlOutput<'_>> {
         let Self::Path(path) = self;
-        Ok(ToSqlOutput::Borrowed(ValueRef::Blob(
-            path.as_os_str().as_bytes(),
-        )))
+        let bytes = os_bytes::as_bytes(path.as_os_str());
+        Ok(ToSqlOutput::Borrowed(ValueRef::Blob(bytes)))
     }
 }
 
 impl FromSql for Location {
     fn column_result(value: ValueRef<'_>) -> FromSqlResult<Self> {
         let bytes = value.as_blob()?;
-        Ok(Self::Path(PathBuf::from(OsStr::from_bytes(bytes))))
+        Ok(Self::Path(PathBuf::from(os_bytes::from_bytes(bytes))))
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::ffi::OsStr;
+    use std::os::unix::ffi::OsStrExt;
+
     use super::*;
 
     #[test]

@@ -5,14 +5,14 @@ use std::path::Path;
 use crate::{Error, Result};
 
 /// A place deleted items go to, from which the user can restore them.
-pub trait Trash {
+pub trait Trash: Send + Sync {
     /// Moves `path` to the trash, or explains why it could not.
     fn send(&self, path: &Path) -> std::result::Result<(), String>;
 }
 
 /// Sends `path` to `trash`. If the trash fails, nothing is deleted: there is
 /// no fallback to permanent deletion.
-pub fn delete_to_trash(trash: &impl Trash, path: &Path) -> Result<()> {
+pub fn delete_to_trash(trash: &dyn Trash, path: &Path) -> Result<()> {
     trash.send(path).map_err(|reason| Error::TrashUnavailable {
         path: path.to_path_buf(),
         reason,
@@ -31,23 +31,9 @@ impl Trash for SystemTrash {
 
 #[cfg(test)]
 mod tests {
-    use std::cell::RefCell;
-    use std::path::PathBuf;
-
     use super::*;
     use crate::integrity::test_support::write_file;
-
-    #[derive(Default)]
-    struct RecordingTrash {
-        sent: RefCell<Vec<PathBuf>>,
-    }
-
-    impl Trash for RecordingTrash {
-        fn send(&self, path: &Path) -> std::result::Result<(), String> {
-            self.sent.borrow_mut().push(path.to_path_buf());
-            Ok(())
-        }
-    }
+    use crate::testing::RecordingTrash;
 
     #[test]
     fn delete_sends_path_to_trash() {
@@ -57,7 +43,7 @@ mod tests {
 
         delete_to_trash(&trash, &path).unwrap();
 
-        assert_eq!(*trash.sent.borrow(), [path]);
+        assert_eq!(trash.sent(), [path]);
     }
 
     struct BrokenTrash;
