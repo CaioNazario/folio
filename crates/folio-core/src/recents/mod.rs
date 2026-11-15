@@ -9,6 +9,7 @@ use uuid::Uuid;
 
 use crate::Result;
 use crate::db::columns::uuid_column;
+use crate::documents::Format;
 use crate::paths::RelativePath;
 use crate::workspace::Workspace;
 
@@ -22,6 +23,8 @@ pub struct RecentDocument {
     pub name: String,
     /// Name of the project it is in; `None` at the root.
     pub project: Option<String>,
+    pub format: Format,
+    pub valid: bool,
     pub size: u64,
     /// When it was last opened, in ms UTC.
     pub opened_at: i64,
@@ -69,7 +72,7 @@ const TRIM: &str = "DELETE FROM recent_documents WHERE document_id NOT IN
 const RECORD: &str = "INSERT INTO recent_documents (document_id, opened_at) VALUES (?1, ?2)
      ON CONFLICT (document_id) DO UPDATE SET opened_at = excluded.opened_at";
 
-const LIST: &str = "SELECT d.id, d.path, d.size, r.opened_at
+const LIST: &str = "SELECT d.id, d.path, d.size, r.opened_at, d.format, d.valid
      FROM recent_documents r JOIN documents d ON d.id = r.document_id
      WHERE d.missing_since IS NULL
      ORDER BY r.opened_at DESC LIMIT ?1";
@@ -80,6 +83,8 @@ fn recent_row(row: &Row<'_>) -> rusqlite::Result<RecentDocument> {
         id: uuid_column(row, 0)?,
         name: path.file_name().to_string_lossy().into_owned(),
         project: project_name(&path),
+        format: row.get(4)?,
+        valid: row.get(5)?,
         size: row.get::<_, i64>(2)? as u64,
         opened_at: row.get(3)?,
     })
@@ -176,6 +181,8 @@ mod tests {
             id: nested,
             name: "Nota.txt".to_string(),
             project: Some("Faculdade".to_string()),
+            format: Format::Txt,
+            valid: true,
             size: 4,
             opened_at: 3_000,
         };
@@ -225,5 +232,18 @@ mod tests {
             })
             .unwrap();
         assert_eq!(rows, 0);
+    }
+
+    #[test]
+    fn recents_report_format_and_validity() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let path = write_doc(&workspace, "Livro.pdf", b"%PDF-1.7\n");
+        let pdf = workspace.index_file(&path).unwrap().unwrap().id;
+        opened(&env, &workspace, pdf, 2_000);
+
+        let recent = &workspace.recent_documents(1).unwrap()[0];
+
+        assert_eq!((recent.format, recent.valid), (Format::Pdf, true));
     }
 }

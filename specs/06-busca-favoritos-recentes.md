@@ -89,7 +89,7 @@ Documentos abertos no Reader do workspace atual. A lista de workspaces recentes 
 - **O que conta como abrir:** o documento ser exibido no Reader, inclusive o derivado que a conversão abre em seguida. Abrir um documento inválido, ou desistir na senha de um protegido, não conta.
 - Abrir de novo atualiza `opened_at`: um documento aparece uma vez só, na posição do acesso mais recente.
 - **A lista guarda os 100 mais recentes.** Ao inserir o 101º, o mais antigo sai, na mesma transação.
-- A consulta recebe quantos itens quer (7 na sidebar e na Home, no protótipo) e devolve, para cada um, o id, o nome, o projeto, o tamanho e o `opened_at`. Tempo relativo e tamanho são formatados no frontend (`Design/specs/11-i18n.md`).
+- A consulta recebe quantos itens quer (7 na sidebar e na Home, no protótipo) e devolve, para cada um, o id, o nome, o projeto, o formato, a validade, o tamanho e o `opened_at`. Tempo relativo e tamanho são formatados no frontend (`Design/specs/11-i18n.md`).
 - Documento ausente fica oculto e sai da lista junto com ele depois de 30 dias (spec 05).
 
 ### Continuar de onde parou
