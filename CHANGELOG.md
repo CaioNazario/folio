@@ -21,3 +21,4 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 - Document view with header, Convert and More menus, and a reader stage with zoom, fullscreen and keyboard shortcuts, showing TXT and Markdown documents.
 - Markdown documents show their images, and clicked links open in the browser or mail app, open the linked document, or warn when Folio cannot open the file.
 - The reader remembers how far each document was scrolled and returns there when it is opened again.
+- Page Down, Page Up, the left and right arrows, Home and End scroll the reader one screen or to either end.

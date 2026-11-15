@@ -153,3 +153,37 @@ test('a markdown link goes to the core instead of navigating', () => {
   expect(notPrevented).toBe(false)
   expect(acts.onLink).toHaveBeenCalledWith('../Notas.md')
 })
+
+// jsdom has no layout: give the page a size and a writable scroll.
+function sizedPage() {
+  const page = screen.getByRole('article')
+  Object.defineProperties(page, {
+    clientHeight: { value: 300 },
+    scrollHeight: { value: 1000 },
+    scrollTop: { value: 0, writable: true },
+  })
+  return page
+}
+
+test('page keys scroll the document one screen and to either end', async () => {
+  const { user } = renderView()
+  const page = sizedPage()
+
+  await user.keyboard('{PageDown}{ArrowRight}')
+  expect(page.scrollTop).toBe(600)
+  await user.keyboard('{ArrowLeft}')
+  expect(page.scrollTop).toBe(300)
+  await user.keyboard('{End}')
+  expect(page.scrollTop).toBe(700)
+  await user.keyboard('{Home}')
+  expect(page.scrollTop).toBe(0)
+})
+
+test('page keys stay with an open menu', async () => {
+  const { user } = renderView()
+  const page = sizedPage()
+  await user.click(screen.getByRole('button', { name: pt.document.more }))
+  await user.keyboard('{PageDown}')
+
+  expect(page.scrollTop).toBe(0)
+})

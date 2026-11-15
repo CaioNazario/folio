@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { DocumentActions, OpenDocument, StageContent } from '../types'
 import type { ReaderState } from '../useReaderState'
 import { useReaderShortcuts } from '../useReaderShortcuts'
@@ -24,7 +24,8 @@ export function DocumentView({ document, content, reader, actions }: DocumentVie
       reader.toggleFullscreen()
     },
   }
-  useReaderShortcuts(withMenusClosed, openMenu !== null)
+  const page = useRef<HTMLElement>(null)
+  useReaderShortcuts(withMenusClosed, openMenu !== null, page)
   const shown = content.status === 'text' || content.status === 'html'
   const onScrollFraction = useScrollPosition(shown ? document.id : null)
   return (
@@ -36,6 +37,7 @@ export function DocumentView({ document, content, reader, actions }: DocumentVie
         format={document.format}
         initialScroll={document.scroll}
         onScrollFraction={onScrollFraction}
+        pageRef={page}
         reader={withMenusClosed}
         actions={actions}
       />

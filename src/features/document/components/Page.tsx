@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode, type UIEvent, useLayoutEffect, useRef } from 'react'
+import { type CSSProperties, type ReactNode, type RefObject, type UIEvent, useLayoutEffect, useRef } from 'react'
 
 type PageProps = {
   zoom: number
@@ -6,6 +6,8 @@ type PageProps = {
   /** Scroll fraction to restore when the page appears. */
   initialScroll?: number | null
   onScrollFraction?: (fraction: number) => void
+  /** The scrolling element, for the page keys. */
+  pageRef?: RefObject<HTMLElement | null>
 }
 
 function scrollFraction(element: HTMLElement): number {
@@ -16,8 +18,9 @@ function scrollFraction(element: HTMLElement): number {
 // Paper page (Design/specs/05-document-view.md, 5.5). Typography scales with
 // the page width (container queries) times the zoom (--zoom). MD and TXT
 // scroll inside the page.
-export function Page({ zoom, children, initialScroll, onScrollFraction }: PageProps) {
-  const element = useRef<HTMLElement>(null)
+export function Page({ zoom, children, initialScroll, onScrollFraction, pageRef }: PageProps) {
+  const own = useRef<HTMLElement>(null)
+  const element = pageRef ?? own
   useLayoutEffect(() => {
     const page = element.current
     if (!page || !initialScroll) return

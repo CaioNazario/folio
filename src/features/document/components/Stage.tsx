@@ -1,3 +1,4 @@
+import type { RefObject } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
 import type { DocumentActions, DocumentFormat, StageContent } from '../types'
@@ -10,6 +11,7 @@ type StageProps = {
   format: DocumentFormat
   initialScroll: number | null
   onScrollFraction: (fraction: number) => void
+  pageRef: RefObject<HTMLElement | null>
   reader: ReaderState
   actions: DocumentActions
 }
@@ -18,7 +20,7 @@ const MOTION = 'transition-[padding,border-radius] duration-200 ease-in-out'
 
 // Stage (Design/specs/05-document-view.md, 5.4). Fullscreen only drops the
 // padding, border and radius; sidebar and header stay.
-export function Stage({ content, format, initialScroll, onScrollFraction, reader, actions }: StageProps) {
+export function Stage({ content, format, initialScroll, onScrollFraction, pageRef, reader, actions }: StageProps) {
   const { t } = useTranslation()
   const truncated = (content.status === 'text' || content.status === 'html') && content.truncated
   return (
@@ -44,6 +46,7 @@ export function Stage({ content, format, initialScroll, onScrollFraction, reader
             zoom={reader.zoom}
             initialScroll={initialScroll}
             onScrollFraction={onScrollFraction}
+            pageRef={pageRef}
             actions={actions}
           />
         </div>
