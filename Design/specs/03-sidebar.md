@@ -82,7 +82,8 @@ Estado inicial: só "Faculdade" aberto.
 - **Bloco de texto** (line-height 1.25):
   - "~/Documentos" 12px `--tx-1`
   - "1.284 arquivos · 3,2 GB" Mono 10px `--tx-1`
-- **Seletor de tema** (margin-left auto):
+- **Seletor de idioma** (margin-left auto): botão com dropdown, à esquerda do seletor de tema (ver [11-i18n](11-i18n.md))
+- **Seletor de tema**:
   - Grupo: flex, gap 2, padding 2, raio 14, fundo `--surf-2`, borda 1px `--line-6`
   - 3 segmentos de 24×20, raio 10, ícone 13px:
     - Lucide `sun`, title "Tema claro"

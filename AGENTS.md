@@ -236,6 +236,13 @@ src/
 - Tipos compartilhados com o Rust vêm de `src/lib/bindings/` (ver "Tipos compartilhados (ts-rs)").
 - Sem SSR. O app é um SPA estático servido pelo Vite.
 - O frontend só exibe dados e captura input. Nenhuma regra de negócio em componente: lógica fica no Rust.
+- **O backend nunca devolve texto para o usuário:** erros cruzam a ponte como variantes tipadas (ts-rs), e o frontend escolhe a mensagem no idioma ativo.
+
+### Idiomas (i18n)
+
+- O app é bilíngue (português do Brasil e inglês), com `i18next` + `react-i18next`. Spec: `Design/specs/11-i18n.md`.
+- **Nenhum texto fixo em componente:** todo texto visível vem do `t()`, com chaves tipadas; chave faltando em qualquer idioma quebra o `tsc -b`.
+- Números, tamanhos e datas são formatados pelo `Intl` com o idioma ativo, nunca à mão.
 
 ### Tipos compartilhados (ts-rs)
 

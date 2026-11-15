@@ -47,6 +47,7 @@ Os mesmos critérios para arquivos estão na spec 04.
 Sem nenhum workspace no banco global, o app abre o diálogo de escolha da raiz:
 
 - **Diretório default pré-selecionado:** `Folio/` dentro da pasta de documentos do sistema, que segue o idioma do sistema. No Linux, `XDG_DOCUMENTS_DIR` (lido de `~/.config/user-dirs.dirs`): `~/Documentos/Folio` num sistema em português, `~/Documents/Folio` num em inglês. Sem a variável, o fallback é `~/Documents/Folio`. Windows e Android são especificados com as respectivas versões.
+- O diálogo segue o idioma do sistema, como o resto do app (`Design/specs/11-i18n.md`).
 - O usuário pode escolher outro diretório pelo seletor do sistema.
 - O default é criado só quando o usuário confirma.
 - A escolha acontece no app, não no instalador, para funcionar igual com AppImage, AUR, .exe e Android.

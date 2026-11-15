@@ -41,12 +41,13 @@ Estas specs descrevem o protótipo `Design/Folio v5.dc.html` e são a fonte da v
 | 08 | [data](08-data.md) | Tipos e dados mock do protótipo |
 | 09 | [assets](09-assets.md) | Ícones Lucide, logo (SVG) e fontes |
 | 10 | [known-issues](10-known-issues.md) | Bugs, lacunas e decisões pendentes do protótipo |
+| 11 | [i18n](11-i18n.md) | Português e inglês pelo idioma do sistema, dicionários tipados, formatação, erros do backend |
 
 ## Ordem de implementação
 
 Ordem planejada. Cada etapa só consome dados reais quando o command do backend correspondente existir (`specs/`); até lá, usa `mockIPC` nos testes.
 
-1. Base: tokens no `src/app/styles.css` (01), shell da janela (02), fontes e logo (09)
+1. Base: tokens no `src/app/styles.css` (01), shell da janela (02), fontes e logo (09), dicionários e formatadores de idioma (11)
 2. Componentes compartilhados (06): botões, linha de navegação, card, dropdown, toast, botão de pin
 3. Sidebar (03): árvore de projetos, Favoritos, Recentes, rodapé e seletor de tema
 4. Visualização de documento (05): cabeçalho, palco, toolbar e fullscreen, com o leitor de cada formato

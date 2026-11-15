@@ -71,7 +71,7 @@ Os dois bancos abrem do mesmo jeito:
 | Tabela | Colunas | Observações |
 |---|---|---|
 | `workspaces` | `id` (UUID), `location` (`Localizacao`), `added_at`, `opened_at` | `location` única. Os recentes são os de `opened_at` mais novo. O último aberto é o que abre ao iniciar o app |
-| `preferences` | `key` (texto, PK), `value` (JSON) | Ex.: `inbox.location`, `theme`. Chave desconhecida é ignorada, não é erro |
+| `preferences` | `key` (texto, PK), `value` (JSON) | Ex.: `inbox.location`, `theme`, `language`. Chave desconhecida é ignorada, não é erro |
 
 **Banco do workspace (cada uma definida pela spec dona):**
 
