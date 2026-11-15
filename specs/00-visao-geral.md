@@ -20,27 +20,29 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 | **Entrada** | Visão dos documentos da pasta Downloads, sem transformá-la em workspace |
 | **Banco global** | SQLite do app (`~/.local/share/folio/`): workspaces, preferências, caminho da Entrada |
 | **Banco do workspace** | `<workspace>/.folio/folio.db`: índice e estado daquele workspace |
-| **Engine** | Implementação de leitura ou conversão de um formato, atrás de uma interface comum |
-| **Extração de texto** | Módulo único que extrai texto de cada formato para o Reader, a conversão e a busca futura |
+| **Engine** | Biblioteca que exibe, lê ou gera um formato (pdf.js, comrak, Typst...) (specs 05, 06) |
+| **Modelo de documento** | Representação neutra de um documento: títulos, parágrafos, listas, ênfase, tabelas, imagens (spec 05) |
+| **Leitor** | Transforma um arquivo de um formato no modelo de documento; um por formato (spec 05) |
+| **Escritor** | Transforma o modelo de documento num arquivo de um formato; um por formato (spec 06) |
 | **Reindexação** | Reconstrução do banco do workspace a partir do disco |
 
 ## Mapa de specs
 
-Nenhuma spec de backend foi escrita ainda. O conteúdo de cada uma está hoje na seção indicada do `AGENTS.md` e sai de lá quando a spec for escrita.
+As specs ainda não escritas têm o conteúdo na seção indicada do `AGENTS.md`, que sai de lá quando a spec for escrita.
 
 | # | Spec | Cobre | Origem no `AGENTS.md` | Status |
 |---|---|---|---|---|
 | 01 | workspace | Modelo de vault, abertura, diretório default, regras, operações em projetos e pastas | Modelo de workspace | A escrever |
 | 02 | documentos | Reconhecimento, id estável, metadados por formato, documentos derivados | Documentos e documentos derivados | A escrever |
 | 03 | persistencia | Banco global e do workspace, tabelas, caminhos relativos, `WorkspaceStore` | Persistência | A escrever |
-| 04 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | Integridade; Questões técnicas em aberto (3, 4) | A escrever |
-| 05 | reader | Engines por formato, controles, extração de texto | Reader | A escrever |
-| 06 | conversao | Fluxo atômico, colisão de nomes, as 12 conversões e o critério de qualidade | Conversão | A escrever |
+| 04 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | Integridade; spikes S5 e S6 | A escrever |
+| 05 | [reader](05-reader.md) | Exibição por formato, modelo de documento, leitores | — | Escrita |
+| 06 | [conversao](06-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | — | Escrita |
 | 07 | entrada | Downloads, watcher, downloads em andamento, mover para projeto | Entrada (Downloads) | A escrever |
 | 08 | busca-favoritos-recentes | Busca por nome normalizado, filtros, favoritos, recentes | Busca, favoritos e recentes | A escrever |
 | 09 | compartilhamento | Mostrar na pasta, arrastar para fora, copiar arquivo | Compartilhamento | A escrever |
 | 10 | integridade | Garantias transversais: original intocável, lixeira, disco antes do banco, WAL, temporários | Integridade | A escrever |
-| 11 | spikes | Pontos em aberto a resolver antes da feature dependente | Questões técnicas em aberto | A escrever |
+| 11 | [spikes](11-spikes.md) | Pontos em aberto a resolver antes da feature dependente (S1–S8) | — | Escrita |
 
 ## Ordem de implementação
 
@@ -50,8 +52,8 @@ Ordem planejada. Cada spec é escrita antes da feature dela; um spike de `11` se
 2. 03 (persistência) → 01 (workspace): abrir e criar workspace, banco do workspace e banco global
 3. 02 (documentos) → 04 (indexação): reconhecimento, id estável, escaneamento e reindexação
 4. 08 (busca, favoritos, recentes)
-5. 05 (reader): TXT → MD → PDF → DOCX
-6. 06 (conversão): das simples (TXT ↔ MD, → TXT) para as difíceis
+5. 05 (reader): modelo de documento, depois leitores e exibição na ordem TXT → MD → DOCX → PDF (o leitor de PDF depois do spike S1)
+6. 06 (conversão): escritores TXT → MD → DOCX → PDF (o de PDF depois do spike S3)
 7. 07 (entrada) → 09 (compartilhamento)
 
 A spec 10 (integridade) vale para todas as etapas desde a primeira.

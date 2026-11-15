@@ -9,7 +9,7 @@ O Folio 0.1.0 é um leitor e gerenciador local de documentos: os documentos vive
 ## Specs
 
 - **Frontend:** `Design/specs/`. Comece por `Design/specs/00-visao-geral.md` (mapa, glossário, ordem de implementação, divergências com a 0.1.0).
-- **Backend:** `specs/`. Comece por `specs/00-visao-geral.md`. As specs de backend ainda não foram escritas: o mapa diz de qual seção deste arquivo sai cada uma.
+- **Backend:** `specs/`. Comece por `specs/00-visao-geral.md`. Parte das specs de backend ainda não foi escrita: o mapa diz de qual seção deste arquivo sai cada uma.
 - Uma spec é escrita ou atualizada antes da feature que ela cobre. Mudou comportamento, atualize a spec no mesmo commit.
 
 ## Visão geral técnica
@@ -361,52 +361,14 @@ A Entrada mostra os documentos da pasta Downloads do sistema sem transformá-la 
 
 **Android:** a mesma UI em layout responsivo, com a sidebar virando navegação em gaveta ou inferior. A plataforma é detectada via `@tauri-apps/plugin-os`.
 
-## Reader
+## Reader e conversão
 
-O Reader oferece a mesma experiência de leitura para todos os formatos suportados; cada formato usa sua própria engine, escondida atrás de uma interface comum no core.
+Spec completa: `specs/05-reader.md` (exibição, modelo de documento, leitores) e `specs/06-conversao.md` (escritores, fluxo, critério de qualidade). Regras que valem em todo o código:
 
-**Controles:** zoom, página atual e total, navegação entre páginas, tela cheia em qualquer documento visualizável.
-
-**Formatos da 0.1.0:** PDF, TXT, MD e DOCX. XLSX, PPTX e imagens ficam para depois da 0.1.0.
-
-| Formato | Renderização | Engine |
-| --- | --- | --- |
-| PDF | Páginas renderizadas, com zoom e navegação | A definir |
-| TXT | Texto puro | Própria |
-| MD | Markdown renderizado; front matter exibido como metadados | A definir |
-| DOCX | Documento renderizado com fidelidade razoável de layout | A definir |
-
-**Extração de texto como módulo separado:** o mesmo módulo que extrai texto de cada formato serve ao Reader, à conversão e, no futuro, à busca no conteúdo. Ele é desenhado uma vez no `folio-core`.
-
-**Restrição de plataforma:** nenhuma engine pode depender de binário do sistema (como LibreOffice) sem um equivalente embarcado, senão o formato não funciona no Android. Se uma engine só existir no desktop, isso fica explícito no código (`cfg(desktop)`) e na interface.
-
-## Conversão
-
-A conversão gera um novo arquivo no filesystem e nunca altera o original.
-
-**Fluxo:**
-
-1. O usuário seleciona um documento e escolhe Converter → formato de destino.
-2. A engine gera o resultado num arquivo temporário dentro do workspace.
-3. Ao terminar sem erro, o temporário é renomeado atomicamente para o destino final, por padrão ao lado do original (`Trabalho.pdf` → `Trabalho.docx`).
-4. Se o nome já existir, o Folio pergunta ou usa um sufixo (`Trabalho (1).docx`); nunca sobrescreve em silêncio.
-5. O índice registra o novo documento e a relação `converted_to` (origem, destino, formatos, data).
-6. O documento derivado aparece no Folio e pode ser lido, movido, compartilhado e convertido de novo como qualquer outro.
-
-**Falha:** o temporário é descartado, o original fica intacto e o usuário recebe a mensagem de erro. Nenhuma relação é registrada.
-
-**Conversões da 0.1.0:** PDF, TXT, MD e DOCX convertem entre si em qualquer direção (1:N), totalizando 12 conversões. A dificuldade varia muito:
-
-| Origem ↓ / Destino → | PDF | TXT | MD | DOCX |
-| --- | --- | --- | --- | --- |
-| PDF | — | Simples | Difícil | Muito difícil |
-| TXT | Simples | — | Trivial | Simples |
-| MD | Média | Simples | — | Média |
-| DOCX | Difícil | Simples | Média | — |
-
-Sair de PDF é difícil porque o PDF guarda posição na página, não estrutura (parágrafo, título, lista). Gerar PDF a partir de DOCX exige uma engine de layout embarcada, sem LibreOffice.
-
-**Risco conhecido:** PDF → DOCX, PDF → MD e DOCX → PDF, offline e embarcados, são os itens mais caros da 0.1.0. Cada conversão tem um critério mínimo de qualidade; a que não atingir sai da 0.1.0 em vez de atrasar o lançamento, e a interface só oferece as conversões disponíveis.
+- **Exibição no webview, leitura no core.** PDF (pdf.js) e DOCX (docx-preview) são exibidos no frontend; o core entrega bytes, texto ou HTML pelo id do documento. Leitores e escritores rodam no `folio-core`.
+- **Toda conversão passa pelo modelo de documento:** leitor do formato de origem → modelo → escritor do formato de destino. Nunca escreva um conversor direto entre dois formatos.
+- **Nenhuma engine depende de binário do sistema** (LibreOffice, Pandoc, poppler...). Biblioteca nativa, se necessária, vai embarcada no app. Licenças AGPL/GPL (ex.: MuPDF) são proibidas: o Folio é MIT.
+- **A conversão nunca altera o original:** o resultado nasce num temporário dentro do workspace e é renomeado atomicamente; colisão de nome nunca sobrescreve.
 
 ## Compartilhamento
 
@@ -425,7 +387,7 @@ Na 0.1.0 (Linux) entram "Mostrar na pasta" e "Arrastar para fora"; "Copiar arqui
 
 **Busca (0.1.0):** por nome do arquivo, com filtros por extensão, projeto e pasta. O nome é indexado numa coluna normalizada (minúsculas, sem acento), para que "relatorio" encontre "Relatório". Não usa full-text.
 
-**Busca no conteúdo (futuro):** tabela FTS5 do SQLite com tokenizer `unicode61 remove_diacritics`, alimentada pelo módulo de extração de texto (ver Reader). O índice é derivado e reconstruível. Português não tem stemmer embutido; plurais são cobertos por busca por prefixo.
+**Busca no conteúdo (futuro):** tabela FTS5 do SQLite com tokenizer `unicode61 remove_diacritics`, alimentada pelos leitores do modelo de documento (`specs/05-reader.md`). O índice é derivado e reconstruível. Português não tem stemmer embutido; plurais são cobertos por busca por prefixo.
 
 **Favoritos:** documentos, pastas e projetos, guardados no SQLite do workspace e ligados ao id estável do documento.
 
@@ -474,12 +436,7 @@ Não depender do binário `git` (inexistente no Android); usar biblioteca (gix o
 
 ## Questões técnicas em aberto
 
-1. Qual engine renderiza PDF, MD e DOCX sem depender de binário do sistema.
-2. Qual engine faz cada conversão, e quais das 12 atingem o critério de qualidade.
-3. Como reconectar ao id um arquivo movido ou renomeado por fora (hash, inode, ou ambos).
-4. Como indexar rápido um workspace grande na primeira abertura (ex.: milhares de arquivos).
-5. Comportamento quando o workspace está numa pasta sincronizada (Dropbox, Drive), onde SQLite pode corromper.
-6. Se "Copiar arquivo" para o clipboard funciona de forma confiável no Wayland/Hyprland.
+Estão em `specs/11-spikes.md` (S1–S8). Um spike se resolve antes da feature que depende dele, e o resultado vai para a spec da feature.
 
 <!-- ai-memory:start -->
 ## Long-term memory (ai-memory)
