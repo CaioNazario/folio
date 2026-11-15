@@ -36,12 +36,12 @@ Posição: absoluta, `top: 38px; right: 66px`, largura 196, z-index 40. Estilo b
 ## 5.3 Menu "Mais"
 Posição: absoluta, `top: 38px; right: 0`, largura 186, z-index 40. Itens `padding: 7px 9px`, raio 12, 13px, hover `--hover-3`:
 1. Renomear
-2. Adicionar tag
-3. Abrir pasta no sistema
-4. Propriedades (não está no protótipo; conteúdo em `specs/07-reader.md`)
+2. Mostrar na pasta (no protótipo, "Abrir pasta no sistema"; `specs/10-compartilhamento.md`)
+3. Copiar arquivo (não está no protótipo; `specs/10-compartilhamento.md`)
+4. Propriedades (não está no protótipo; `specs/07-reader.md`)
 5. Mover para lixeira (cor `--danger`)
 
-Nenhum item tem ação no protótipo.
+"Adicionar tag", do protótipo, fica fora da 0.1.0. Nenhum item tem ação no protótipo.
 
 ## 5.4 Palco (stage)
 Wrapper: `flex:1; min-width:0; padding: 20px` (0 no fullscreen), coluna, `overflow:hidden`.

@@ -54,7 +54,8 @@ Não implementar:
 - Edição de documentos e editor próprio.
 - Versionamento: git, commits, diff, restauração, timeline.
 - Armazenar documentos no SQLite.
-- Busca no conteúdo dos documentos (full-text com FTS5).
+- Busca no conteúdo dos documentos (full-text com FTS5) e procurar dentro do documento aberto (`Ctrl+F`).
+- Tags.
 - OCR.
 - Monitorar mudanças externas em tempo real dentro dos projetos, file locking, FUSE.
 - Sincronização em nuvem e colaboração.
@@ -322,16 +323,11 @@ Spec completa: `specs/07-reader.md` (exibição, modelo de documento, leitores) 
 
 ## Compartilhamento
 
-Como os documentos são arquivos reais fora de `.folio/`, o arquivo compartilhado é sempre o próprio documento, nunca uma cópia escondida.
+Spec completa: `specs/10-compartilhamento.md`. Regras que valem em todo o código:
 
-| Ação | Linux / Windows | Android |
-| --- | --- | --- |
-| Mostrar na pasta | Abre o gerenciador de arquivos com o arquivo selecionado (`plugin-opener`) | Não se aplica |
-| Arrastar para fora | Arrastar o documento do Folio para outro app (ex.: WhatsApp Desktop/Web) | Não se aplica |
-| Copiar arquivo | Coloca o arquivo no clipboard como `text/uri-list` | Não se aplica |
-| Compartilhar via… | Não se aplica | Share sheet nativo com `FileProvider`, que dá ao app destino acesso temporário só àquele arquivo |
-
-Na 0.1.0 (Linux) entram "Mostrar na pasta" e "Arrastar para fora"; "Copiar arquivo" entra se funcionar de forma confiável no Wayland/Hyprland. O share sheet entra com a versão Android, onde é obrigatório: o storage interno do app é invisível para outros apps.
+- **O que se compartilha é o próprio documento**, nunca uma cópia escondida. Na 0.1.0 (Linux): "Mostrar na pasta", "Arrastar para fora" (se o spike S9 passar) e "Copiar arquivo" (se o S8 passar). O share sheet entra com a versão Android.
+- **O frontend nunca recebe caminho:** toda ação é um command pelo id, e o `src-tauri` chama o plugin do lado do Rust. As capabilities do webview não liberam o `plugin-opener` nem o clipboard.
+- **Arrastar para fora é sempre cópia.**
 
 ## Busca, favoritos e recentes
 
@@ -366,7 +362,7 @@ Não depender do binário `git` (inexistente no Android); usar biblioteca (gix o
 
 ## Questões técnicas em aberto
 
-São os spikes S1–S8. Cada um fica no topo da spec que ele bloqueia (os das specs ainda não escritas ficam em `specs/00-visao-geral.md`). Um spike se resolve antes da feature que depende dele, e o resultado vai para a spec da feature.
+São os spikes S1–S9. Cada um fica no topo da spec que ele bloqueia. Um spike se resolve antes da feature que depende dele, e o resultado vai para a spec da feature.
 
 <!-- ai-memory:start -->
 ## Long-term memory (ai-memory)

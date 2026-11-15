@@ -80,7 +80,7 @@ arquivo ─▶ core ──┤
 
 ### Arquivos grandes
 
-- **MD e TXT acima de 10 MB:** o core entrega só os primeiros 10 MB, cortados no fim de uma linha, e avisa que cortou. O palco mostra "Arquivo grande: mostrando os primeiros 10 MB", com a ação "Abrir no app padrão". A conversão e os metadados continuam usando o arquivo inteiro.
+- **MD e TXT acima de 10 MB:** o core entrega só os primeiros 10 MB, cortados no fim de uma linha, e avisa que cortou. O palco mostra "Arquivo grande: mostrando os primeiros 10 MB". A conversão e os metadados continuam usando o arquivo inteiro.
 - **PDF e DOCX:** entregues inteiros; o limite prático do PDF sai do S2.
 
 ### Links
@@ -89,7 +89,7 @@ Clicar num link dentro do documento (MD, DOCX ou PDF) nunca navega o webview. O 
 
 | Link | O que acontece |
 |---|---|
-| `http:`, `https:`, `mailto:` | Abre no app padrão do sistema (`plugin-opener`) |
+| `http:`, `https:`, `mailto:` | Abre no navegador ou no app de e-mail do sistema (`open_url` do `plugin-opener`) |
 | Relativo, para um documento do workspace (`[ver](../Notas.md)`) | Abre esse documento no Folio |
 | Relativo, para outro arquivo do workspace ou para fora dele | Nada abre; toast "Este link aponta para um arquivo que o Folio não abre" |
 | `#âncora` | Rola até o ponto, no MD; vai à página de destino, no PDF |
@@ -117,12 +117,10 @@ O palco tem um estado para cada situação, todos com os tokens e componentes de
 |---|---|---|
 | Carregando | O conteúdo ainda não chegou | Nada nos primeiros 300 ms (para não piscar); depois, "Abrindo…" |
 | Senha | Documento protegido (spec 04) | Campo de senha e "Abrir" no próprio palco; senha errada mostra o erro no campo |
-| Inválido | Documento inválido (spec 04) | O motivo ("Este arquivo não é um PDF válido"), "Mostrar na pasta" e "Abrir no app padrão" |
+| Inválido | Documento inválido (spec 04) | O motivo ("Este arquivo não é um PDF válido") e "Mostrar na pasta" |
 | Não encontrado | O arquivo sumiu do disco | "Este documento não está mais no disco"; a árvore é reconciliada (spec 05) |
-| Falha ao exibir | Passou na assinatura, mas o leitor ou a engine falhou (arquivo corrompido por dentro) | "Não foi possível exibir este documento", com "Tentar de novo", "Mostrar na pasta" e "Abrir no app padrão". O detalhe técnico vai para o log |
+| Falha ao exibir | Passou na assinatura, mas o leitor ou a engine falhou (arquivo corrompido por dentro) | "Não foi possível exibir este documento", com "Tentar de novo" e "Mostrar na pasta". O detalhe técnico vai para o log |
 | Vazio | MD ou TXT sem conteúdo | "Documento vazio" |
-
-"Abrir no app padrão" usa o `plugin-opener` e não altera o arquivo.
 
 ### Propriedades
 

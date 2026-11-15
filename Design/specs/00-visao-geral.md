@@ -21,7 +21,7 @@ Estas specs descrevem o protótipo `Design/Folio v5.dc.html` e são a fonte da v
 | **Árvore** | Lista de projetos da sidebar, que expandem e mostram seus arquivos (spec 03) |
 | **Botão de pin** | Liga e desliga favorito em qualquer linha da sidebar (spec 06) |
 | **Dropdown Converter** | Menu de formatos de destino da conversão (specs 05 e 07) |
-| **Menu Mais** | Renomear, Adicionar tag, Abrir pasta no sistema, Mover para lixeira (spec 05) |
+| **Menu Mais** | Renomear, Mostrar na pasta, Copiar arquivo, Propriedades, Mover para lixeira (spec 05) |
 | **Toast** | Aviso flutuante no centro inferior, que some após 2600ms (spec 06) |
 | **Token** | CSS custom property de cor, sombra ou raio, com valores dark e light (spec 01) |
 | **Chip de formato** | Etiqueta Mono com a extensão (PDF, MD...) nos menus (spec 05) |
@@ -64,6 +64,7 @@ O protótipo mostra coisas que a 0.1.0 não entrega (ver "Fora do escopo da 0.1.
 - **Versões e timeline:** o badge "v1/v2/v3", os tokens reservados de diff (`--add-*`, `--del-*`, `--mod-*`) e a nota "entra na timeline como derivado" do dropdown Converter dependem de versionamento, que está fora da 0.1.0. O badge só mostra "derivado".
 - **Formatos de conversão:** o dropdown oferece PDF, MD, TXT, PNG e JPG. Na 0.1.0 os formatos são PDF, TXT, MD e DOCX, e o dropdown só lista as conversões disponíveis para o documento aberto.
 - **Página do documento:** no protótipo é um layout fixo (kicker, título, autoria, blocos). No produto, o conteúdo vem da engine de cada formato; a moldura (fundo `--paper`, sombra, raio, borda) é a do protótipo.
+- **Tags:** "Adicionar tag" do menu Mais fica fora da 0.1.0.
 - **Dados mock:** nomes, contagens, tamanhos e o caminho "~/Documentos" do rodapé são ilustrativos.
 
 ## Fora de escopo

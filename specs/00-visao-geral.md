@@ -28,20 +28,20 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 
 ## Mapa de specs
 
-**O número é a ordem de implementação:** uma spec nunca depende de outra de número maior. Os spikes ficam no topo da spec que eles bloqueiam. As specs ainda não escritas têm o conteúdo na seção indicada do `AGENTS.md`, que sai de lá quando a spec for escrita.
+**O número é a ordem de implementação:** uma spec nunca depende de outra de número maior. Os spikes ficam no topo da spec que eles bloqueiam.
 
-| # | Spec | Cobre | Spikes | Origem no `AGENTS.md` | Status |
-|---|---|---|---|---|---|
-| 01 | [integridade](01-integridade.md) | Garantias transversais: sem sobrescrita, temporários, lixeira, disco antes do banco, banco recuperável, lock do workspace | — | — | Escrita |
-| 02 | [persistencia](02-persistencia.md) | Banco global e do workspace, abertura, migrações, caminhos em bytes, `WorkspaceStore` | S7 | — | Escrita |
-| 03 | [workspace](03-workspace.md) | Modelo de vault, abertura, diretório default, workspace aninhado, operações em projetos e pastas, ícones | — | — | Escrita |
-| 04 | [documentos](04-documentos.md) | Reconhecimento, protegidos por senha, links simbólicos, id estável, tabelas do índice, derivados e avisos de desatualizado | — | — | Escrita |
-| 05 | [indexacao](05-indexacao.md) | Reconciliação, escaneamento em segundo plano, hash, reconexão, ausentes por 30 dias, reindexação | S5, S6 | — | Escrita |
-| 06 | [busca-favoritos-recentes](06-busca-favoritos-recentes.md) | Busca por nome normalizado, filtros, favoritos, recentes, continuar de onde parou | — | — | Escrita |
-| 07 | [reader](07-reader.md) | Exibição por formato, posição, links, imagens do MD, estados do palco, Propriedades, atalhos, CSP, modelo de documento, leitores, metadados | S1, S2, S4 | — | Escrita |
-| 08 | [conversao](08-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | S3 | — | Escrita |
-| 09 | [entrada](09-entrada.md) | Entrada (Downloads, watcher, downloads em andamento, mover para projeto) e importação (seletor, arrastar, copiar) | — | — | Escrita |
-| 10 | compartilhamento | Mostrar na pasta, arrastar para fora, copiar arquivo | S8 | Compartilhamento | A escrever |
+| # | Spec | Cobre | Spikes |
+|---|---|---|---|
+| 01 | [integridade](01-integridade.md) | Garantias transversais: sem sobrescrita, temporários, lixeira, disco antes do banco, banco recuperável, lock do workspace | — |
+| 02 | [persistencia](02-persistencia.md) | Banco global e do workspace, abertura, migrações, caminhos em bytes, `WorkspaceStore` | S7 |
+| 03 | [workspace](03-workspace.md) | Modelo de vault, abertura, diretório default, workspace aninhado, operações em projetos e pastas, ícones | — |
+| 04 | [documentos](04-documentos.md) | Reconhecimento, protegidos por senha, links simbólicos, id estável, tabelas do índice, derivados e avisos de desatualizado | — |
+| 05 | [indexacao](05-indexacao.md) | Reconciliação, escaneamento em segundo plano, hash, reconexão, ausentes por 30 dias, reindexação | S5, S6 |
+| 06 | [busca-favoritos-recentes](06-busca-favoritos-recentes.md) | Busca por nome normalizado, filtros, favoritos, recentes, continuar de onde parou | — |
+| 07 | [reader](07-reader.md) | Exibição por formato, posição, links, imagens do MD, estados do palco, Propriedades, atalhos, CSP, modelo de documento, leitores, metadados | S1, S2, S4 |
+| 08 | [conversao](08-conversao.md) | Escritores, as 12 conversões, fluxo atômico, fila com progresso e cancelamento, imagens, critério mínimo de qualidade | S3 |
+| 09 | [entrada](09-entrada.md) | Entrada (Downloads, watcher, downloads em andamento, mover para projeto) e importação (seletor, arrastar, copiar) | — |
+| 10 | [compartilhamento](10-compartilhamento.md) | Mostrar na pasta, arrastar para fora, copiar arquivo, menu de contexto | S8, S9 |
 
 ## Ordem de implementação
 
@@ -52,26 +52,14 @@ A ordem é a dos números. Cada spec é escrita antes da feature dela, e os spik
 - **07 (reader):** modelo de documento, depois leitores e exibição na ordem TXT → MD → DOCX → PDF.
 - **08 (conversão):** escritores na ordem TXT → MD → DOCX → PDF.
 
-## Spikes das specs ainda não escritas
-
-Cada spike fica no topo da spec que ele bloqueia. Os destas specs ainda não escritas ficam aqui e vão para a spec quando ela for escrita.
-
-### S8 · "Copiar arquivo" no Wayland/Hyprland
-
-**Bloqueia:** spec 10 (compartilhamento).
-
-**Pergunta:** colocar o arquivo no clipboard como `text/uri-list` funciona de forma confiável no Wayland/Hyprland, a ponto de colar no gerenciador de arquivos e em apps como o WhatsApp Web?
-
-**Resultado:** pendente. Se não funcionar, "Copiar arquivo" sai da 0.1.0 no Linux.
-
 ## Fora de escopo
 
-O mesmo de "Fora do escopo da 0.1.0" no `AGENTS.md`: edição, versionamento, documentos no SQLite, busca no conteúdo, OCR, monitorar mudanças externas em tempo real dentro dos projetos, nuvem e colaboração, IA, builds de Windows e Android.
+O mesmo de "Fora do escopo da 0.1.0" no `AGENTS.md`: edição, versionamento, documentos no SQLite, busca no conteúdo, procurar dentro do documento, tags, OCR, monitorar mudanças externas em tempo real dentro dos projetos, nuvem e colaboração, IA, builds de Windows e Android.
 
 ## Critérios de aceite globais
 
 - [ ] Teste do banco: apagar o `folio.db` não perde nenhum documento, e a reindexação reconstrói o índice a partir do disco.
-- [ ] Nenhuma operação sobrescreve em silêncio nem apaga permanentemente: colisão pede confirmação ou gera sufixo, exclusão vai para a lixeira.
+- [ ] Nenhuma operação sobrescreve em silêncio nem apaga permanentemente: colisão gera sufixo ou erro (spec 01), exclusão vai para a lixeira.
 - [ ] No banco do workspace, todo caminho é relativo à raiz do workspace.
 - [ ] O `folio-core` não depende do Tauri e nenhuma engine depende de binário do sistema.
 - [ ] Toda lógica do `folio-core` nasce por TDD (ver `AGENTS.md`).
