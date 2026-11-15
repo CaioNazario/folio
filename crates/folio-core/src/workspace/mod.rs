@@ -11,6 +11,7 @@ mod open;
 pub(crate) mod ops;
 mod schema;
 mod session;
+mod slot;
 mod store;
 mod summary;
 #[cfg(test)]
@@ -22,5 +23,6 @@ pub use default_dir::default_workspace_dir;
 pub use listing::{DirEntry, DirKind};
 pub use name::{InvalidName, validate_name};
 pub use open::Workspace;
+pub use slot::{Opened, WorkspaceSlot};
 pub use store::{FolioDirStore, WorkspaceState, WorkspaceStore};
 pub use summary::WorkspaceSummary;

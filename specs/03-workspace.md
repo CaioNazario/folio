@@ -65,7 +65,7 @@ Abre o último workspace aberto (`opened_at` mais novo no banco global, spec 02)
 3. **Confere que dá para ler e escrever** no diretório.
 4. **Recusa workspace aninhado:** procura `.folio/` nos ancestrais (ver abaixo).
 5. **Cria `.folio/`** se não existir. Vem antes do lock, que mora dentro dele.
-6. **Pega o lock** de `.folio/lock` (spec 01). Se outra instância já estiver com ele, não abre. Só depois do lock o Folio cria ou **esvazia `.folio/tmp/`** (spec 01).
+6. **Pega o lock** de `.folio/lock` (spec 01). Se outra instância já estiver com ele, não abre. Abrir de novo o workspace que este processo já tem aberto (recarregar o webview, o StrictMode em dev) não pega o lock outra vez: reaproveita o aberto, sem reescanear, e nunca dá `WorkspaceInUse`. Só depois do lock o Folio cria ou **esvazia `.folio/tmp/`** (spec 01).
 7. **Abre o banco** (spec 02) e lê ou cria a identidade do workspace (tabela `meta`).
 8. **Registra no banco global:** insere o workspace ou atualiza `opened_at`.
 9. **Escaneia** (spec 05).

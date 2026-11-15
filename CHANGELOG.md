@@ -8,6 +8,10 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 
 - The app window has a content security policy: documents cannot load anything from the network.
 
+### Fixed
+
+- Reloading the window no longer fails with "workspace already open in another window".
+
 ### Added
 
 - Interface in Portuguese and English, following the system language.

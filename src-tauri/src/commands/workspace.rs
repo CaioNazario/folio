@@ -2,11 +2,10 @@
 //! background (spec 05).
 
 use std::path::PathBuf;
-use std::sync::Arc;
 use std::thread;
 
 use folio_core::indexing::ScanOptions;
-use folio_core::workspace::{Workspace, default_workspace_dir};
+use folio_core::workspace::{Opened, Workspace, default_workspace_dir};
 use tauri::{AppHandle, Emitter, Manager, State};
 
 use super::{CommandResult, bridged};
@@ -30,11 +29,11 @@ pub fn get_default_workspace_dir(app: AppHandle, state: State<'_, AppState>) -> 
 /// dialog to choose one.
 #[tauri::command]
 pub fn open_last_workspace(app: AppHandle, state: State<'_, AppState>) -> CommandResult<bool> {
-    let opened = Workspace::open_last(&state.services).map_err(bridged)?;
-    let Some(workspace) = opened else {
+    let opened = state.slot.open_last(&state.services).map_err(bridged)?;
+    let Some(opened) = opened else {
         return Ok(false);
     };
-    start(&app, &state, workspace);
+    start(&app, opened);
     Ok(true)
 }
 
@@ -45,8 +44,8 @@ pub fn open_workspace(
     state: State<'_, AppState>,
     path: PathBuf,
 ) -> CommandResult<()> {
-    let workspace = Workspace::open(&path, &state.services).map_err(bridged)?;
-    start(&app, &state, workspace);
+    let opened = state.slot.open(&path, &state.services).map_err(bridged)?;
+    start(&app, opened);
     Ok(())
 }
 
@@ -58,15 +57,18 @@ pub fn create_workspace(
     state: State<'_, AppState>,
     path: PathBuf,
 ) -> CommandResult<()> {
-    let workspace = Workspace::create(&path, &state.services).map_err(bridged)?;
-    start(&app, &state, workspace);
+    let opened = state.slot.create(&path, &state.services).map_err(bridged)?;
+    start(&app, opened);
     Ok(())
 }
 
-/// Makes `workspace` the open one and indexes it on its own thread.
-fn start(app: &AppHandle, state: &AppState, workspace: Workspace) {
-    let workspace = Arc::new(workspace);
-    state.set_workspace(workspace.clone());
+/// Indexes a workspace just opened on its own thread. A reused one is
+/// already indexed (a reload of the webview, StrictMode in dev).
+fn start(app: &AppHandle, opened: Opened) {
+    if !opened.fresh {
+        return;
+    }
+    let workspace = opened.workspace;
     let app = app.clone();
     thread::spawn(move || index(&app, &workspace));
 }

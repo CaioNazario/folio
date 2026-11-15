@@ -2,7 +2,7 @@
 //! "Primeira execução").
 
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use super::Workspace;
 use crate::paths::Location;
@@ -13,11 +13,19 @@ impl Workspace {
     /// The workspace opened most recently, or `None` on the first run, when
     /// the app shows the dialog to choose one.
     pub fn open_last(services: &Services) -> Result<Option<Self>> {
-        let Some(last) = services.global.last_opened_workspace()? else {
+        let Some(root) = Self::last_root(services)? else {
             return Ok(None);
         };
-        let Location::Path(root) = last.location;
         Self::open(&root, services).map(Some)
+    }
+
+    /// The directory of the workspace opened most recently, if any.
+    pub(crate) fn last_root(services: &Services) -> Result<Option<PathBuf>> {
+        let last = services.global.last_opened_workspace()?;
+        Ok(last.map(|last| {
+            let Location::Path(root) = last.location;
+            root
+        }))
     }
 
     /// Opens `root` as chosen in the first-run dialog, creating the directory
