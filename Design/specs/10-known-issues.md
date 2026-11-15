@@ -3,8 +3,8 @@
 Pontos do protótipo para decidir ou corrigir na implementação.
 
 ## Bugs visuais
-1. **Ícone "+" com cor fixa:** o SVG tem `stroke: #F6F6F6` e `stroke="#FFFFFF"` no inline style, o que ignora `--plus` e fica invisível no tema claro. Usar `currentColor`
-2. **Hover dos arquivos da árvore sem raio:** a linha tem fundo de hover sem border-radius, mas a seleção tem raio 12. Sugestão: aplicar o mesmo overlay arredondado no hover
+1. **Ícone "+" com cor fixa:** o SVG tem `stroke: #F6F6F6` e `stroke="#FFFFFF"` no inline style, o que ignora `--plus` e fica invisível no tema claro. Usar `currentColor`. **Resolvido:** o ícone usa `currentColor` com `--plus` (`03-sidebar.md`)
+2. **Hover dos arquivos da árvore sem raio:** a linha tem fundo de hover sem border-radius, mas a seleção tem raio 12. Sugestão: aplicar o mesmo overlay arredondado no hover. **Resolvido:** o hover usa o mesmo raio 12 da seleção
 3. **Hover do thumb da scrollbar** (#454545) e **letra do avatar** (#a9b0b8) são hardcoded e não mudam no light. **Resolvido:** viraram os tokens `--bar-hover` e `--avatar-tx`, com valor no light (`01-tokens.md`)
 
 ## Copy
@@ -15,19 +15,19 @@ Pontos do protótipo para decidir ou corrigir na implementação.
 6. Busca
 7. Cards de ação da Home e "Ver tudo"
 8. Itens do menu Mais (Renomear, Adicionar tag, Abrir pasta no sistema, Mover para lixeira). **Resolvido:** itens e comportamento em `05-document-view.md` e `specs/10-compartilhamento.md`; "Adicionar tag" fica fora da 0.1.0
-9. Toolbar do palco: "página 1 de 4 · 100%" é estático (sem paginação nem zoom)
-10. Breadcrumb fixo em "Faculdade"
+9. Toolbar do palco: "página 1 de 4 · 100%" é estático (sem paginação nem zoom). **Resolvido:** a toolbar mostra o zoom real; a paginação chega com PDF e DOCX (`05-document-view.md`)
+10. Breadcrumb fixo em "Faculdade". **Resolvido:** vem das pastas do documento aberto (`05-document-view.md`)
 11. Contagens de projeto e o número "4" ao lado de Projetos são fixos. **Resolvido:** vêm do workspace (`03-sidebar.md`)
-12. Fechar menus com clique fora ou Esc
+12. Fechar menus com clique fora ou Esc. **Resolvido:** os menus fecham com clique fora e com Esc (`05-document-view.md`)
 13. Persistência de tema, favoritos e pastas abertas
 
 ## Lacunas de fluxo
-14. Arquivos fora da timeline não abrem: o leitor continua no último item
+14. Arquivos fora da timeline não abrem: o leitor continua no último item. **Resolvido:** todo documento abre no leitor (`specs/07-reader.md`)
 15. Derivados criados pela conversão não aparecem na árvore da sidebar
 16. Não há UI de timeline nem de diff na v5, mas os tokens e o modelo de dados existem. Decidir se entra
 17. Sem estados de loading, erro (ex.: conversão falhou) ou vazio para projetos e recentes. **Resolvido para projetos e recentes:** texto de vazio depois da primeira resposta e erro no toast (`03-sidebar.md`); o erro de conversão fica com a conversão (`specs/08-conversao.md`)
 18. Sem animação de entrada ou saída em dropdowns e toast
 
 ## Responsividade
-19. Grids da Home com colunas fixas (3 e 4): usar auto-fill
+19. Grids da Home com colunas fixas (3 e 4): usar auto-fill. **Resolvido:** os grids usam auto-fill (`04-home.md`)
 20. A sidebar encolhe até 196px, mas não colapsa. Definir o comportamento em janelas estreitas

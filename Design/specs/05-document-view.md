@@ -6,7 +6,7 @@ View padrão (`view = "doc"`). Coluna flex: cabeçalho (56px) + corpo (flex 1).
 `height: 56px; padding: 0 18px; gap: 14px; border-bottom: 1px solid --line-3`
 
 **Esquerda** (`min-width:0`)
-- Breadcrumb: Mono 10.5px `--tx-6`, gap 7. "Faculdade" / "{nome do doc}" (o último em `--tx-4`)
+- Breadcrumb: Mono 10.5px `--tx-6`, gap 7. Projeto e pastas do documento, do mais externo para dentro, e "{nome do doc}" no fim (o último em `--tx-4`). Documento na raiz do workspace: só o nome. O protótipo fixava "Faculdade"
 - Linha do título (margin-top 2, gap 9):
   - Nome do documento: 15/600, letter-spacing -0.005em
   - Badge de versão: Mono 10px, `padding: 2px 5px`, raio 8, fundo `--surf-4`, `--tx-1`. Texto "v1", "v2", "v3"… ou "derivado" para conversões
@@ -14,6 +14,7 @@ View padrão (`view = "doc"`). Coluna flex: cabeçalho (56px) + corpo (flex 1).
 **Direita** (margin-left auto, gap 6, `position:relative`, âncora dos menus)
 - **Botão "Converter"**: flex, gap 6, `padding: 6px 12px`, borda 1px `--line-6`, raio 12, fundo `--surf-2`, `--tx-2` 12.5px. Ícone `chevron-down` 13px `--tx-7` depois do texto. Hover: fundo `--line-3`. Clique: abre/fecha o dropdown Converter e fecha o outro menu
 - **Botão "Mais"** (title "Mais"): 30×29, borda 1px `--line-6`, raio 12, fundo `--surf-2`, ícone `ellipsis-vertical` 15px `--tx-3`. Hover `--line-3`. Clique: abre/fecha o menu Mais e fecha o Converter
+- Os dois menus fecham com clique fora e com Esc (o protótipo não fechava)
 
 ## 5.2 Dropdown "Converter"
 Posição: absoluta, `top: 38px; right: 66px`, largura 196, z-index 40. Estilo base em [06-components](06-components.md#dropdown).
