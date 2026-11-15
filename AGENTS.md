@@ -289,16 +289,13 @@ Spec completa: `specs/04-documentos.md`. Regras que valem em todo o código:
 - **Documento protegido por senha:** a senha e o conteúdo decifrado nunca vão para o disco nem para o banco.
 - **Documento derivado** é um arquivo comum; a relação `converted_to` no índice pode se perder sem afetar nenhum arquivo.
 
-## Entrada (Downloads)
+## Entrada e importação
 
-A Entrada mostra os documentos da pasta Downloads do sistema sem transformá-la em workspace: o Folio não cria `.folio/` lá e não altera nenhum arquivo.
+Spec completa: `specs/09-entrada.md`. Regras que valem em todo o código:
 
-- **Só documentos:** a mesma regra de reconhecimento de documentos; instaladores, ZIPs e o resto são ignorados.
-- **Mover para projeto:** é sempre **mover, nunca copiar**, para não existir duas versões do mesmo documento.
-- **Atualização ao vivo:** um watcher do sistema de arquivos (crate `notify`) faz o documento aparecer quando o download termina.
-- **Downloads em andamento são ignorados:** arquivos `.part`, `.crdownload` e similares só entram depois do rename final.
-- **Configuração:** o caminho da Downloads é o único caminho absoluto guardado, no banco global do app (ver Persistência), porque pertence à máquina e não ao workspace.
-- **Android:** fora da 0.1.0. Lá o acesso à Downloads passa por MediaStore/SAF e será especificado junto com a versão Android.
+- **Entrada:** visão da pasta Downloads sem transformá-la em workspace (nada de `.folio/` lá). O caminho fica no banco global. Um watcher (`notify`) observa só essa pasta; dentro do workspace não há watcher.
+- **Entrada move, nunca copia**, para não existir duas versões do mesmo documento. **Importação copia**, porque a origem pode ser um pendrive ou a pasta de outro app.
+- **Android:** fora da 0.1.0; a Downloads lá passa por MediaStore/SAF.
 
 ## Design e interface
 

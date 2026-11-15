@@ -9,7 +9,7 @@ Pontos do protótipo para decidir ou corrigir na implementação.
 
 ## Copy
 4. O texto vazio de Favoritos fala em "estrela", mas o ícone é um **pin**. Alinhar
-5. O botão "Importar documento" só leva para a Home. Definir se ele abre o seletor de arquivos
+5. O botão "Importar documento" só leva para a Home. **Resolvido:** abre o seletor de arquivos (`specs/09-entrada.md`, Importação)
 
 ## Sem comportamento no protótipo
 6. Busca

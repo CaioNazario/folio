@@ -9,10 +9,10 @@ A lista é fechada. Qualquer operação nova sobre arquivos do usuário entra pr
 | Operação | Usada por | Garantia |
 |---|---|---|
 | Ler | Reader, metadados, indexação, conversão | Só leitura; nunca abre o arquivo com permissão de escrita |
-| Criar arquivo | Conversão | Nasce num temporário e é publicado sem sobrescrita |
+| Criar arquivo | Conversão, importação (spec 09) | Nasce num temporário e é publicado sem sobrescrita |
 | Criar diretório | Projetos e pastas; pasta de imagens da conversão para MD (spec 08) | Falha se o nome já existir; a pasta de imagens nasce no temporário e é publicada sem sobrescrita |
-| Renomear e mover | Workspace, Entrada | Sem sobrescrita; disco antes do banco |
-| Enviar para a lixeira | Workspace, Reader | Nunca apaga permanentemente |
+| Renomear e mover | Workspace, Entrada, importação a partir da Entrada | Sem sobrescrita; disco antes do banco |
+| Enviar para a lixeira | Workspace, Reader, Entrada | Nunca apaga permanentemente |
 
 O Folio **nunca escreve dentro de um arquivo existente** do usuário: a 0.1.0 não edita documentos. Tudo o que o Folio grava por conta própria fica em `.folio/`.
 
