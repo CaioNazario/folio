@@ -1,0 +1,17 @@
+# PRD: documento de produto local, nunca versionado
+/PRD*.md
+
+# Rust
+/target/
+
+# Frontend
+node_modules/
+/dist/
+*.local
+*.log
+
+# Editores e sistema
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store

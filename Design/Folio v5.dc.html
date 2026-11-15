@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+:root, [data-theme="dark"] {
+  --bg: #000000;
+  --bg-rail: #050505;
+  --surf-1: #0a0a0a;
+  --surf-2: #0d0d0d;
+  --hover: #101010;
+  --surf-3: #111111;
+  --line-1: #121212;
+  --pop: #141414;
+  --hover-2: #151515;
+  --line-2: #161616;
+  --surf-4: #1a1a1a;
+  --line-3: #1c1c1c;
+  --hover-3: #1e1e1e;
+  --line-4: #212121;
+  --line-5: #242424;
+  --line-6: #282828;
+  --line-7: #2a2a2a;
+  --sel: #2b2b2b;
+  --bar: #2e2e2e;
+  --line-8: #303030;
+  --line-9: #3a3a3a;
+  --tx-1: #ffffff;
+  --tx-0: #f0f2f4;
+  --tx-2: #e6e8ea;
+  --tx-3: #c3c8ce;
+  --tx-4: #b9bfc6;
+  --tx-5: #afafaf;
+  --tx-6: #9aa1a9;
+  --tx-7: #8b9299;
+  --tx-8: #7d848c;
+  --tx-9: #6b727b;
+  --tx-10: #5f666f;
+  --tx-11: #4a4a4a;
+  --accent: #ffffff;
+  --accent-2: #e6e6e6;
+  --teal: #6fb3a8;
+  --teal-line: #25352f;
+  --acc-line: #3a3a3a;
+  --add-bg: #2e4038;
+  --add-tx: #bcd9cb;
+  --del-bg: #432f2f;
+  --del-tx: #e0c4c0;
+  --mod-bg: #3d3728;
+  --mod-tx: #e3d6b8;
+  --danger: #c98b7f;
+  --icon: #787f88;
+  --paper-mut: #8a857a;
+  --paper-mut2: #6c6960;
+  --paper-rule: #d8d3c8;
+  --paper-tx: #22242a;
+  --paper: #efece5;
+  --paper-alt: #e8e5dd;
+  --icon-2: #565d66;
+  --paper-edge: transparent;
+  --plus: #ffffff;
+  --ring: #ffffff;
+  --nav-accent: #ffffff;
+  --shadow-1: 0 10px 30px rgba(0,0,0,0.45);
+  --shadow-2: 0 14px 34px rgba(0,0,0,0.5);
+}
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-rail: #faf9f7;
+  --surf-1: #f3f2ef;
+  --surf-2: #f6f5f2;
+  --hover: #ecebe7;
+  --surf-3: #f3f2ef;
+  --line-1: #e6e4df;
+  --pop: #ffffff;
+  --hover-2: #eeece8;
+  --line-2: #e8e6e1;
+  --surf-4: #eae8e3;
+  --line-3: #e4e2dd;
+  --hover-3: #ecebe7;
+  --line-4: #dedcd6;
+  --line-5: #dedcd6;
+  --line-6: #d6d4ce;
+  --line-7: #d2d0c9;
+  --sel: #e3e0d9;
+  --bar: #cbc8c1;
+  --line-8: #c9c6bf;
+  --line-9: #b7b4ac;
+  --tx-1: #16171a;
+  --tx-0: #0f1013;
+  --tx-2: #1b1c20;
+  --tx-3: #3a3d43;
+  --tx-4: #44474d;
+  --tx-5: #67696e;
+  --tx-6: #67696e;
+  --tx-7: #6d7075;
+  --tx-8: #74777c;
+  --tx-9: #7f8288;
+  --tx-10: #8a8d92;
+  --tx-11: #a6a49e;
+  --accent: #16171a;
+  --accent-2: #000000;
+  --teal: #2c7a6e;
+  --teal-line: #c3ded6;
+  --acc-line: #cfcdc7;
+  --add-bg: #dcefe3;
+  --add-tx: #1d5a3c;
+  --del-bg: #f7ded9;
+  --del-tx: #7a2f28;
+  --mod-bg: #f6ecd0;
+  --mod-tx: #6a5210;
+  --danger: #a33b2c;
+  --icon: #7a7d83;
+  --paper-mut: #8a857a;
+  --paper-mut2: #6c6960;
+  --paper-rule: #d8d3c8;
+  --paper-tx: #22242a;
+  --paper: #ffffff;
+  --paper-alt: #f7f6f2;
+  --icon-2: #7a7d83;
+  --paper-edge: #e4e2dc;
+  --plus: #16171a;
+  --ring: #16171a;
+  --nav-accent: #16171a;
+  --shadow-1: 0 6px 20px rgba(30,28,22,0.10);
+  --shadow-2: 0 14px 34px rgba(30,28,22,0.14);
+}
+  html:has([data-theme="light"]), html:has([data-theme="light"]) body { background:#ffffff; }
+  html, body { margin:0; padding:0; background:var(--bg); }
+  * { box-sizing:border-box; }
+  a { color:var(--accent); text-decoration:none; }
+  a:hover { color:var(--accent-2); }
+  ::-webkit-scrollbar { width:11px; height:11px; }
+  ::-webkit-scrollbar-thumb { background:var(--bar); border-radius:14px; border:3px solid transparent; background-clip:content-box; }
+  ::-webkit-scrollbar-thumb:hover { background:#454545; background-clip:content-box; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  * { scrollbar-width:thin; scrollbar-color:var(--bar) transparent; }
+</style>
+</helmet>
+<div data-theme="{{ themeAttr }}" style="display:flex; height:100vh; width:100%; overflow:hidden; background:var(--bg); color:var(--tx-2); font-family:'IBM Plex Sans',system-ui,sans-serif; font-size:14px; -webkit-font-smoothing:antialiased;">
+
+  <div style="width:min(272px, 24vw); flex:0 0 min(272px, 24vw); min-width:196px; display:flex; flex-direction:column; background:var(--bg); border-right:1px solid var(--surf-4);">
+
+    <div style="height:46px; flex:0 0 46px; display:flex; align-items:center; gap:9px; padding:0 14px; border-bottom:1px solid var(--line-1);">
+      <svg viewBox="0 0 164 58" height="22" style="display:block; color:var(--tx-1);" xmlns="http://www.w3.org/2000/svg"><path d="M3 4H22V52H3A3 3 0 0 1 0 49V7A3 3 0 0 1 3 4Z" fill="currentColor"></path><path d="M26 0H45A3 3 0 0 1 48 3V45A3 3 0 0 1 45 48H26Z" fill="currentColor"></path><text x="62" y="46" font-family="'Source Serif 4','Source Serif Pro',Georgia,serif" font-size="46" font-weight="600" letter-spacing="-0.9" fill="currentColor" textLength="96" lengthAdjust="spacingAndGlyphs">Folio</text></svg>
+    </div>
+
+    <div style="padding:12px 12px 8px; display:flex; flex-direction:column; gap:8px;">
+      <button onClick="{{ newDoc }}" style="display:flex; align-items:center; gap:9px; width:100%; padding:8px 10px; border:1px solid var(--line-6); border-radius:14px; background:var(--surf-2); color:var(--tx-1); font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; text-align:left;" style-hover="background:var(--line-3); border-color:var(--line-9);">
+        <span style="display:flex; color:var(--plus);"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="stroke: #F6F6F6; stroke-width: 3px"><path d="M5 12h14"></path><path d="M12 5v14" stroke="#FFFFFF"></path></svg></span>
+        <span>Importar documento</span>
+      </button>
+      <div style="display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:14px; background:var(--surf-1); border:1px solid var(--surf-4);">
+        <span style="display:flex; color:var(--tx-1);"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg></span>
+        <input placeholder="Pesquisar documentos" style="flex:1; min-width:0; background:transparent; border:none; outline:none; color:var(--tx-1); font-family:inherit; font-size:13px;">
+      </div>
+    </div>
+
+    <div style="flex:1; min-height:0; overflow-y:auto; padding:6px 8px 12px;">
+
+      <div style="padding:10px 8px 6px; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--tx-5);">Favoritos</div>
+      <sc-if value="{{ noPins }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:2px 8px 4px; font-size:12px; color:var(--tx-10); line-height:1.45;">Marque uma pasta ou documento com a estrela para vê-lo aqui.</div>
+      </sc-if>
+      <sc-for list="{{ favs }}" as="f" hint-placeholder-count="2">
+        <div onClick="{{ f.pick }}" onMouseEnter="{{ f.enter }}" onMouseLeave="{{ f.leave }}" style="display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:12px; cursor:pointer;" style-hover="background:var(--hover);">
+          <span style="display:flex; flex:0 0 auto; color:var(--tx-5);">{{ f.icon }}</span>
+          <span style="font-size:13px; color:var(--tx-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ f.name }}</span>
+          <span onClick="{{ f.togglePin }}" title="{{ f.pinTitle }}" style="margin-left:auto; display:flex; flex:0 0 auto; padding:2px; border-radius:8px; color:{{ f.pinInk }}; opacity:{{ f.pinOp }}; transition:opacity 150ms ease, color 150ms ease;" style-hover="opacity:1; color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"></path></svg></span>
+        </div>
+      </sc-for>
+
+      <div style="height:1px; margin:12px 8px 2px; background:var(--line-2);"></div>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 8px 6px;">
+        <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--tx-5);">Projetos</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx-1);">4</div>
+      </div>
+
+      <sc-for list="{{ projects }}" as="p" hint-placeholder-count="4">
+        <div style="margin-bottom:1px;">
+          <div onClick="{{ p.toggle }}" onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" style="position:relative; display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:12px; cursor:pointer; color:var(--tx-1);" style-hover="background:var(--hover);">
+            <span style="display:flex; width:12px; color:var(--tx-1); transform:{{ p.rot }};"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></span>
+            <span style="position:relative; display:flex; width:14px; height:14px; color:{{ p.folderInk }}; transition:color 180ms ease;"><span style="position:absolute; inset:0; display:flex; opacity:{{ p.closedOp }}; transform:{{ p.closedTf }}; transition:opacity 200ms ease, transform 260ms cubic-bezier(.32,.72,.34,1);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></span><span style="position:absolute; inset:0; display:flex; opacity:{{ p.openOp }}; transform:{{ p.openTf }}; transition:opacity 200ms ease, transform 260ms cubic-bezier(.32,.72,.34,1);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 14 1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.55 6a2 2 0 0 1-1.94 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"></path></svg></span></span>
+            <span style="font-size:13px;">{{ p.name }}</span>
+            <span onClick="{{ p.togglePin }}" title="{{ p.pinTitle }}" style="margin-left:auto; display:flex; flex:0 0 auto; padding:2px; border-radius:8px; color:{{ p.pinInk }}; opacity:{{ p.pinOp }}; transition:opacity 150ms ease, color 150ms ease;" style-hover="opacity:1; color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"></path></svg></span>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx-1);">{{ p.count }}</span>
+          </div>
+          <sc-if value="{{ p.open }}" hint-placeholder-val="{{ true }}">
+            <sc-for list="{{ p.files }}" as="f" hint-placeholder-count="4">
+              <div onClick="{{ f.pick }}" onMouseEnter="{{ f.enter }}" onMouseLeave="{{ f.leave }}" style="position:relative; display:flex; align-items:center; gap:8px; padding:5px 8px 5px 25px; margin-left:7px; border-left:1px solid var(--line-3); cursor:pointer;" style-hover="background:var(--hover);">
+                <sc-if value="{{ f.sel }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute; inset:0 0 0 -7px; border-radius:12px; background:var(--surf-4); border-left:2px solid var(--nav-accent);"></div>
+                </sc-if>
+                <span style="position:relative; font-size:13px; color:var(--tx-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ f.name }}</span>
+                <span onClick="{{ f.togglePin }}" title="{{ f.pinTitle }}" style="position:relative; margin-left:auto; display:flex; flex:0 0 auto; padding:2px; border-radius:8px; color:{{ f.pinInk }}; opacity:{{ f.pinOp }}; transition:opacity 150ms ease, color 150ms ease;" style-hover="opacity:1; color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"></path></svg></span>
+              </div>
+            </sc-for>
+          </sc-if>
+        </div>
+      </sc-for>
+
+      <div style="padding:16px 8px 6px; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--tx-5);">Recentes</div>
+      <sc-for list="{{ recents }}" as="f" hint-placeholder-count="4">
+        <div onClick="{{ f.pick }}" onMouseEnter="{{ f.enter }}" onMouseLeave="{{ f.leave }}" style="display:flex; align-items:center; gap:8px; padding:5px 8px; border-radius:12px; cursor:pointer;" style-hover="background:var(--hover);">
+          <span style="font-size:13px; color:var(--tx-1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ f.name }}</span>
+          <span onClick="{{ f.togglePin }}" title="{{ f.pinTitle }}" style="margin-left:auto; display:flex; flex:0 0 auto; padding:2px; border-radius:8px; color:{{ f.pinInk }}; opacity:{{ f.pinOp }}; transition:opacity 150ms ease, color 150ms ease;" style-hover="opacity:1; color:var(--accent);"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"></path><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"></path></svg></span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx-1);">{{ f.when }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="flex:0 0 auto; padding:10px 14px; border-top:1px solid var(--line-1); display:flex; align-items:center; gap:9px;">
+      <div style="width:22px; height:22px; border-radius:10px; background:var(--line-5); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:600; color:#a9b0b8;">C</div>
+      <div style="line-height:1.25;">
+        <div style="font-size:12px; color:var(--tx-1);">~/Documentos</div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx-1);">1.284 arquivos · 3,2 GB</div>
+      </div>
+      <div style="margin-left:auto; display:flex; align-items:center; gap:2px; padding:2px; border-radius:14px; background:var(--surf-2); border:1px solid var(--line-6);">
+        <span onClick="{{ setThemeLight }}" title="Tema claro" style="display:flex; align-items:center; justify-content:center; width:24px; height:20px; border-radius:10px; cursor:pointer; background:{{ thLightBg }}; color:{{ thLightInk }}; transition:background 150ms ease, color 150ms ease;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg></span>
+        <span onClick="{{ setThemeDark }}" title="Tema escuro" style="display:flex; align-items:center; justify-content:center; width:24px; height:20px; border-radius:10px; cursor:pointer; background:{{ thDarkBg }}; color:{{ thDarkInk }}; transition:background 150ms ease, color 150ms ease;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path></svg></span>
+        <span onClick="{{ setThemeSystem }}" title="Seguir o sistema" style="display:flex; align-items:center; justify-content:center; width:24px; height:20px; border-radius:10px; cursor:pointer; background:{{ thSystemBg }}; color:{{ thSystemInk }}; transition:background 150ms ease, color 150ms ease;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"></rect><path d="M8 21h8"></path><path d="M12 17v4"></path></svg></span>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1; min-width:0; display:flex; flex-direction:column; background:var(--bg); position:relative;">
+
+    <sc-if value="{{ showHome }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1; overflow-y:auto;">
+        <div style="max-width:880px; margin:0 auto; padding:72px 40px 60px;">
+          <div style="font-size:26px; font-weight:600; letter-spacing:-0.01em;">Documentos</div>
+          <div style="margin-top:6px; color:var(--tx-7); font-size:14px;">Somente leitura e conversão. Tudo armazenado neste computador.</div>
+
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:32px;">
+            <div style="padding:14px; border:1px solid var(--line-4); border-radius:18px; background:var(--surf-2); cursor:pointer;" style-hover="border-color:var(--line-9);">
+              <div style="display:flex; align-items:center; gap:9px; font-size:13px; font-weight:500;"><span style="display:flex; color:var(--icon);"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m17 8-5-5-5 5"></path><path d="M12 3v12"></path></svg></span>Importar arquivos</div>
+              <div style="margin-top:3px; font-size:12px; color:var(--tx-8);">Arraste ou selecione do disco</div>
+            </div>
+            <div style="padding:14px; border:1px solid var(--line-4); border-radius:18px; background:var(--surf-2); cursor:pointer;" style-hover="border-color:var(--line-9);">
+              <div style="display:flex; align-items:center; gap:9px; font-size:13px; font-weight:500;"><span style="display:flex; color:var(--icon);"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M12 12v6"></path><path d="M9 15h6"></path></svg></span>Converter arquivo</div>
+              <div style="margin-top:3px; font-size:12px; color:var(--tx-8);">PDF, Markdown, TXT ou imagem</div>
+            </div>
+            <div style="padding:14px; border:1px solid var(--line-4); border-radius:18px; background:var(--surf-2); cursor:pointer;" style-hover="border-color:var(--line-9);">
+              <div style="display:flex; align-items:center; gap:9px; font-size:13px; font-weight:500;"><span style="display:flex; color:var(--icon);"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path><path d="M12 10v6"></path><path d="M9 13h6"></path></svg></span>Novo projeto</div>
+              <div style="margin-top:3px; font-size:12px; color:var(--tx-8);">Agrupe documentos por contexto</div>
+            </div>
+          </div>
+
+          <div style="margin-top:40px; display:flex; align-items:baseline; justify-content:space-between;">
+            <div style="font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--tx-9);">Continuar de onde parou</div>
+            <div style="font-size:12px; color:var(--tx-8); cursor:pointer;">Ver tudo</div>
+          </div>
+          <div style="margin-top:12px; border:1px solid var(--line-4); border-radius:18px; overflow:hidden;">
+            <sc-for list="{{ recents }}" as="f" hint-placeholder-count="4">
+              <div onClick="{{ f.pick }}" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--line-3); cursor:pointer; background:var(--surf-2);" style-hover="background:var(--hover-2);">
+                <span style="font-size:13px;">{{ f.name }}</span>
+                <span style="font-size:12px; color:var(--tx-8);">{{ f.meta }}</span>
+                <span style="margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx-10);">{{ f.when }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="margin-top:36px; font-size:11px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--tx-9);">Projetos</div>
+          <div style="margin-top:12px; display:grid; grid-template-columns:repeat(4,1fr); gap:10px;">
+            <sc-for list="{{ projects }}" as="p" hint-placeholder-count="4">
+              <div onClick="{{ p.toggle }}" style="padding:14px; border:1px solid var(--line-4); border-radius:18px; background:var(--surf-2); cursor:pointer;" style-hover="border-color:var(--line-9);">
+                <div style="display:flex; color:var(--icon);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"></path></svg></div>
+                <div style="margin-top:12px; font-size:13px; font-weight:500;">{{ p.name }}</div>
+                <div style="margin-top:2px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--tx-10);">{{ p.count }} documentos</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ showDoc }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1; min-height:0; display:flex; flex-direction:column;">
+
+        <div style="flex:0 0 auto; display:flex; align-items:center; gap:14px; padding:0 18px; height:56px; border-bottom:1px solid var(--line-3);">
+          <div style="min-width:0;">
+            <div style="display:flex; align-items:center; gap:7px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--tx-6);">
+              <span>Faculdade</span><span>/</span><span style="color:var(--tx-4);">{{ docName }}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:9px; margin-top:2px;">
+              <div style="font-size:15px; font-weight:600; letter-spacing:-0.005em;">{{ docName }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:10px; padding:2px 5px; border-radius:8px; background:var(--surf-4); color:var(--tx-1);">{{ verLabel }}</div>
+            </div>
+          </div>
+
+          <div style="margin-left:auto; display:flex; align-items:center; gap:6px; position:relative;">
+            <button onClick="{{ toggleConvert }}" style="display:flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid var(--line-6); border-radius:12px; background:var(--surf-2); color:var(--tx-2); font-family:inherit; font-size:12.5px; cursor:pointer;" style-hover="background:var(--line-3);">Converter<span style="display:flex; color:var(--tx-7);"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg></span></button>
+            <button onClick="{{ toggleMenu }}" title="Mais" style="display:flex; align-items:center; justify-content:center; width:30px; height:29px; border:1px solid var(--line-6); border-radius:12px; background:var(--surf-2); color:var(--tx-3); cursor:pointer;" style-hover="background:var(--line-3);"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg></button>
+
+            <sc-if value="{{ convertOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute; top:38px; right:66px; width:196px; z-index:40; background:var(--pop); border:1px solid var(--bar); border-radius:18px; padding:5px; box-shadow:var(--shadow-2);">
+                <div style="padding:7px 9px 6px; font-size:11px; color:var(--tx-8);">Converter para</div>
+                <sc-for list="{{ formats }}" as="fmt" hint-placeholder-count="5">
+                  <div onClick="{{ fmt.go }}" style="display:flex; align-items:center; gap:9px; padding:7px 9px; border-radius:12px; cursor:pointer;" style-hover="background:var(--hover-3);">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; font-weight:500; padding:2px 4px; border-radius:7px; background:var(--surf-4); color:var(--tx-1);">{{ fmt.ext }}</span>
+                    <span style="font-size:13px;">{{ fmt.label }}</span>
+                  </div>
+                </sc-for>
+                <div style="margin:5px 9px 4px; padding-top:7px; border-top:1px solid var(--bar); font-size:11px; color:var(--tx-9); line-height:1.45;">O original é preservado. O novo arquivo entra na timeline como derivado.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute; top:38px; right:0; width:186px; z-index:40; background:var(--pop); border:1px solid var(--bar); border-radius:18px; padding:5px; box-shadow:var(--shadow-2);">
+                <div style="padding:7px 9px; border-radius:12px; font-size:13px; cursor:pointer;" style-hover="background:var(--hover-3);">Renomear</div>
+                <div style="padding:7px 9px; border-radius:12px; font-size:13px; cursor:pointer;" style-hover="background:var(--hover-3);">Adicionar tag</div>
+                <div style="padding:7px 9px; border-radius:12px; font-size:13px; cursor:pointer;" style-hover="background:var(--hover-3);">Abrir pasta no sistema</div>
+                <div style="padding:7px 9px; border-radius:12px; font-size:13px; color:var(--danger); cursor:pointer;" style-hover="background:var(--hover-3);">Mover para lixeira</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="flex:1; min-height:0; display:flex;">
+
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; padding:{{ stagePad }}; overflow:hidden;">
+            <div style="flex:1; min-height:0; display:flex; flex-direction:column; border:{{ stageBorder }}; border-radius:{{ stageRadius }}; background:var(--surf-1); overflow:hidden; transition:border-radius 200ms ease;">
+              <div style="flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:8px 12px; border-bottom:1px solid var(--line-3); background:var(--surf-2);">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx-5);">{{ modeLabel }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx-5);">·</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--tx-5);">página 1 de 4 · 100%</span>
+                <div style="margin-left:auto; display:flex; gap:6px;">
+                  <button onClick="{{ toggleFull }}" title="{{ fullBtn }}" style="position:relative; display:flex; align-items:center; justify-content:center; width:26px; height:24px; border:1px solid var(--line-6); border-radius:10px; background:var(--pop); color:var(--tx-3); cursor:pointer;" style-hover="background:var(--hover-3);"><span style="position:absolute; display:flex; opacity:{{ maxOp }}; transition:opacity 160ms ease;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M21 8V5a2 2 0 0 0-2-2h-3"></path><path d="M3 16v3a2 2 0 0 0 2 2h3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path></svg></span><span style="position:absolute; display:flex; opacity:{{ minOp }}; transition:opacity 160ms ease;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3"></path><path d="M21 8h-3a2 2 0 0 1-2-2V3"></path><path d="M3 16h3a2 2 0 0 1 2 2v3"></path><path d="M16 21v-3a2 2 0 0 1 2-2h3"></path></svg></span></button>
+                </div>
+              </div>
+              <div style="flex:1; min-height:0; display:flex; align-items:center; justify-content:center; padding:{{ readPad }}; overflow:hidden; transition:padding 200ms ease;">
+                <div style="container-type:inline-size; width:97%; height:97%; display:flex; flex-direction:column; background:var(--paper); color:var(--paper-tx); border-radius:7px; box-shadow:var(--shadow-1); border:1px solid var(--paper-edge); padding:3.6cqw 4.6cqw; font-family:Georgia,'Times New Roman',serif; overflow:hidden;">
+                  <div style="font-family:'IBM Plex Mono',monospace; font-size:2.1cqw; letter-spacing:0.1em; text-transform:uppercase; color:var(--paper-mut);">Universidade Federal · Sistemas de Informação</div>
+                  <h1 style="margin:2cqw 0 0.8cqw; font-size:3.9cqw; text-wrap:pretty; line-height:1.25; font-weight:600;">A evolução dos sistemas de arquivos distribuídos</h1>
+                  <div style="font-size:2.25cqw; color:var(--paper-mut2); font-style:italic;">Caio Nazareno · Trabalho final · {{ pageDate }}</div>
+                  <div style="height:1px; background:var(--paper-rule); margin:2.3cqw 0;"></div>
+                  <div ref="{{ flowRef }}" style="flex:1; min-height:0; overflow:hidden;">
+                    <sc-for list="{{ pageBlocks }}" as="b" hint-placeholder-count="4">
+                      <div style="font-size:{{ b.fs }}; font-weight:{{ b.fw }}; line-height:{{ b.lh }}; margin:{{ b.margin }};">{{ b.text }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute; left:50%; bottom:26px; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:11px; padding:10px 14px; border-radius:18px; background:var(--pop); border:1px solid var(--bar); box-shadow:var(--shadow-2);">
+        <span style="width:7px; height:7px; border-radius:50%; background:var(--teal);"></span>
+        <span style="font-size:12.5px;">{{ toast }}</span>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const TINT = {
+  DOC: ['#26333f', '#8ab4d8'],
+  PDF: ['#3b2a2a', '#d89a94'],
+  XLS: ['#24352c', '#8fc4a5'],
+  PPT: ['#3a3125', '#d9b070'],
+  MD:  ['#2f2b3a', '#b0a6d8'],
+  TXT: ['var(--line-4)', '#a9b0b8'],
+  PNG: ['var(--line-4)', '#a9b0b8'],
+  JPG: ['var(--line-4)', '#a9b0b8'],
+  CSV: ['#24352c', '#8fc4a5']
+};
+
+const P = (text, extra) => Object.assign({ text, fs: '14.5px', fw: '400', lh: '1.72', margin: '0 0 14px' }, extra || {});
+const H = (text) => P(text, { fs: '16px', fw: '600', lh: '1.4', margin: '26px 0 10px' });
+
+const BASE = [
+  P('O armazenamento distribuído deixou de ser um problema restrito a grandes centros de processamento. Hoje, qualquer estação de trabalho participa de alguma forma de replicação, sincronização ou versionamento de arquivos, ainda que o usuário não perceba.'),
+  P('Poucos usuários domésticos têm contato real com replicação de arquivos no dia a dia.'),
+  P('Este trabalho apresenta os sistemas de arquivos distribuídos mais conhecidos.'),
+  H('1. Contexto histórico'),
+  P('As primeiras implementações partiam da premissa de uma rede local confiável. A latência era previsível e o número de clientes, pequeno.')
+];
+
+const V2 = [
+  BASE[0],
+  P('Poucos usuários domésticos têm contato real com replicação de arquivos no dia a dia.'),
+  P('Este trabalho apresenta os sistemas de arquivos distribuídos mais conhecidos.'),
+  H('1. Contexto histórico'),
+  P('As primeiras implementações partiam da premissa de uma rede local confiável. A latência era previsível e o número de clientes, pequeno. A partir da década de 2000, com a expansão de clusters heterogêneos, essa premissa deixou de se sustentar.')
+];
+
+const V3 = [
+  BASE[0],
+  P('Este trabalho percorre três gerações de sistemas de arquivos, do NFS aos modelos orientados a objetos, e discute como a noção de consistência foi sendo negociada em troca de disponibilidade.'),
+  H('1. Contexto histórico'),
+  P('As primeiras implementações partiam da premissa de uma rede local confiável. A latência era previsível e o número de clientes, pequeno. A partir da década de 2000, com a expansão de clusters heterogêneos, essa premissa deixou de se sustentar.'),
+  P('A resposta comum foi abrir mão da consistência forte. Em vez de garantir que toda leitura devolvesse a última escrita, os sistemas passaram a oferecer garantias mais fracas e mecanismos explícitos de resolução de conflito.', { margin: '0' })
+];
+
+class Component extends DCLogic {
+  state = {
+    view: 'doc',
+    sel: 'v3',
+    full: false,
+    convertOpen: false,
+    menuOpen: false,
+    toast: null,
+    open: { fac: true, tra: false, pes: false, pro: false },
+    pinned: { 'Trabalho v3.docx': 'file', 'Faculdade': 'folder' },
+    hover: null,
+    theme: 'dark',
+    sysDark: true,
+    tl: [
+      { id: 'v1', kind: 'version', ext: 'DOC', title: 'Trabalho.docx', sub: 'Documento original', date: '12 mar, 14:02', blocks: BASE, docDate: '12 de março' },
+      { id: 'v2', kind: 'version', ext: 'DOC', title: 'Trabalho v2.docx', sub: 'Versão 2 · detectada no disco', date: '14 mar, 09:40', blocks: V2, docDate: '14 de março' },
+      { id: 'd1', kind: 'derived', ext: 'PDF', title: 'Trabalho v2.pdf', sub: 'Convertido da versão 2', date: '14 mar, 09:41', blocks: V2, docDate: '14 de março' },
+      { id: 'v3', kind: 'version', ext: 'DOC', title: 'Trabalho v3.docx', sub: 'Versão 3 · atual', date: '18 mar, 21:30', blocks: V3, docDate: '18 de março' }
+    ]
+  };
+
+  fitPage() {
+    const el = this._flow;
+    if (!el) return;
+    const kids = Array.from(el.children);
+    kids.forEach(k => { k.style.display = ''; });
+    const limit = el.clientHeight;
+    if (!limit) return;
+    for (const k of kids) {
+      if (k.offsetTop - el.offsetTop + k.offsetHeight > limit + 1) k.style.display = 'none';
+    }
+  }
+
+  componentDidUpdate() { this.fitPage(); }
+
+  componentDidMount() {
+    this._onResize = () => this.fitPage();
+    window.addEventListener('resize', this._onResize);
+    requestAnimationFrame(() => this.fitPage());
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    this._mq = mq;
+    this._onMq = () => this.setState({ sysDark: mq.matches });
+    this.setState({ sysDark: mq.matches });
+    mq.addEventListener('change', this._onMq);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this._onResize);
+    if (this._mq) this._mq.removeEventListener('change', this._onMq);
+    clearTimeout(this._t);
+  }
+
+  flash(msg) {
+    clearTimeout(this._t);
+    this.setState({ toast: msg });
+    this._t = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+
+  pinDeco(key, kind, rowKey) {
+    const on = !!this.state.pinned[key];
+    const hot = rowKey && this.state.hover === rowKey;
+    return {
+      enter: () => { if (rowKey && this.state.hover !== rowKey) this.setState({ hover: rowKey }); },
+      leave: () => { if (rowKey && this.state.hover === rowKey) this.setState({ hover: null }); },
+      pinInk: on ? 'var(--nav-accent)' : 'var(--tx-8)',
+      pinOp: on ? 1 : (hot ? 0.85 : 0),
+      pinTitle: on ? 'Remover dos favoritos' : 'Adicionar aos favoritos',
+      togglePin: (e) => {
+        if (e) e.stopPropagation();
+        this.setState(st => {
+          const p = Object.assign({}, st.pinned);
+          if (p[key]) delete p[key]; else p[key] = kind;
+          return { pinned: p };
+        });
+      }
+    };
+  }
+
+  pick(id) {
+    this.setState({ sel: id, view: 'doc', convertOpen: false, menuOpen: false });
+  }
+
+  file(name, ext, extra) {
+    const t = TINT[ext] || TINT.TXT;
+    return Object.assign({ name, ext, tint: t[0], ink: t[1] }, this.pinDeco(name, 'file', 'rec:' + name), extra || {});
+  }
+
+  renderVals() {
+    const s = this.state;
+    const cur = s.tl.find(t => t.id === s.sel) || s.tl[s.tl.length - 1];
+    const mk = (name, ext, id) => this.file(name, ext, Object.assign({ fg: s.sel === id ? 'var(--tx-0)' : 'var(--tx-3)', sel: s.sel === id, pick: () => this.pick(id || name) }, this.pinDeco(name, 'file', 'tree:' + name)));
+
+    const projects = [
+      { key: 'fac', name: 'Faculdade', count: 11, files: [
+        mk('Trabalho.docx', 'DOC', 'v1'), mk('Trabalho v2.docx', 'DOC', 'v2'),
+        mk('Trabalho v2.pdf', 'PDF', 'd1'), mk('Trabalho v3.docx', 'DOC', 'v3'),
+        mk('Referências.md', 'MD'), mk('Notas de aula.txt', 'TXT'),
+        mk('Fichamento Tanenbaum.md', 'MD'), mk('Slides defesa.pptx', 'PPT'),
+        mk('Cronograma.xlsx', 'XLS'), mk('Artigo base.pdf', 'PDF'),
+        mk('Diagrama NFS.png', 'PNG')
+      ] },
+      { key: 'tra', name: 'Trabalho', count: 9, files: [
+        mk('Relatório Q1.xlsx', 'XLS'), mk('Proposta.pptx', 'PPT'),
+        mk('Ata reunião 12-03.md', 'MD'), mk('Orçamento 2026.xlsx', 'XLS'),
+        mk('Escopo do projeto.docx', 'DOC'), mk('Contrato cliente.pdf', 'PDF'),
+        mk('Métricas.csv', 'CSV'), mk('Roadmap.txt', 'TXT'),
+        mk('Logo aprovada.png', 'PNG')
+      ] },
+      { key: 'pes', name: 'Pessoal', count: 7, files: [
+        mk('Contrato.pdf', 'PDF'), mk('Comprovante aluguel.pdf', 'PDF'),
+        mk('Currículo.docx', 'DOC'), mk('Currículo.pdf', 'PDF'),
+        mk('Receitas.md', 'MD'), mk('Gastos mensais.xlsx', 'XLS'),
+        mk('Passaporte.jpg', 'JPG')
+      ] },
+      { key: 'pro', name: 'Arquivo', count: 6, files: [
+        mk('Backup 2024.csv', 'CSV'), mk('Backup 2023.csv', 'CSV'),
+        mk('Notas fiscais 2024.pdf', 'PDF'), mk('Projeto antigo.docx', 'DOC'),
+        mk('Fotos evento.jpg', 'JPG'), mk('Leia-me.txt', 'TXT')
+      ] }
+    ].map(p => ({
+      name: p.name, count: p.count, files: p.files,
+      pinInk: this.pinDeco(p.name, 'folder', 'proj:' + p.name).pinInk,
+      pinOp: this.pinDeco(p.name, 'folder', 'proj:' + p.name).pinOp,
+      pinTitle: this.pinDeco(p.name, 'folder').pinTitle,
+      togglePin: this.pinDeco(p.name, 'folder').togglePin,
+      enter: () => this.setState({ hover: 'proj:' + p.name }),
+      leave: () => this.setState(st => st.hover === 'proj:' + p.name ? { hover: null } : null),
+      open: !!s.open[p.key], folderInk: s.open[p.key] ? 'var(--nav-accent)' : 'var(--icon)', closedOp: s.open[p.key] ? 0 : 1, openOp: s.open[p.key] ? 1 : 0, closedTf: s.open[p.key] ? 'scale(.9)' : 'scale(1)', openTf: s.open[p.key] ? 'scale(1)' : 'scale(.9)', rot: s.open[p.key] ? 'rotate(90deg)' : 'none',
+      toggle: () => this.setState(st => ({ open: Object.assign({}, st.open, { [p.key]: !st.open[p.key] }) }))
+    }));
+
+    const recents = [
+      this.file('Trabalho v3.docx', 'DOC', { when: 'há 2 d', meta: 'Faculdade · 42 KB', pick: () => this.pick('v3') }),
+      this.file('Trabalho v2.pdf', 'PDF', { when: 'há 6 d', meta: 'Faculdade · 310 KB', pick: () => this.pick('d1') }),
+      this.file('Relatório Q1.xlsx', 'XLS', { when: 'há 6 d', meta: 'Trabalho · 88 KB', pick: () => this.flash('Relatório Q1.xlsx aberto') }),
+      this.file('Proposta.pptx', 'PPT', { when: 'há 9 d', meta: 'Trabalho · 4,1 MB', pick: () => this.flash('Proposta.pptx aberto') }),
+      this.file('Fichamento Tanenbaum.md', 'MD', { when: 'há 11 d', meta: 'Faculdade · 12 KB', pick: () => this.flash('Fichamento Tanenbaum.md aberto') }),
+      this.file('Orçamento 2026.xlsx', 'XLS', { when: 'há 12 d', meta: 'Trabalho · 64 KB', pick: () => this.flash('Orçamento 2026.xlsx aberto') }),
+      this.file('Currículo.pdf', 'PDF', { when: 'há 20 d', meta: 'Pessoal · 180 KB', pick: () => this.flash('Currículo.pdf aberto') })
+    ];
+
+    const favsLegacy = [
+      this.file('Trabalho v3.docx', 'DOC', { pick: () => this.pick('v3') }),
+      this.file('Contrato.pdf', 'PDF', { pick: () => this.flash('Contrato.pdf aberto') }),
+      this.file('Cronograma.xlsx', 'XLS', { pick: () => this.flash('Cronograma.xlsx aberto') }),
+      this.file('Ata reunião 12-03.md', 'MD', { pick: () => this.flash('Ata reunião 12-03.md aberto') })
+    ];
+
+    const formats = ['PDF', 'MD', 'TXT', 'PNG', 'JPG'].map(ext => {
+      const t = TINT[ext];
+      const label = { PDF: 'PDF', MD: 'Markdown', TXT: 'Texto simples', PNG: 'Imagem PNG', JPG: 'Imagem JPG' }[ext];
+      return { ext, label, tint: t[0], ink: t[1], go: () => this.convert(ext, label) };
+    });
+
+    const timeline = s.tl.map(t => {
+      const badge = TINT[t.ext] || TINT.TXT;
+      const branch = t.kind === 'derived';
+      const isEvent = t.kind === 'event';
+      return {
+        title: t.title, sub: t.sub, date: t.date, ext: t.ext,
+        hasBadge: !isEvent, tint: badge[0], ink: badge[1],
+        pad: branch ? '30px' : '0px',
+        lineX: '14px',
+        isBranch: branch,
+        sel: s.sel === t.id,
+        fg: isEvent ? '#9aa0a8' : 'var(--tx-2)',
+        dotBg: isEvent ? 'var(--bg-rail)' : (branch ? 'var(--bg-rail)' : 'var(--ring)'),
+        dotBorder: isEvent ? '#4a5058' : (branch ? 'var(--teal)' : 'var(--ring)'),
+        dotRadius: branch ? '4px' : '50%',
+        pick: () => this.pick(t.id)
+      };
+    });
+
+    const verInfo = cur.kind === 'derived'
+      ? { label: 'derivado', tint: '#22352f', ink: 'var(--teal)' }
+      : { label: 'v' + (cur.id.replace('v', '') || '1'), tint: '#3a3222', ink: 'var(--accent)' };
+
+    const FOLDER_ICON = React.createElement('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 13, height: 13, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z' }));
+    const FILE_ICON = React.createElement('svg', { xmlns: 'http://www.w3.org/2000/svg', width: 13, height: 13, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+      React.createElement('path', { d: 'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z' }),
+      React.createElement('path', { d: 'M14 2v4a2 2 0 0 0 2 2h4' }));
+
+    const allFiles = projects.reduce((acc, p) => acc.concat(p.files), []);
+    const pins = Object.keys(s.pinned).map(key => {
+      const kind = s.pinned[key];
+      const deco = this.pinDeco(key, kind, 'fav:' + key);
+      const target = allFiles.find(f => f.name === key);
+      return Object.assign({
+        name: key,
+        icon: kind === 'folder' ? FOLDER_ICON : FILE_ICON,
+        pick: kind === 'folder'
+          ? () => { const pr = projects.find(x => x.name === key); if (pr) pr.toggle(); }
+          : (target ? target.pick : () => this.flash(key + ' aberto'))
+      }, deco);
+    });
+
+
+    const pageBlocks = (cur.blocks || V3).map(b => { const head = b.fs === '16px'; return Object.assign({}, b, { fs: head ? '2.75cqw' : '2.55cqw', lh: head ? '1.4' : '1.62', margin: head ? '2.6cqw 0 1.1cqw' : '0 0 1.8cqw' }); });
+
+    const resolved = s.theme === 'system' ? (s.sysDark ? 'dark' : 'light') : s.theme;
+    const segBg = k => s.theme === k ? 'var(--surf-4)' : 'transparent';
+    const segInk = k => s.theme === k ? 'var(--nav-accent)' : 'var(--tx-10)';
+
+    return {
+      themeAttr: resolved,
+      setThemeLight: () => this.setState({ theme: 'light' }),
+      setThemeDark: () => this.setState({ theme: 'dark' }),
+      setThemeSystem: () => this.setState({ theme: 'system' }),
+      thLightBg: segBg('light'), thLightInk: segInk('light'),
+      thDarkBg: segBg('dark'), thDarkInk: segInk('dark'),
+      thSystemBg: segBg('system'), thSystemInk: segInk('system'),
+      pageBlocks, pageDate: cur.docDate || 'hoje',
+      flowRef: el => { this._flow = el; },
+      projects, recents, formats, timeline,
+      favs: pins, noPins: pins.length === 0,
+      showHome: s.view === 'home',
+      showDoc: s.view === 'doc',
+      convertOpen: s.convertOpen,
+      menuOpen: s.menuOpen,
+      toast: s.toast,
+      docName: cur.title,
+      verLabel: verInfo.label, verTint: verInfo.tint, verInk: verInfo.ink,
+      modeLabel: s.full ? 'Fullscreen' : 'Preview',
+      fullBtn: s.full ? 'Sair do fullscreen' : 'Fullscreen', maxOp: s.full ? 0 : 1, minOp: s.full ? 1 : 0,
+      stagePad: s.full ? '0px' : '20px',
+      stageBorder: s.full ? 'none' : '1px solid var(--line-4)',
+      stageRadius: s.full ? '0px' : '16px',
+      readPad: s.full ? '4px' : '8px',
+      paperW: s.full ? '860px' : '680px',
+      newDoc: () => this.setState({ view: 'home', convertOpen: false, menuOpen: false }),
+      toggleFull: () => this.setState(st => ({ full: !st.full, convertOpen: false, menuOpen: false })),
+      toggleConvert: () => this.setState(st => ({ convertOpen: !st.convertOpen, menuOpen: false })),
+      toggleMenu: () => this.setState(st => ({ menuOpen: !st.menuOpen, convertOpen: false })),
+      openFile: () => this.flash('Abrindo no aplicativo do sistema')
+    };
+  }
+
+  convert(ext, label) {
+    const s = this.state;
+    const cur = s.tl.find(t => t.id === s.sel) || s.tl[s.tl.length - 1];
+    const base = cur.title.replace(/\.[a-z]+$/i, '');
+    const name = base + '.' + ext.toLowerCase();
+    const id = 'c' + Date.now();
+    const idx = s.tl.indexOf(cur);
+    const tl = s.tl.slice();
+    tl.splice(idx + 1, 0, { id, kind: 'derived', ext, title: name, sub: 'Convertido de ' + cur.title, date: 'agora', blocks: cur.blocks, docDate: cur.docDate });
+    this.setState({ tl, convertOpen: false, sel: id });
+    this.flash(name + ' criado · ' + cur.title + ' preservado');
+  }
+
+}
+</script>
+</body>
+</html>
