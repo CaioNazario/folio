@@ -4,13 +4,16 @@
 
 pub mod clock;
 pub mod db;
+pub mod display;
 pub mod documents;
 mod error;
 pub mod favorites;
 pub mod ids;
 pub mod indexing;
 pub mod integrity;
+pub mod model;
 pub mod paths;
+pub mod readers;
 pub mod recents;
 pub mod search;
 pub mod services;

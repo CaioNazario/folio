@@ -28,6 +28,8 @@ pub enum Error {
     RelativeSymlink(crate::paths::RelativePath),
     #[error("document not found: {0}")]
     DocumentNotFound(uuid::Uuid),
+    #[error("document does not match its format: {0}")]
+    InvalidDocument(uuid::Uuid),
     #[error("reading position does not fit the document format")]
     InvalidPosition,
     #[error("cannot move a directory into itself or a descendant")]

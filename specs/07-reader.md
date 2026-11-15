@@ -80,7 +80,7 @@ arquivo ─▶ core ──┤
 
 ### Arquivos grandes
 
-- **MD e TXT acima de 10 MB:** o core entrega só os primeiros 10 MB, cortados no fim de uma linha, e avisa que cortou. O palco mostra "Arquivo grande: mostrando os primeiros 10 MB". A conversão e os metadados continuam usando o arquivo inteiro.
+- **MD e TXT acima de 10 MB:** o core lê só os primeiros 10 MB, corta no fim da última linha completa e avisa que cortou. O palco mostra "Arquivo grande: mostrando os primeiros 10 MB". Um caractere UTF-8 partido pelo corte é descartado, sem fazer o texto cair no Windows-1252; uma linha única maior que o limite é cortada no último caractere inteiro. A conversão e os metadados continuam usando o arquivo inteiro.
 - **PDF e DOCX:** entregues inteiros; o limite prático do PDF sai do S2.
 
 ### Links
@@ -194,7 +194,7 @@ Inline: Texto | Negrito [Inline] | Italico [Inline] | CodigoInline | Link { dest
 
 | Formato | Base | O que é nosso | O que reconhece na 0.1.0 |
 |---|---|---|---|
-| TXT | — | Decodificar com `encoding_rs`: pela marca de início (BOM) quando existe (UTF-8, UTF-16 LE ou BE), senão UTF-8, com fallback para Windows-1252. Separar parágrafos por linha em branco | Parágrafos |
+| TXT | — | Decodificar com `encoding_rs`: pela marca de início (BOM) quando existe (UTF-8, UTF-16 LE ou BE), senão UTF-8, com fallback para Windows-1252. Separar parágrafos por linha em branco (ou só com espaços); uma quebra simples vira quebra de linha dentro do parágrafo, e `\r\n` conta como `\n` | Parágrafos |
 | MD | `comrak` (árvore do Markdown, front matter com delimitador `---`) + um parser de YAML em Rust puro (o `serde_yaml` está descontinuado; a escolha fica para a implementação) | Traduzir a árvore do comrak para o modelo | Tudo do modelo |
 | DOCX | `zip` + `quick-xml` | Ler `document.xml`, `styles.xml`, `numbering.xml` e `docProps/core.xml` e traduzir: estilos "Heading N" viram títulos, numeração vira lista, negrito e itálico viram ênfase | Tudo do modelo |
 | PDF | A definir no spike S1 (`pdfium-render` ou `hayro`), acima | **A dedução da estrutura:** juntar caracteres em linhas, linhas em parágrafos, reconhecer títulos (tamanho e peso da fonte) e listas (marcadores e recuo) | Títulos, parágrafos, listas, ênfase. Tabelas e imagens não são reconhecidas: tabela vira parágrafos, imagem é ignorada |
