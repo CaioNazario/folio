@@ -22,6 +22,8 @@ export type StageContent =
   | { status: 'invalid' }
   | { status: 'notFound' }
   | { status: 'failed' }
+  /** The view for this format is not built yet (PDF and DOCX wait for spikes S2 and S4; MD for its command). */
+  | { status: 'unsupported' }
 
 export type DocumentActions = {
   onConvert: (format: DocumentFormat) => void

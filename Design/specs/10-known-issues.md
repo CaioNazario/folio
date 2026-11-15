@@ -17,7 +17,7 @@ Pontos do protótipo para decidir ou corrigir na implementação.
 8. Itens do menu Mais (Renomear, Adicionar tag, Abrir pasta no sistema, Mover para lixeira). **Resolvido:** itens e comportamento em `05-document-view.md` e `specs/10-compartilhamento.md`; "Adicionar tag" fica fora da 0.1.0
 9. Toolbar do palco: "página 1 de 4 · 100%" é estático (sem paginação nem zoom)
 10. Breadcrumb fixo em "Faculdade"
-11. Contagens de projeto e o número "4" ao lado de Projetos são fixos
+11. Contagens de projeto e o número "4" ao lado de Projetos são fixos. **Resolvido:** vêm do workspace (`03-sidebar.md`)
 12. Fechar menus com clique fora ou Esc
 13. Persistência de tema, favoritos e pastas abertas
 

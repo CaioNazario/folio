@@ -5,8 +5,11 @@ import { afterEach } from 'vitest'
 import { initI18n } from '@/lib/i18n'
 
 // Vitest globals are off, so Testing Library cannot register its own cleanup.
-afterEach(() => {
+// Unmounting stops event listeners asynchronously: let that settle before the
+// IPC mocks go away.
+afterEach(async () => {
   cleanup()
+  await new Promise((resolve) => setTimeout(resolve, 0))
   clearMocks()
 })
 

@@ -23,6 +23,7 @@ tauri = { version = "2.12.5", features = [] }
 tauri-plugin-log = "2"
 tauri-plugin-os = "2"
 uuid = { version = "1.29.2", features = ["serde"] }
+tauri-plugin-dialog = "2"
 
 [lints]
 workspace = true

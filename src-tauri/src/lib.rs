@@ -9,6 +9,7 @@ use tauri::{App, Manager};
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_os::init())
+        .plugin(tauri_plugin_dialog::init())
         .setup(setup)
         .invoke_handler(commands())
         .run(tauri::generate_context!())

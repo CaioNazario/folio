@@ -8,12 +8,16 @@ import { PreferencesProvider } from '@/features/preferences/components/Preferenc
 type Commands = Record<string, (args: unknown) => unknown>
 
 // Records every invoke() and answers it from `commands` (null when absent).
+// Events are mocked too: emit() from @tauri-apps/api/event reaches listen().
 export function mockCommands(commands: Commands = {}) {
   const calls: { cmd: string; args: unknown }[] = []
-  mockIPC((cmd, args) => {
-    calls.push({ cmd, args })
-    return commands[cmd] ? commands[cmd](args) : null
-  })
+  mockIPC(
+    (cmd, args) => {
+      calls.push({ cmd, args })
+      return commands[cmd] ? commands[cmd](args) : null
+    },
+    { shouldMockEvents: true },
+  )
   return calls
 }
 

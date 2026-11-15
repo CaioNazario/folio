@@ -8,7 +8,9 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 
 - Interface in Portuguese and English, following the system language.
 - Window with the sidebar and the Folio logo.
-- Sidebar with Favorites, Projects, Recent and footer, not yet showing workspace data.
+- Sidebar with Favorites, Projects, Recent and footer, showing the open workspace: lazily loaded project tree, pins, recent documents and workspace totals.
+- First run asks where to create the workspace, with the system Documents folder preselected; a missing workspace offers to retry or choose another.
+- Text documents open in the reader and enter the recent list.
 - Theme (light, dark, follow system) and language selectors in the sidebar footer.
 - Theme and language choices are saved and restored on the next launch.
 - Backend errors are shown in the active language.

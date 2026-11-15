@@ -1,26 +1,43 @@
-// View models the sidebar renders. They are UI props, not backend types: the
-// sidebar api.ts maps the ts-rs bindings into them once the commands exist.
+import type { DocumentFormat } from '@/features/document/types'
+import type { RelativePath } from '@/lib/bindings/RelativePath'
 
-export type FavoriteItem = { id: string; name: string; kind: 'file' | 'folder' }
+// View models the sidebar renders, mapped from the ts-rs bindings in
+// sidebarData.ts. Directories have no stable id: they are keyed by path
+// (specs/03-workspace.md, "Ícones").
 
-export type ProjectFile = { id: string; name: string }
+export type DocumentRef = { id: string; name: string; format: DocumentFormat; folder: string | null }
 
-export type ProjectItem = { id: string; name: string; count: number; files: ProjectFile[] }
+export type FolderRef = { path: RelativePath; name: string }
 
-export type RecentItem = { id: string; name: string; openedAt: Date }
+export type PinTarget = { kind: 'document'; id: string } | { kind: 'folder'; path: RelativePath }
 
-// path is shown as the user sees it ("~/Documentos"); userName feeds the avatar.
+export type FavoriteItem = { key: string; name: string; target: PinTarget }
+
+export type TreeFolder = FolderRef & { key: string; count: number; otherWorkspace: boolean }
+
+export type TreeDocument = DocumentRef & { valid: boolean }
+
+export type TreeLevel = { folders: TreeFolder[]; documents: TreeDocument[] }
+
+export type RecentItem = DocumentRef & { openedAt: Date }
+
 export type WorkspaceSummary = { path: string; userName: string; fileCount: number; totalBytes: number }
 
 export type SidebarData = {
   favorites: FavoriteItem[]
-  projects: ProjectItem[]
   recents: RecentItem[]
   workspace: WorkspaceSummary | null
 }
 
+export type TreeView = {
+  root: TreeLevel
+  children: ReadonlyMap<string, TreeLevel>
+  openKeys: ReadonlySet<string>
+  toggle: (folder: FolderRef) => void
+}
+
 export type SidebarActions = {
   onImport: () => void
-  onOpenDocument: (id: string) => void
-  onTogglePin: (id: string, kind: FavoriteItem['kind']) => void
+  onOpenDocument: (document: DocumentRef) => void
+  onTogglePin: (target: PinTarget) => void
 }

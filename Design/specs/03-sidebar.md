@@ -65,7 +65,11 @@ Cabeçalho: flex `space-between`, `padding: 10px 8px 6px`. Rótulo "Projetos" + 
 - Botão de pin
 - Clique: abre o documento (view "doc")
 
-Estado inicial: só "Faculdade" aberto.
+**Subpastas e documentos sem projeto** (não estão no protótipo): a raiz lista os projetos e, depois deles, os documentos fora de qualquer projeto, como linhas de arquivo. Uma pasta aberta mostra suas subpastas (mesma linha de projeto) e depois seus documentos, cada nível com a guia vertical e o mesmo recuo. O conteúdo de cada pasta é carregado ao abri-la (`specs/03-workspace.md`).
+
+**Outro workspace dentro deste:** a pasta aparece na árvore e, aberta, mostra "Esta pasta é outro workspace" (12px `--tx-8`) no lugar do conteúdo.
+
+Estado inicial: todas as pastas fechadas. A contagem ao lado de "Projetos" é o número de projetos na raiz.
 
 ### Recentes
 - Rótulo "Recentes"

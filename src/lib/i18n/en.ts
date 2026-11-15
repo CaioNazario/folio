@@ -19,6 +19,7 @@ export const en = {
       title: 'Favorites',
       empty: 'Pin a folder or document to see it here.',
     },
+    otherWorkspace: 'This folder is another workspace',
     projects: 'Projects',
     recents: 'Recent',
     pin: {
@@ -73,9 +74,22 @@ export const en = {
       invalid: 'This file is not a valid {{format}}',
       failed: 'This document could not be displayed',
       retry: 'Try again',
+      unsupported: '{{format}} display is not available yet',
       empty: 'Empty document',
       truncated: 'Large file: showing the first 10 MB',
     },
+  },
+  workspace: {
+    setup: {
+      title: 'Where should your documents live?',
+      description: 'Folio organizes the documents in this folder and its subfolders. The files stay on disk as they are.',
+      choose: 'Choose another folder',
+      create: 'Create and open',
+      openAncestor: 'Open that workspace',
+    },
+    openFailed: 'The workspace could not be opened',
+    retry: 'Try again',
+    chooseAnother: 'Choose another',
   },
   errors: {
     AlreadyExists: 'An item named {{name}} already exists',

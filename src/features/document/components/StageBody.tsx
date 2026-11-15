@@ -26,6 +26,8 @@ export function StageBody({ content, format, zoom, actions }: StageBodyProps) {
       return showLoading ? <StageMessage>{t('document.stage.loading')}</StageMessage> : null
     case 'invalid':
       return <StageMessage actions={showInFolder}>{t('document.stage.invalid', { format: format.toUpperCase() })}</StageMessage>
+    case 'unsupported':
+      return <StageMessage actions={showInFolder}>{t('document.stage.unsupported', { format: format.toUpperCase() })}</StageMessage>
     case 'notFound':
       return <StageMessage>{t('errors.DocumentNotFound')}</StageMessage>
     case 'failed':

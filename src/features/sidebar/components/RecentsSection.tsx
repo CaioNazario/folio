@@ -2,17 +2,18 @@ import { useTranslation } from 'react-i18next'
 import { SectionLabel } from '@/components/ui/section-label'
 import { useFormat } from '@/lib/i18n/useFormat'
 import type { RecentItem, SidebarActions } from '../types'
+import { pinKey } from '../sidebarData'
 import { NavRow, RowName } from './NavRow'
 import { PinButton } from './PinButton'
 
 type RecentsSectionProps = Pick<SidebarActions, 'onOpenDocument' | 'onTogglePin'> & {
   recents: RecentItem[]
-  pinnedIds: ReadonlySet<string>
+  pinnedKeys: ReadonlySet<string>
   now: Date
 }
 
 // Recents (Design/specs/03-sidebar.md): no icon, relative time on the right.
-export function RecentsSection({ recents, pinnedIds, now, onOpenDocument, onTogglePin }: RecentsSectionProps) {
+export function RecentsSection({ recents, pinnedKeys, now, onOpenDocument, onTogglePin }: RecentsSectionProps) {
   const { t } = useTranslation()
   const format = useFormat()
   return (
@@ -24,10 +25,13 @@ export function RecentsSection({ recents, pinnedIds, now, onOpenDocument, onTogg
         <NavRow
           key={item.id}
           label={item.name}
-          onClick={() => onOpenDocument(item.id)}
+          onClick={() => onOpenDocument(item)}
           trailing={
             <>
-              <PinButton pinned={pinnedIds.has(item.id)} onToggle={() => onTogglePin(item.id, 'file')} />
+              <PinButton
+                pinned={pinnedKeys.has(pinKey({ kind: 'document', id: item.id }))}
+                onToggle={() => onTogglePin({ kind: 'document', id: item.id })}
+              />
               <span className="font-mono text-[10px] whitespace-nowrap text-tx-1">
                 {format.relativeTime(item.openedAt, now)}
               </span>

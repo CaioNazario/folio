@@ -20,6 +20,7 @@ export const pt = {
       title: 'Favoritos',
       empty: 'Fixe uma pasta ou documento com o pin para vê-lo aqui.',
     },
+    otherWorkspace: 'Esta pasta é outro workspace',
     projects: 'Projetos',
     recents: 'Recentes',
     pin: {
@@ -74,9 +75,22 @@ export const pt = {
       invalid: 'Este arquivo não é um {{format}} válido',
       failed: 'Não foi possível exibir este documento',
       retry: 'Tentar de novo',
+      unsupported: 'A exibição de {{format}} ainda não está disponível',
       empty: 'Documento vazio',
       truncated: 'Arquivo grande: mostrando os primeiros 10 MB',
     },
+  },
+  workspace: {
+    setup: {
+      title: 'Onde guardar seus documentos?',
+      description: 'O Folio organiza os documentos desta pasta e das subpastas. Os arquivos continuam no disco, como estão.',
+      choose: 'Escolher outra pasta',
+      create: 'Criar e abrir',
+      openAncestor: 'Abrir esse workspace',
+    },
+    openFailed: 'Não foi possível abrir o workspace',
+    retry: 'Tentar de novo',
+    chooseAnother: 'Escolher outro',
   },
   errors: {
     AlreadyExists: 'Já existe um item com o nome {{name}}',
