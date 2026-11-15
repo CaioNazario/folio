@@ -14,6 +14,7 @@ pub mod indexing;
 pub mod integrity;
 pub mod model;
 pub mod paths;
+pub mod preferences;
 pub mod readers;
 pub mod recents;
 pub mod search;
