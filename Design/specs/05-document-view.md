@@ -30,7 +30,8 @@ Posição: absoluta, `top: 38px; right: 66px`, largura 196, z-index 40. Estilo b
 | PNG | Imagem PNG |
 | JPG | Imagem JPG |
 
-- Nota de rodapé: `margin: 5px 9px 4px; padding-top: 7px; border-top: 1px solid --bar`, 11px `--tx-9`, line-height 1.45. Texto: "O original é preservado. O novo arquivo entra na timeline como derivado."
+- Nota de rodapé: `margin: 5px 9px 4px; padding-top: 7px; border-top: 1px solid --bar`, 11px `--tx-9`, line-height 1.45. Texto: "O original é preservado. O novo arquivo é criado ao lado dele." (a menção à timeline do protótipo sai: versionamento está fora da 0.1.0)
+- Só aparecem os formatos para os quais o documento aberto pode ser convertido (`specs/08-conversao.md`); sem nenhum, o botão Converter fica desabilitado
 - Clique num item: ver [fluxo de conversão](07-state-interactions.md#conversão)
 
 ## 5.3 Menu "Mais"
@@ -50,8 +51,9 @@ Palco: `flex:1`, coluna, borda 1px `--line-4` (nenhuma no fullscreen), raio 16 (
 
 ### Toolbar
 `padding: 8px 12px; gap: 10px; border-bottom: 1px solid --line-3`, fundo `--surf-2`.
-- Texto em Mono 10px `--tx-5`: "{Preview | Fullscreen}" · "página 1 de 4 · 100%"
-- Botão fullscreen (margin-left auto): 26×24, borda 1px `--line-6`, raio 10, fundo `--pop`, `--tx-3`, hover `--hover-3`
+- Texto em Mono 10px `--tx-5`: "{Preview | Fullscreen} · página 1 de 4 · 100%". MD e TXT rolam continuamente e não têm páginas: "{Preview | Fullscreen} · 100%"
+- Botões de zoom (não estão no protótipo): "Menos zoom" e "Mais zoom", à esquerda do fullscreen, com o mesmo estilo dele e ícones Lucide `minus` e `plus` 13px. Desabilitados nos limites (50% e 300%)
+- Botão fullscreen: 26×24, borda 1px `--line-6`, raio 10, fundo `--pop`, `--tx-3`, hover `--hover-3`
   - Ícones `maximize` e `minimize` (13px) sobrepostos em crossfade de 160ms
   - title: "Fullscreen" ou "Sair do fullscreen"
 

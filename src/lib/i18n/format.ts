@@ -7,6 +7,11 @@ export function formatNumber(value: number, language: ActiveLanguage): string {
   return new Intl.NumberFormat(language).format(value)
 }
 
+// 1 → "100%".
+export function formatPercent(ratio: number, language: ActiveLanguage): string {
+  return new Intl.NumberFormat(language, { style: 'percent' }).format(ratio)
+}
+
 const SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB']
 
 export function formatSize(bytes: number, language: ActiveLanguage): string {

@@ -19,6 +19,8 @@ Todos são **Lucide** (lucide.dev): stroke 2 (exceto o plus), `stroke-linecap/li
 | chevron-down | 13 | Botão Converter |
 | ellipsis-vertical | 15 | Botão Mais |
 | maximize / minimize | 13 | Fullscreen |
+| minus / plus | 13 | Zoom do palco |
+| languages / check | 13 | Seletor de idioma |
 
 ## Logo (wordmark)
 SVG inline, viewBox `0 0 164 58`, renderizado com height 22, `fill: currentColor`:
