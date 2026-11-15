@@ -24,7 +24,7 @@ Nenhuma operação substitui um arquivo ou diretório existente.
 
 - **Rename e move** usam o rename sem sobrescrita do sistema, que falha de forma atômica se o destino existir: `renameat2` com `RENAME_NOREPLACE` no Linux, via `rustix` (API segura, sem `unsafe`). Nunca "confere se existe e depois renomeia", que tem corrida.
 - **Filesystem sem suporte** a `RENAME_NOREPLACE` (alguns FUSE e NFS): a operação falha com erro explicando o motivo, em vez de cair num rename que sobrescreve.
-- **Publicar um arquivo novo** (conversão) usa `tempfile::NamedTempFile::persist_noclobber`, que tem a mesma garantia.
+- **Publicar um arquivo novo** (conversão) usa o mesmo rename sem sobrescrita sobre o temporário do `tempfile`. Não usa o `persist_noclobber`, que, sem `RENAME_NOREPLACE`, cai para `link` + `unlink` em vez de falhar com `NoAtomicSupport`.
 
 **Colisão de nome:**
 
@@ -44,7 +44,7 @@ O sufixo é calculado e tentado em laço: se `(1)` for criado por outro processo
 
 **Arquivo com pasta de imagens** (conversão para MD, spec 08): a pasta é publicada antes do arquivo, os dois sem sobrescrita; se o arquivo falhar, a pasta volta para `.folio/tmp/` e é descartada.
 
-**Destino em outro filesystem** (um ponto de montagem dentro do workspace): o rename falha com `EXDEV`. O temporário é recriado no diretório de destino, com nome oculto `.folio-tmp-<uuid>`, e publicado de lá.
+**Destino em outro filesystem** (um ponto de montagem dentro do workspace): o rename falha com `EXDEV`. O temporário é recriado no diretório de destino, com nome oculto `.folio-tmp-*`, e publicado de lá.
 
 ### 3. Mover entre filesystems
 
@@ -85,7 +85,7 @@ Se o passo 2 falhar, a operação continua valendo (o disco é a verdade): o err
 
 ### 7. Temporários limpos
 
-Na abertura do workspace, o Folio esvazia `.folio/tmp/`. Os `.folio-tmp-<uuid>` fora de `.folio/` (garantia 2) são removidos quando o escaneamento os encontra (spec 05), e nunca aparecem na interface.
+Na abertura do workspace, o Folio esvazia `.folio/tmp/`. Os `.folio-tmp-*` fora de `.folio/` (garantia 2) são removidos quando o escaneamento os encontra (spec 05), e nunca aparecem na interface.
 
 Para a limpeza não apagar o temporário de outra janela, a abertura do workspace pega um lock exclusivo em `.folio/lock` (`File::try_lock` da std). Se o lock já estiver com outra janela, o Folio não abre o mesmo workspace duas vezes: foca a janela que já está com ele.
 

@@ -1,3 +1,5 @@
-//! Lógica de negócio do Folio: workspace, documentos, conversão e índice.
+//! Folio business logic: workspace, documents, conversion and index.
 //!
-//! Este crate não depende do Tauri e é testável sem subir o app.
+//! This crate does not depend on Tauri and is testable without running the app.
+
+pub mod integrity;
