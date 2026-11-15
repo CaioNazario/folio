@@ -89,8 +89,8 @@ Cada spike fica no topo da spec que ele bloqueia e se resolve antes da parte que
 | S2 | pdf.js no WebKitGTK e no WebView do Android | 07 |
 | S3 | Typst embarcado | 08 |
 | S4 | Fidelidade do docx-preview | 07 |
-| S5 | Reconectar ao id um arquivo movido por fora | 05 |
-| S6 | Indexação rápida de workspace grande | 05 |
+| S5 | Reconectar ao id um arquivo movido por fora (resolvido) | 05 |
+| S6 | Indexação rápida de workspace grande (resolvido no SSD; falta medir em HD externo) | 05 |
 | S7 | Workspace em pasta sincronizada (adiado; decisão provisória na spec) | 02 |
 | S8 | "Copiar arquivo" no Wayland/Hyprland | 10 |
 | S9 | Arrastar para fora no WebKitGTK/Wayland | 10 |

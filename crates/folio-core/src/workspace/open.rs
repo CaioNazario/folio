@@ -45,7 +45,15 @@ impl Workspace {
         services
             .global
             .remember_workspace(&Location::Path(root.to_path_buf()))?;
-        Ok(Self {
+        let workspace = Self::assemble(root, meta, WorkspaceState { db, guard }, services);
+        // Missing documents past 30 days leave the index on opening (spec 05).
+        workspace.purge_expired_missing()?;
+        Ok(workspace)
+    }
+
+    fn assemble(root: &Path, meta: Meta, state: WorkspaceState, services: &Services) -> Self {
+        let WorkspaceState { db, guard } = state;
+        Self {
             root: root.to_path_buf(),
             meta,
             recovered: db.recovered,
@@ -55,7 +63,7 @@ impl Workspace {
             clock: services.clock.clone(),
             conn: Mutex::new(db.conn),
             _guard: guard,
-        })
+        }
     }
 
     /// The workspace's own id, kept in its database (table `meta`).

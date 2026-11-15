@@ -2,7 +2,7 @@
 //! and folders (spec 03).
 
 mod default_dir;
-mod icons;
+pub(crate) mod icons;
 mod listing;
 mod meta;
 mod name;

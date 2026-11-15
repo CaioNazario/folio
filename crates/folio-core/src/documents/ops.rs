@@ -9,6 +9,7 @@ use rusqlite::Connection;
 use uuid::Uuid;
 
 use super::Document;
+use super::index::mark_missing;
 use crate::integrity::{delete_to_trash, move_with_suffix, rename_no_replace};
 use crate::paths::RelativePath;
 use crate::workspace::ops::entry_path;
@@ -83,14 +84,6 @@ fn with_extension_of(stem: &str, path: &RelativePath) -> OsString {
         name.push(extension);
     }
     name
-}
-
-fn mark_missing(conn: &mut Connection, id: Uuid, since: i64) -> rusqlite::Result<()> {
-    conn.execute(
-        "UPDATE documents SET missing_since = ?2 WHERE id = ?1",
-        (id.to_string(), since),
-    )
-    .map(drop)
 }
 
 fn set_path(conn: &mut Connection, id: Uuid, path: &RelativePath) -> rusqlite::Result<()> {

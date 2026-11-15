@@ -54,4 +54,11 @@ pub const MIGRATIONS: &[&str] = &[
      );
      CREATE INDEX conversions_by_source ON conversions (source_id);
      CREATE INDEX conversions_by_target ON conversions (target_id);",
+    // Spec 05: filesystem identity (device and inode) for reconnecting files
+    // moved outside Folio, and the lookups reconnection needs. The size
+    // index only holds hashed documents: the only ones stage 2 can compare.
+    "ALTER TABLE documents ADD COLUMN fs_dev INTEGER;
+     ALTER TABLE documents ADD COLUMN fs_ino INTEGER;
+     CREATE INDEX documents_by_fs_id ON documents (fs_dev, fs_ino);
+     CREATE INDEX documents_hashed_by_size ON documents (size) WHERE hash IS NOT NULL;",
 ];

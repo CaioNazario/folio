@@ -7,6 +7,7 @@ pub mod db;
 pub mod documents;
 mod error;
 pub mod ids;
+pub mod indexing;
 pub mod integrity;
 pub mod paths;
 pub mod services;

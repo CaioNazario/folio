@@ -4,6 +4,7 @@ use std::fs::{self, Metadata};
 use std::path::Path;
 
 use crate::clock::system_time_millis;
+use crate::indexing::fs_id::FsId;
 use crate::{Error, Result};
 
 /// Size and dates of a document, following symlinks to the real file.
@@ -12,6 +13,8 @@ pub struct FileFacts {
     pub size: u64,
     pub modified_at: i64,
     pub created_at: Option<i64>,
+    /// Device and inode of the real file, for reconnection (spec 05).
+    pub fs_id: FsId,
 }
 
 impl FileFacts {
@@ -30,6 +33,7 @@ impl FileFacts {
             modified_at: metadata.modified().map_or(0, system_time_millis),
             // Birth time comes from statx; not every filesystem records it.
             created_at: metadata.created().ok().map(system_time_millis),
+            fs_id: FsId::from_metadata(metadata),
         }
     }
 }

@@ -2,13 +2,13 @@
 
 mod conversions;
 mod counts;
-mod file_facts;
+pub(crate) mod file_facts;
 mod format;
-mod index;
+pub(crate) mod index;
 mod ops;
 mod signature;
 #[cfg(test)]
-mod test_docs;
+pub(crate) mod test_docs;
 
 pub use conversions::ConversionLink;
 pub use counts::WorkspaceTotals;

@@ -34,6 +34,13 @@ pub fn icon_of(conn: &Connection, path: &RelativePath) -> rusqlite::Result<Optio
     .optional()
 }
 
+/// Paths of every directory that has an icon.
+pub fn icon_paths(conn: &Connection) -> rusqlite::Result<Vec<RelativePath>> {
+    conn.prepare("SELECT path FROM icons")?
+        .query_map([], |row| row.get(0))?
+        .collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

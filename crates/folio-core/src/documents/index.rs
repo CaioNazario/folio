@@ -8,6 +8,7 @@ use uuid::Uuid;
 use super::file_facts::FileFacts;
 use super::{Format, check_signature, is_ignored_name};
 use crate::db::columns::uuid_column;
+use crate::indexing::fs_id::FsId;
 use crate::paths::RelativePath;
 use crate::workspace::Workspace;
 use crate::{Error, Result};
@@ -50,7 +51,7 @@ impl Workspace {
             modified_at: facts.modified_at,
             created_at: facts.created_at,
         };
-        let id = upsert(&self.conn(), &doc).map_err(|e| self.db_error(e))?;
+        let id = upsert(&self.conn(), &doc, facts.fs_id).map_err(|e| self.db_error(e))?;
         Ok(Some(Document { id, ..doc }))
     }
 
@@ -97,7 +98,7 @@ impl Workspace {
 }
 
 /// The format of a file that appears as a document, if any.
-fn document_format(name: &OsStr) -> Option<Format> {
+pub(crate) fn document_format(name: &OsStr) -> Option<Format> {
     if is_ignored_name(name) {
         return None;
     }
@@ -124,7 +125,7 @@ pub(crate) fn document_row(row: &Row<'_>) -> rusqlite::Result<Document> {
 }
 
 /// Inserts or updates the row for `doc.path` and returns the id it keeps.
-fn upsert(conn: &Connection, doc: &Document) -> rusqlite::Result<Uuid> {
+fn upsert(conn: &Connection, doc: &Document, fs_id: FsId) -> rusqlite::Result<Uuid> {
     let params = (
         doc.id.to_string(),
         &doc.path,
@@ -134,20 +135,32 @@ fn upsert(conn: &Connection, doc: &Document) -> rusqlite::Result<Uuid> {
         doc.size as i64,
         doc.modified_at,
         doc.created_at,
+        fs_id.dev,
+        fs_id.ino,
     );
-    conn.query_row(UPSERT, params, |row| uuid_column(row, 0))
+    conn.prepare_cached(UPSERT)?
+        .query_row(params, |row| uuid_column(row, 0))
 }
 
 /// A file found again at an indexed path keeps its id and stops being missing.
 const UPSERT: &str = "INSERT INTO documents
-         (id, path, format, valid, protected, size, modified_at, created_at)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
+         (id, path, format, valid, protected, size, modified_at, created_at, fs_dev, fs_ino)
+     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
      ON CONFLICT (path) DO UPDATE SET
          format = excluded.format, valid = excluded.valid,
          protected = excluded.protected, size = excluded.size,
          modified_at = excluded.modified_at, created_at = excluded.created_at,
-         missing_since = NULL
+         fs_dev = excluded.fs_dev, fs_ino = excluded.fs_ino, missing_since = NULL
      RETURNING id";
+
+/// Marks the document missing since `since`, unless it already is.
+pub(crate) fn mark_missing(conn: &mut Connection, id: Uuid, since: i64) -> rusqlite::Result<()> {
+    conn.execute(
+        "UPDATE documents SET missing_since = ?2 WHERE id = ?1 AND missing_since IS NULL",
+        (id.to_string(), since),
+    )
+    .map(drop)
+}
 
 #[cfg(test)]
 mod tests {
