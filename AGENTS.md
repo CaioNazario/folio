@@ -85,6 +85,10 @@ Duas branches permanentes, as mesmas para todas as plataformas. Plataformas se s
 - 0.1.0: job Linux (`ubuntu-latest`) obrigatório.
 - Jobs Windows (`windows-latest`) e Android são adicionados conforme as plataformas entram no roadmap; quebrar o build de uma plataforma suportada bloqueia o merge.
 
+### Instalação
+
+- O app precisa ser instalado via `install.sh`, na raiz do repositório.
+
 ## Regras de código
 
 Valem para todo o código do projeto (Rust e TypeScript).
@@ -150,6 +154,8 @@ O limite de 500 linhas por arquivo Rust e o de indentação no Rust não têm li
 Para cada ciclo, informe: nome do teste, trecho da saída do Red (o motivo da falha) e confirmação do Green.
 
 ## Frontend (React + TypeScript + Vite)
+
+- **O frontend é feito por outro agente.** Ao chegar numa tarefa de frontend, pare e avise o mantenedor em vez de implementá-la.
 
 ### Estrutura
 
