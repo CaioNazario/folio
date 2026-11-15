@@ -29,3 +29,4 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 - Page Down, Page Up, the left and right arrows, Home and End scroll the reader one screen or to either end.
 - Opening a document that is gone from disk refreshes the sidebar.
 - Home screen, shown when no document is open and reached from the logo: quick actions, recent documents to continue reading, and project cards that open the project in the sidebar.
+- Links to a heading inside a Markdown document scroll to that heading.

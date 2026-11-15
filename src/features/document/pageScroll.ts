@@ -28,3 +28,9 @@ export function scrollPage(page: HTMLElement | null, move: PageMove) {
   if (!page) return
   page.scrollTop = scrollTarget(page, move)
 }
+
+// Heading ids carry a prefix so a title never takes one of the app's own ids
+// (specs/07-reader.md, "Âncoras no MD"). A missing heading does nothing.
+export function scrollToHeading(fragment: string) {
+  document.getElementById(`folio-h-${fragment}`)?.scrollIntoView({ block: 'start' })
+}

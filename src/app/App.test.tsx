@@ -1,7 +1,7 @@
 import { emit } from '@tauri-apps/api/event'
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 import { DEFAULT_PREFERENCES } from '@/features/preferences/api'
 import { pt } from '@/lib/i18n/pt'
 import { mockCommands } from '@/test-utils'
@@ -199,4 +199,24 @@ test('the logo goes back to the home', async () => {
   await user.click(screen.getByRole('button', { name: pt.sidebar.home }))
 
   expect(home().getByRole('heading', { name: pt.home.title, level: 1 })).toBeInTheDocument()
+})
+
+test('an anchor link scrolls the page to its heading', async () => {
+  const { user } = await renderApp()
+  await openReferences(user)
+  const heading = screen.getByRole('heading', { name: 'Notas' })
+  heading.scrollIntoView = vi.fn()
+  await user.click(screen.getByRole('link', { name: 'notas' }))
+
+  await waitFor(() => expect(heading.scrollIntoView).toHaveBeenCalled())
+})
+
+test('an anchor to a missing heading does nothing', async () => {
+  const { calls, user } = await renderApp()
+  await openReferences(user)
+  await user.click(screen.getByRole('link', { name: 'nada' }))
+
+  await waitFor(() => expect(calls).toContainEqual({ cmd: 'resolve_link', args: { id: 'd-ref', href: '#nada' } }))
+  expect(screen.queryByText(pt.document.linkUnsupported)).not.toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Referências', level: 1 })).toBeInTheDocument()
 })

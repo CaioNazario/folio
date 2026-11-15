@@ -5,6 +5,7 @@ import type { DocumentRef } from '@/features/sidebar/types'
 import type { LinkTarget } from '@/lib/bindings/LinkTarget'
 import { useReportError } from '@/lib/useReportError'
 import { openExternal, resolveLink } from './api'
+import { scrollToHeading } from './pageScroll'
 
 // Name to show while a linked document opens: the last part of the href.
 function linkedName(href: string): string {
@@ -16,20 +17,26 @@ function linkedName(href: string): string {
   }
 }
 
-// Follows a link clicked in the document as the core resolves it
-// (specs/07-reader.md, "Links"). Anchors wait for heading ids from the core.
-export function useLinkHandler(documentId: string | null, open: (ref: DocumentRef) => void) {
+// Goes where the core said a link leads; Ignored does nothing.
+function useFollowTarget(open: (ref: DocumentRef) => void) {
   const { t } = useTranslation()
   const { show } = useToast()
-  const report = useReportError()
-  const follow = useCallback(
+  return useCallback(
     (href: string) => (target: LinkTarget) => {
       if (target.kind === 'External') return openExternal(target.url)
       if (target.kind === 'Document') return open({ id: target.id, name: linkedName(href) })
+      if (target.kind === 'Anchor') return scrollToHeading(target.fragment)
       if (target.kind === 'Unsupported') show(t('document.linkUnsupported'))
     },
     [open, show, t],
   )
+}
+
+// Follows a link clicked in the document as the core resolves it
+// (specs/07-reader.md, "Links").
+export function useLinkHandler(documentId: string | null, open: (ref: DocumentRef) => void) {
+  const report = useReportError()
+  const follow = useFollowTarget(open)
   return useCallback(
     (href: string) => {
       if (!documentId) return

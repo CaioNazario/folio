@@ -23,7 +23,8 @@ export const FACULDADE_CONTENTS: DirContents = {
 const ALL_DOCUMENTS = [...ROOT.documents, ...FACULDADE_CONTENTS.documents, doc('d-pdf', 'Artigo.pdf', 'pdf')]
 
 export const MARKDOWN =
-  '<h1>Referências</h1><p><a href="https://example.org">site</a> <a href="Leia-me.txt">leia</a> <a href="x.xlsx">planilha</a></p>' +
+  '<h1>Referências</h1><p><a href="https://example.org">site</a> <a href="Leia-me.txt">leia</a> <a href="x.xlsx">planilha</a> <a href="#notas">notas</a> <a href="#nada">nada</a></p>' +
+  '<h2 id="folio-h-notas">Notas</h2>' +
   '<span data-folio-image="remote">diagrama <a href="https://img.example/d.png">https://img.example/d.png</a></span>'
 
 function openedView(id: string) {
@@ -37,6 +38,8 @@ const LINKS: Record<string, object> = {
   'https://example.org': { kind: 'External', url: 'https://example.org' },
   'Leia-me.txt': { kind: 'Document', id: 'd-readme' },
   'x.xlsx': { kind: 'Unsupported' },
+  '#notas': { kind: 'Anchor', fragment: 'notas' },
+  '#nada': { kind: 'Anchor', fragment: 'nada' },
 }
 
 export function workspaceCommands(overrides: Record<string, (args: unknown) => unknown> = {}) {
