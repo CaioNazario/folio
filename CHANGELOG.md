@@ -23,3 +23,4 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 - The reader remembers how far each document was scrolled and returns there when it is opened again.
 - Page Down, Page Up, the left and right arrows, Home and End scroll the reader one screen or to either end.
 - Opening a document that is gone from disk refreshes the sidebar.
+- Home screen, shown when no document is open and reached from the logo: quick actions, recent documents to continue reading, and project cards that open the project in the sidebar.

@@ -3,7 +3,7 @@
 ## Estado
 | Chave | Tipo | Inicial | Descrição |
 |---|---|---|---|
-| view | 'home' \| 'doc' | 'doc' | View da área principal |
+| view | 'home' \| 'doc' | 'doc' | View da área principal. No produto começa em `home`: `doc` só com um documento aberto |
 | sel | string | 'v3' | Id do item aberto na timeline |
 | full | boolean | false | Modo fullscreen do palco |
 | convertOpen | boolean | false | Dropdown Converter aberto |
@@ -19,7 +19,7 @@
 **Derivado:** `cur = tl.find(id === sel) ?? último item de tl`.
 
 ## Navegação
-- **Importar documento** → `view = 'home'` e fecha os menus
+- **Importar documento** → `view = 'home'` e fecha os menus. No produto: abre o seletor de arquivos (`specs/09-entrada.md`), e quem leva à Home é o **logo** da sidebar
 - **Arquivo da árvore ligado à timeline** (Trabalho.docx → v1, Trabalho v2.docx → v2, Trabalho v2.pdf → d1, Trabalho v3.docx → v3) → `sel = id`, `view = 'doc'` e fecha os menus
 - **Outros arquivos da árvore** → `sel = nome`. Como não existem na timeline, o leitor mostra o último item. No produto, todo arquivo deve abrir
 - **Recentes** (sidebar e home): os dois primeiros abrem v3 e d1. Os outros mostram o toast "{nome} aberto"

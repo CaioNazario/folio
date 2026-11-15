@@ -29,7 +29,8 @@ export function toFavoriteItem({ name, target }: Favorite): FavoriteItem {
 }
 
 export function toRecentItem(recent: RecentDocument): RecentItem {
-  return { id: recent.id, name: recent.name, openedAt: new Date(recent.openedAt) }
+  const { id, name, project, size, openedAt } = recent
+  return { id, name, project, size, openedAt: new Date(openedAt) }
 }
 
 export function toWorkspaceSummary({ location, userName, totals }: SummaryBinding): WorkspaceSummary {

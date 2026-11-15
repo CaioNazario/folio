@@ -22,7 +22,15 @@ export function Sidebar({ data, tree, actions, selectedId, now }: SidebarProps) 
       className="flex min-w-[196px] flex-[0_0_min(272px,24vw)] flex-col border-r border-surf-4 bg-bg"
     >
       <header className="flex h-[46px] shrink-0 items-center gap-[9px] border-b border-line-1 px-[14px] text-tx-1">
-        <Logo />
+        <button
+          type="button"
+          onClick={actions.onHome}
+          aria-label={t('sidebar.home')}
+          title={t('sidebar.home')}
+          className="flex cursor-pointer rounded-8 text-tx-1"
+        >
+          <Logo />
+        </button>
       </header>
       <Actions onImport={actions.onImport} />
       <div className="min-h-0 flex-1 overflow-y-auto px-2 pt-1.5 pb-3">

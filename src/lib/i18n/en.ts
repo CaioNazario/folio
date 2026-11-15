@@ -13,6 +13,7 @@ export const en = {
     files_other: '{{count, number}} files',
   },
   sidebar: {
+    home: 'Go to Documents',
     import: 'Import document',
     search: 'Search documents',
     favorites: {
@@ -29,6 +30,21 @@ export const en = {
     footer: {
       summary: '{{files}} · {{size}}',
     },
+  },
+  home: {
+    title: 'Documents',
+    subtitle: 'Read and convert only. Everything stays on this computer.',
+    actions: {
+      import: { title: 'Import files', description: 'Drag or select from disk' },
+      convert: { title: 'Convert file', description: 'PDF, Markdown, TXT or DOCX' },
+      newProject: { title: 'New project', description: 'Group documents by context' },
+    },
+    continue: 'Continue where you left off',
+    seeAll: 'See all',
+    projects: 'Projects',
+    documents_one: '{{count, number}} document',
+    documents_other: '{{count, number}} documents',
+    recentMeta: '{{project}} · {{size}}',
   },
   preferences: {
     theme: {

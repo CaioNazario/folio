@@ -18,7 +18,8 @@ export type TreeDocument = DocumentRef & { valid: boolean }
 
 export type TreeLevel = { folders: TreeFolder[]; documents: TreeDocument[] }
 
-export type RecentItem = DocumentRef & { openedAt: Date }
+/** `project` is null at the workspace root. */
+export type RecentItem = DocumentRef & { project: string | null; size: number; openedAt: Date }
 
 export type WorkspaceSummary = { path: string; userName: string; fileCount: number; totalBytes: number }
 
@@ -36,6 +37,8 @@ export type TreeView = {
 }
 
 export type SidebarActions = {
+  /** The logo goes back to the Home. */
+  onHome: () => void
   onImport: () => void
   onOpenDocument: (document: DocumentRef) => void
   onTogglePin: (target: PinTarget) => void

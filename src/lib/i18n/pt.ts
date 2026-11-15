@@ -14,6 +14,7 @@ export const pt = {
     files_other: '{{count, number}} arquivos',
   },
   sidebar: {
+    home: 'Ir para Documentos',
     import: 'Importar documento',
     search: 'Pesquisar documentos',
     favorites: {
@@ -30,6 +31,21 @@ export const pt = {
     footer: {
       summary: '{{files}} · {{size}}',
     },
+  },
+  home: {
+    title: 'Documentos',
+    subtitle: 'Somente leitura e conversão. Tudo armazenado neste computador.',
+    actions: {
+      import: { title: 'Importar arquivos', description: 'Arraste ou selecione do disco' },
+      convert: { title: 'Converter arquivo', description: 'PDF, Markdown, TXT ou DOCX' },
+      newProject: { title: 'Novo projeto', description: 'Agrupe documentos por contexto' },
+    },
+    continue: 'Continuar de onde parou',
+    seeAll: 'Ver tudo',
+    projects: 'Projetos',
+    documents_one: '{{count, number}} documento',
+    documents_other: '{{count, number}} documentos',
+    recentMeta: '{{project}} · {{size}}',
   },
   preferences: {
     theme: {

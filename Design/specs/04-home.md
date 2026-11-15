@@ -1,6 +1,6 @@
 # 04 · Home ("Documentos")
 
-Ativada pelo botão "Importar documento". Container rolável (`flex:1; overflow-y:auto`). Conteúdo: `max-width: 880px; margin: 0 auto; padding: 72px 40px 60px`.
+É a view inicial da área principal, quando nenhum documento está aberto, e o logo da sidebar volta para ela (`03-sidebar.md`). O protótipo a abria pelo "Importar documento", que agora abre o seletor de arquivos (`10-known-issues.md`, item 5). Container rolável (`flex:1; overflow-y:auto`). Conteúdo: `max-width: 880px; margin: 0 auto; padding: 72px 40px 60px`.
 
 ## Cabeçalho
 - "Documentos": 26px / 600, letter-spacing -0.01em
@@ -16,10 +16,10 @@ Grid de 3 colunas iguais, gap 10, margin-top 32.
 | Ícone (Lucide) | Título | Descrição |
 |---|---|---|
 | upload | Importar arquivos | Arraste ou selecione do disco |
-| file-plus | Converter arquivo | PDF, Markdown, TXT ou imagem |
+| file-plus | Converter arquivo | PDF, Markdown, TXT ou DOCX |
 | folder-plus | Novo projeto | Agrupe documentos por contexto |
 
-Os cards não têm ação no protótipo.
+Os cards não têm ação no protótipo. No produto, cada um ganha a sua com o command correspondente: Importar (`specs/09-entrada.md`), Converter (`specs/08-conversao.md`) e Novo projeto (`specs/03-workspace.md`); até lá, ficam visíveis e sem ação.
 
 ## Continuar de onde parou
 - Cabeçalho (margin-top 40): flex, `align-items: baseline`, `space-between`
@@ -31,6 +31,8 @@ Os cards não têm ação no protótipo.
   - Meta 12px `--tx-8` ("Faculdade · 42 KB")
   - Tempo em Mono 11px `--tx-10`, margin-left auto
 - Usa a mesma lista de Recentes (7 itens). Clique: igual ao item de Recentes da sidebar
+- Documento na raiz do workspace (sem projeto): a meta mostra só o tamanho
+- Sem recentes: só o cabeçalho da seção, sem a lista
 
 ## Projetos
 - Rótulo "Projetos" (margin-top 36, mesmo estilo de rótulo da home)
@@ -40,6 +42,7 @@ Os cards não têm ação no protótipo.
   - Nome (margin-top 12): 13/500
   - Contagem (margin-top 2): Mono 11px `--tx-10`, "{n} documentos"
 - Clique: abre/fecha o projeto na sidebar (não muda de view)
+- Workspace sem projetos: a seção não aparece
 
 ## Responsividade
 O protótipo usa colunas fixas (3 e 4). Na implementação, usar `repeat(auto-fill, minmax(200px, 1fr))` ou breakpoints para que os cards quebrem de linha em larguras estreitas.

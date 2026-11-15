@@ -15,8 +15,10 @@ async function renderApp(overrides: Parameters<typeof workspaceCommands>[0] = {}
   return { calls, user: userEvent.setup() }
 }
 
-const section = (name: string) => screen.getByRole('region', { name })
+const sidebar = () => screen.getByRole('complementary', { name: pt.shell.sidebar })
+const section = (name: string) => within(sidebar()).getByRole('region', { name })
 const projects = () => section(pt.sidebar.projects)
+const home = () => within(screen.getByRole('main'))
 
 test('loads the tree, favorites, recents and footer of the open workspace', async () => {
   await renderApp()
@@ -151,4 +153,50 @@ test('reloads the sidebar when a scan finishes', async () => {
   await act(() => emit('scan-finished'))
 
   expect(calls.filter((call) => call.cmd === 'get_workspace_summary')).toHaveLength(before + 1)
+})
+
+test('shows the home when no document is open', async () => {
+  await renderApp()
+
+  expect(home().getByRole('heading', { name: pt.home.title, level: 1 })).toBeInTheDocument()
+  expect(home().getByRole('button', { name: /Importar arquivos/ })).toBeInTheDocument()
+})
+
+test('the home lists the recent documents with project, size and time', async () => {
+  await renderApp()
+  const recent = home().getByRole('button', { name: /Trabalho v3\.txt/ })
+
+  expect(recent).toHaveTextContent('Faculdade · 42 KB')
+  expect(recent).toHaveTextContent('há 2 d')
+})
+
+test('opening a recent document from the home shows it in the reader', async () => {
+  const { calls, user } = await renderApp()
+  await user.click(home().getByRole('button', { name: /Trabalho v3\.txt/ }))
+
+  expect(await screen.findByText('Conteúdo do trabalho')).toBeInTheDocument()
+  expect(calls).toContainEqual({ cmd: 'open_document', args: { id: 'd-v3' } })
+})
+
+test('the home lists the projects with their document count', async () => {
+  await renderApp()
+
+  expect(home().getByRole('button', { name: /^Faculdade/ })).toHaveTextContent('2 documentos')
+})
+
+test('a project card opens the project in the sidebar and stays on the home', async () => {
+  const { user } = await renderApp()
+  await user.click(home().getByRole('button', { name: /^Faculdade/ }))
+
+  expect(within(projects()).getByRole('button', { name: 'Faculdade' })).toHaveAttribute('aria-expanded', 'true')
+  expect(home().getByRole('heading', { name: pt.home.title, level: 1 })).toBeInTheDocument()
+})
+
+test('the logo goes back to the home', async () => {
+  const { user } = await renderApp()
+  await user.click(within(projects()).getByRole('button', { name: 'Leia-me.txt' }))
+  await screen.findByText('Conteúdo do trabalho')
+  await user.click(screen.getByRole('button', { name: pt.sidebar.home }))
+
+  expect(home().getByRole('heading', { name: pt.home.title, level: 1 })).toBeInTheDocument()
 })

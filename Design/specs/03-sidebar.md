@@ -4,6 +4,7 @@
 - Altura 46px fixa, `padding: 0 14px`, flex com `align-items:center; gap:9px`
 - `border-bottom: 1px solid --line-1`
 - Logo: SVG inline com height 22px, viewBox 164×58, `color: --tx-1` (ver [09-assets](09-assets.md))
+- Clique no logo: vai para a **Home** (`04-home.md`). Rótulo acessível "Ir para Documentos"
 
 ## 3.2 Ações
 Container: `padding: 12px 12px 8px`, coluna, gap 8px.
@@ -13,7 +14,7 @@ Container: `padding: 12px 12px 8px`, coluna, gap 8px.
 - Borda 1px `--line-6`, raio 14, fundo `--surf-2`, texto `--tx-1` 13/500
 - Hover: fundo `--line-3`, borda `--line-9`
 - Ícone: Lucide `plus` 15px, stroke 3, cor `--plus`
-- Clique: vai para a **Home** e fecha os menus abertos
+- Clique: abre o seletor de arquivos da importação (`specs/09-entrada.md`); até o command existir, fica sem ação. No protótipo ia para a Home, que agora abre pelo logo (3.1)
 
 ### Campo de busca
 - `padding: 7px 10px`, gap 8px, raio 14, fundo `--surf-1`, borda 1px `--surf-4`
