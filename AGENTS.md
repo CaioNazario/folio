@@ -338,13 +338,11 @@ Na 0.1.0 (Linux) entram "Mostrar na pasta" e "Arrastar para fora"; "Copiar arqui
 
 ## Busca, favoritos e recentes
 
-**Busca (0.1.0):** por nome do arquivo, com filtros por extensão, projeto e pasta. O nome é indexado numa coluna normalizada (minúsculas, sem acento), para que "relatorio" encontre "Relatório". Não usa full-text.
+Spec completa: `specs/06-busca-favoritos-recentes.md`. Regras que valem em todo o código:
 
-**Busca no conteúdo (futuro):** tabela FTS5 do SQLite com tokenizer `unicode61 remove_diacritics`, alimentada pelos leitores do modelo de documento (`specs/07-reader.md`). O índice é derivado e reconstruível. Português não tem stemmer embutido; plurais são cobertos por busca por prefixo.
-
-**Favoritos:** documentos, pastas e projetos, guardados no SQLite do workspace e ligados ao id estável do documento.
-
-**Recentes:** documentos abertos recentemente no workspace atual, guardados no SQLite do workspace. A lista de workspaces abertos recentemente fica no banco global.
+- **Busca só pelo nome**, normalizado (sem acento, minúsculas) por uma única função do core, registrada no SQLite. Sem full-text na 0.1.0.
+- **Busca no conteúdo (futuro):** tabela FTS5 com tokenizer `unicode61 remove_diacritics`, alimentada pelos leitores (`specs/07-reader.md`); derivada e reconstruível. Português não tem stemmer embutido; plurais são cobertos por busca por prefixo.
+- **Favoritos e recentes** de documento ficam ligados ao id; favorito de pasta, ao caminho. Documentos ausentes não aparecem em nenhum dos dois.
 
 ## Persistência
 

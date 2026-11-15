@@ -37,7 +37,7 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 | 03 | [workspace](03-workspace.md) | Modelo de vault, abertura, diretório default, workspace aninhado, operações em projetos e pastas, ícones | — | — | Escrita |
 | 04 | [documentos](04-documentos.md) | Reconhecimento, protegidos por senha, links simbólicos, id estável, tabelas do índice, derivados e avisos de desatualizado | — | — | Escrita |
 | 05 | [indexacao](05-indexacao.md) | Reconciliação, escaneamento em segundo plano, hash, reconexão, ausentes por 30 dias, reindexação | S5, S6 | — | Escrita |
-| 06 | busca-favoritos-recentes | Busca por nome normalizado, filtros, favoritos, recentes | — | Busca, favoritos e recentes | A escrever |
+| 06 | [busca-favoritos-recentes](06-busca-favoritos-recentes.md) | Busca por nome normalizado, filtros, favoritos, recentes, continuar de onde parou | — | — | Escrita |
 | 07 | [reader](07-reader.md) | Exibição por formato, modelo de documento, leitores, extração de metadados | S1, S2, S4 | — | Escrita |
 | 08 | [conversao](08-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | S3 | — | Escrita |
 | 09 | entrada | Downloads, watcher, downloads em andamento, mover para projeto | — | Entrada (Downloads) | A escrever |
