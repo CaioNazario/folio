@@ -422,14 +422,13 @@ O Folio usa dois bancos SQLite com papéis diferentes; nenhum deles guarda docum
 
 ## Integridade
 
-Nenhuma operação do Folio pode destruir ou corromper um documento do usuário.
+Spec completa: `specs/01-integridade.md`. Regras que valem em todo o código:
 
-- **Original intocável na conversão:** a conversão só lê o original; o resultado nasce num temporário e é renomeado atomicamente.
-- **Sem sobrescrita silenciosa:** colisão de nome pede confirmação ou gera sufixo.
-- **Exclusão vai para a lixeira** do sistema, nunca é permanente.
-- **Operações de arquivo antes do banco:** move/renomeia no disco primeiro e atualiza o índice depois. Se o índice falhar, o próximo escaneamento corrige; o arquivo nunca fica num estado inconsistente.
-- **Banco recuperável:** SQLite em modo WAL, transações em toda escrita múltipla. Se o `folio.db` corromper ou sumir, o Folio reindexa o workspace a partir do disco.
-- **Temporários limpos:** temporários órfãos de conversões interrompidas são removidos na próxima abertura do workspace.
+- **Lista fechada de operações** sobre arquivos do usuário: ler, criar arquivo, criar diretório, renomear/mover, enviar para a lixeira. O Folio nunca escreve dentro de um arquivo existente; operação nova entra primeiro na spec 01.
+- **Nunca sobrescrever:** rename e move usam o rename sem sobrescrita do sistema (`RENAME_NOREPLACE`); nunca "confere e renomeia".
+- **Arquivo novo nasce num temporário** sincronizado e é publicado por rename atômico.
+- **Exclusão só pela lixeira**, sem fallback para apagar permanentemente.
+- **Disco antes do banco:** se o índice falhar depois, o próximo escaneamento corrige.
 - **Mudanças externas:** na 0.1.0, o Folio detecta na abertura do workspace e ao navegar arquivos criados, removidos, movidos ou renomeados por fora; o hash ajuda a reconectar um arquivo movido ao seu id.
 
 ## Notas para o versionamento futuro

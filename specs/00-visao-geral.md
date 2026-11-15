@@ -32,11 +32,11 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 
 | # | Spec | Cobre | Spikes | Origem no `AGENTS.md` | Status |
 |---|---|---|---|---|---|
-| 01 | integridade | Garantias transversais: original intocável, lixeira, disco antes do banco, WAL, temporários | — | Integridade | A escrever |
+| 01 | [integridade](01-integridade.md) | Garantias transversais: sem sobrescrita, temporários, lixeira, disco antes do banco, banco recuperável, lock do workspace | — | — | Escrita |
 | 02 | persistencia | Banco global e do workspace, tabelas, caminhos relativos, `WorkspaceStore` | S7 | Persistência | A escrever |
 | 03 | workspace | Modelo de vault, abertura, diretório default, regras, operações em projetos e pastas | — | Modelo de workspace | A escrever |
 | 04 | documentos | Reconhecimento, id estável, metadados por formato, documentos derivados | — | Documentos e documentos derivados | A escrever |
-| 05 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | S5, S6 | Integridade | A escrever |
+| 05 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | S5, S6 | Integridade (mudanças externas) | A escrever |
 | 06 | busca-favoritos-recentes | Busca por nome normalizado, filtros, favoritos, recentes | — | Busca, favoritos e recentes | A escrever |
 | 07 | [reader](07-reader.md) | Exibição por formato, modelo de documento, leitores | S1, S2, S4 | — | Escrita |
 | 08 | [conversao](08-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | S3 | — | Escrita |
