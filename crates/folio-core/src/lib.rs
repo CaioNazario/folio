@@ -6,10 +6,13 @@ pub mod clock;
 pub mod db;
 pub mod documents;
 mod error;
+pub mod favorites;
 pub mod ids;
 pub mod indexing;
 pub mod integrity;
 pub mod paths;
+pub mod recents;
+pub mod search;
 pub mod services;
 #[cfg(test)]
 mod testing;

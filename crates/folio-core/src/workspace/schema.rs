@@ -61,4 +61,65 @@ pub const MIGRATIONS: &[&str] = &[
      ALTER TABLE documents ADD COLUMN fs_ino INTEGER;
      CREATE INDEX documents_by_fs_id ON documents (fs_dev, fs_ino);
      CREATE INDEX documents_hashed_by_size ON documents (size) WHERE hash IS NOT NULL;",
+    // Spec 06: the normalized file name searches compare against, kept in
+    // step with `path` by triggers so no operation can forget it.
+    "ALTER TABLE documents ADD COLUMN name_norm TEXT NOT NULL DEFAULT '';
+     UPDATE documents SET name_norm = folio_normalize(path);
+     CREATE TRIGGER documents_name_norm_on_insert AFTER INSERT ON documents
+     BEGIN
+         UPDATE documents SET name_norm = folio_normalize(NEW.path) WHERE id = NEW.id;
+     END;
+     CREATE TRIGGER documents_name_norm_on_path AFTER UPDATE OF path ON documents
+     BEGIN
+         UPDATE documents SET name_norm = folio_normalize(NEW.path) WHERE id = NEW.id;
+     END;
+     CREATE TABLE favorites (
+         id TEXT PRIMARY KEY NOT NULL,
+         document_id TEXT REFERENCES documents (id) ON DELETE CASCADE,
+         path BLOB,
+         added_at INTEGER NOT NULL,
+         CHECK ((document_id IS NULL) <> (path IS NULL))
+     );
+     CREATE UNIQUE INDEX favorites_by_document ON favorites (document_id)
+         WHERE document_id IS NOT NULL;
+     CREATE UNIQUE INDEX favorites_by_path ON favorites (path) WHERE path IS NOT NULL;
+     CREATE TABLE recent_documents (
+         document_id TEXT PRIMARY KEY NOT NULL
+             REFERENCES documents (id) ON DELETE CASCADE,
+         opened_at INTEGER NOT NULL,
+         position REAL
+     );
+     CREATE INDEX recent_documents_by_opened_at ON recent_documents (opened_at);",
 ];
+
+#[cfg(test)]
+mod tests {
+    use rusqlite::Connection;
+
+    use super::*;
+    use crate::db::functions::register_functions;
+    use crate::db::migrate;
+
+    /// Migrations up to and including spec 05.
+    const UNTIL_SPEC_05: usize = 4;
+
+    #[test]
+    fn migration_fills_name_norm_of_existing_documents() {
+        let mut conn = Connection::open_in_memory().unwrap();
+        register_functions(&conn).unwrap();
+        migrate(&mut conn, &MIGRATIONS[..UNTIL_SPEC_05]).unwrap();
+        conn.execute(
+            "INSERT INTO documents (id, path, format, valid, protected, size, modified_at)
+             VALUES ('a', CAST('Faculdade/Relatório Q1.pdf' AS BLOB), 'pdf', 1, 0, 0, 0)",
+            [],
+        )
+        .unwrap();
+
+        migrate(&mut conn, MIGRATIONS).unwrap();
+
+        let name_norm: String = conn
+            .query_row("SELECT name_norm FROM documents", [], |row| row.get(0))
+            .unwrap();
+        assert_eq!(name_norm, "relatorio q1.pdf");
+    }
+}

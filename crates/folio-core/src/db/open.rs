@@ -5,6 +5,7 @@ use std::path::{Path, PathBuf};
 
 use rusqlite::{Connection, ErrorCode};
 
+use super::functions::register_functions;
 use super::migrate::{migrate, schema_version};
 use crate::{Error, Result};
 
@@ -48,6 +49,7 @@ fn bring_up_to_date(path: &Path, mut conn: Connection, migrations: &[&str]) -> R
     if schema_version(&conn).map_err(db_error)? > migrations.len() as i64 {
         return Err(Error::NewerDatabase(path.to_path_buf()));
     }
+    register_functions(&conn).map_err(db_error)?;
     migrate(&mut conn, migrations).map_err(db_error)?;
     Ok(conn)
 }

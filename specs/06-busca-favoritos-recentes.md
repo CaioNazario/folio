@@ -16,10 +16,10 @@ O nome é comparado numa forma normalizada, para que "relatorio" encontre "Relat
 2. Decomposição Unicode (NFD) e remoção das marcas combinantes: `ó` vira `o`, `ç` vira `c`.
 3. Minúsculas.
 
-A mesma função normaliza o nome guardado e o texto digitado. Ela vive no core (crate `unicode-normalization`) e é registrada na conexão do SQLite como função (`folio_normalizar`), para que a migração e as consultas usem exatamente a mesma regra.
+A mesma função normaliza o nome guardado e o texto digitado. Ela vive no core (crate `unicode-normalization`) e é registrada em toda conexão do SQLite como função (`folio_normalize`, que recebe o caminho e normaliza o último componente), antes das migrações, para que a migração e o índice usem exatamente a mesma regra.
 
-- `documents` ganha a coluna `name_norm`, por migração desta spec, preenchida para os documentos existentes com `folio_normalizar`.
-- Toda operação que muda o caminho de um documento (renomear, mover, reconectar) atualiza `name_norm` na mesma transação.
+- `documents` ganha a coluna `name_norm`, por migração desta spec, preenchida para os documentos existentes com `folio_normalize`.
+- Triggers `AFTER INSERT` e `AFTER UPDATE OF path` em `documents` recalculam `name_norm`. Assim toda operação que muda o caminho de um documento (indexar, renomear, mover, reconectar, renomear ou mover a pasta) atualiza `name_norm` na mesma transação, sem que cada operação precise lembrar disso.
 
 ### Correspondência
 
@@ -32,6 +32,8 @@ A mesma função normaliza o nome guardado e o texto digitado. Ela vive no core 
 1. Nome que **começa** com a primeira palavra
 2. Nome em que alguma palavra **começa** com a primeira palavra
 3. Os demais
+
+Uma palavra do nome começa depois de qualquer caractere que não é letra nem dígito (espaço, `-`, `_`, `.`, `(`...): em "Notas_trabalho.md", "trab" começa uma palavra.
 
 Dentro de cada grupo: aberto mais recentemente primeiro (os nunca abertos no fim), depois o nome em ordem alfabética normalizada. No máximo 50 resultados.
 
@@ -47,7 +49,9 @@ Combinam entre si e com o texto (o texto pode ser vazio quando há filtro):
 
 Documentos inválidos aparecem nos resultados, como na árvore (spec 04).
 
-**Desempenho:** a busca é um `LIKE` sobre `name_norm`, sem índice de texto. Num workspace de 50.000 documentos, cada busca termina em menos de 50 ms. O frontend espera o usuário parar de digitar (150 ms) antes de chamar.
+**Desempenho:** a busca é um `LIKE` sobre `name_norm`, sem índice de texto. Num workspace de 50.000 documentos, cada busca termina em menos de 50 ms, medido pelo exemplo `search_bench` do `folio-core` (como o `scan_bench` da spec 05). O frontend espera o usuário parar de digitar (150 ms) antes de chamar.
+
+**Resultado (SSD, btrfs, 2026-11-15):** medido com `cargo run --release -p folio-core --example search_bench -- <diretório> 50000`, pior de 20 execuções por consulta. O pior caso é uma letra só, que casa com todos os documentos e põe todos no ranking: 22 a 25 ms. Prefixo de palavra fica em ~13 ms, duas palavras em ~10 ms, só filtro de formato em 11 a 14 ms, sem resultado em ~6 ms e texto com filtro de projeto abaixo de 1 ms. A função de ranking lê os argumentos sem copiá-los: com cópia, o pior caso passava de 60 ms.
 
 ## Favoritos
 
@@ -98,7 +102,8 @@ O Reader guarda onde o usuário parou e, ao reabrir, volta para lá:
 | MD, TXT | Fração da rolagem (0 a 1) |
 
 - O frontend informa a posição ao sair do documento (trocar de documento, ir para a Home, fechar a janela). O core só guarda.
-- Ao abrir, o core devolve a posição salva junto com o conteúdo. Página que não existe mais (o documento mudou) cai na última página.
+- O tipo da posição segue o formato: página (a partir de 1) para PDF e DOCX, fração de 0 a 1 para MD e TXT. Posição de outro tipo, ou fração fora do intervalo, é recusada.
+- Ao abrir, o core devolve a posição salva junto com o conteúdo. Página que não existe mais (o documento mudou) cai na última página; essa correção depende do número de páginas e é feita com o Reader (spec 07).
 - Documento protegido por senha também guarda a posição: o número da página não revela conteúdo.
 
 ## Critérios de aceite

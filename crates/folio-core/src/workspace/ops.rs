@@ -76,7 +76,7 @@ fn carry_paths(
     to: &RelativePath,
 ) -> rusqlite::Result<()> {
     let tx = conn.transaction()?;
-    for table in [PathTable::Icons, PathTable::Documents] {
+    for table in [PathTable::Icons, PathTable::Documents, PathTable::Favorites] {
         rebase_paths(&tx, table, from, to)?;
     }
     tx.commit()

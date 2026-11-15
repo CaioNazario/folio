@@ -34,21 +34,16 @@ pub fn icon_of(conn: &Connection, path: &RelativePath) -> rusqlite::Result<Optio
     .optional()
 }
 
-/// Paths of every directory that has an icon.
-pub fn icon_paths(conn: &Connection) -> rusqlite::Result<Vec<RelativePath>> {
-    conn.prepare("SELECT path FROM icons")?
-        .query_map([], |row| row.get(0))?
-        .collect()
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::db::functions::register_functions;
     use crate::db::migrate;
     use crate::workspace::schema::MIGRATIONS;
 
     fn workspace_db() -> Connection {
         let mut conn = Connection::open_in_memory().unwrap();
+        register_functions(&conn).unwrap();
         migrate(&mut conn, MIGRATIONS).unwrap();
         conn
     }

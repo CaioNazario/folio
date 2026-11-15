@@ -6,10 +6,11 @@ use std::fs;
 
 use super::ReconcileSummary;
 use super::disk::file_paths;
+use crate::db::rebase::{PathTable, delete_path, table_paths};
 use crate::documents::index::mark_missing;
 use crate::integrity::HIDDEN_TEMP_PREFIX;
 use crate::paths::{RelativePath, os_bytes};
-use crate::workspace::{DirKind, Workspace, icons};
+use crate::workspace::{DirKind, Workspace};
 use crate::{Error, Result};
 
 /// How a full scan behaves.
@@ -47,7 +48,7 @@ impl Workspace {
             visited.insert(dir);
         }
         summary.missing += self.mark_unvisited_missing(&visited)?;
-        self.remove_orphan_icons()?;
+        self.remove_orphan_dirs()?;
         Ok(summary)
     }
 
@@ -86,15 +87,24 @@ impl Workspace {
         Ok(unvisited.len() as u64)
     }
 
-    /// Icons tied to a directory that no longer exists (renamed or deleted
-    /// outside Folio) are dropped (spec 03, spec 05).
-    fn remove_orphan_icons(&self) -> Result<()> {
-        let paths = icons::icon_paths(&self.conn()).map_err(|e| self.db_error(e))?;
+    /// Icons and favorites tied to a directory that no longer exists (renamed
+    /// or deleted outside Folio) are dropped (specs 03, 05 and 06).
+    fn remove_orphan_dirs(&self) -> Result<()> {
+        for table in [PathTable::Icons, PathTable::Favorites] {
+            self.remove_orphans_in(table)
+                .map_err(|e| self.db_error(e))?;
+        }
+        Ok(())
+    }
+
+    fn remove_orphans_in(&self, table: PathTable) -> rusqlite::Result<()> {
+        let conn = self.conn();
+        let paths = table_paths(&conn, table)?;
         let orphans = paths
             .iter()
             .filter(|path| !path.resolve(self.root()).is_dir());
         for path in orphans {
-            self.set_icon(path, None)?;
+            delete_path(&conn, table, path)?;
         }
         Ok(())
     }

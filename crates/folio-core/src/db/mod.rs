@@ -2,6 +2,7 @@
 //! (spec 02).
 
 pub(crate) mod columns;
+pub(crate) mod functions;
 mod global;
 mod migrate;
 mod open;

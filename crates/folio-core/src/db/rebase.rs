@@ -1,4 +1,6 @@
-//! Carrying index rows when a directory is renamed or moved (spec 03).
+//! Index rows tied to a directory path: carried when the directory is
+//! renamed or moved through Folio (spec 03), dropped when it vanished
+//! outside Folio (spec 05).
 
 use rusqlite::Connection;
 
@@ -10,6 +12,8 @@ use crate::paths::RelativePath;
 pub enum PathTable {
     Icons,
     Documents,
+    /// Only favorites of directories have a path (spec 06).
+    Favorites,
 }
 
 impl PathTable {
@@ -17,6 +21,7 @@ impl PathTable {
         match self {
             Self::Icons => "icons",
             Self::Documents => "documents",
+            Self::Favorites => "favorites",
         }
     }
 }
@@ -58,4 +63,22 @@ fn paths_within(
     conn.prepare(&format!("SELECT path FROM {table} WHERE {WITHIN}"))?
         .query_map(within_params(dir), |row| row.get(0))?
         .collect()
+}
+
+/// Every path in `table`; rows without one (document favorites) are skipped.
+pub fn table_paths(conn: &Connection, table: PathTable) -> rusqlite::Result<Vec<RelativePath>> {
+    let sql = format!("SELECT path FROM {} WHERE path IS NOT NULL", table.name());
+    conn.prepare(&sql)?
+        .query_map([], |row| row.get(0))?
+        .collect()
+}
+
+/// Drops the row of `table` at exactly `path`.
+pub fn delete_path(
+    conn: &Connection,
+    table: PathTable,
+    path: &RelativePath,
+) -> rusqlite::Result<()> {
+    let sql = format!("DELETE FROM {} WHERE path = ?1", table.name());
+    conn.execute(&sql, [path]).map(drop)
 }
