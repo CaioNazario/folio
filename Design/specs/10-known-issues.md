@@ -8,7 +8,7 @@ Pontos do protótipo para decidir ou corrigir na implementação.
 3. **Hover do thumb da scrollbar** (#454545) e **letra do avatar** (#a9b0b8) são hardcoded e não mudam no light
 
 ## Copy
-4. O texto vazio de Favoritos fala em "estrela", mas o ícone é um **pin**. Alinhar
+4. O texto vazio de Favoritos fala em "estrela", mas o ícone é um **pin**. **Resolvido:** o texto fala em pin (`03-sidebar.md`)
 5. O botão "Importar documento" só leva para a Home. **Resolvido:** abre o seletor de arquivos (`specs/09-entrada.md`, Importação)
 
 ## Sem comportamento no protótipo

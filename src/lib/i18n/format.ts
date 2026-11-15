@@ -3,6 +3,10 @@ import type { Language } from './language'
 // Number, size and date formatting for the active language
 // (Design/specs/11-i18n.md, "O que é traduzido").
 
+export function formatNumber(value: number, language: Language): string {
+  return new Intl.NumberFormat(language).format(value)
+}
+
 const SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB']
 
 export function formatSize(bytes: number, language: Language): string {

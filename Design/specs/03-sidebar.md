@@ -30,7 +30,7 @@ Container: `padding: 12px 12px 8px`, coluna, gap 8px.
 
 ### Favoritos
 - Rótulo: "Favoritos"
-- Vazio: "Marque uma pasta ou documento com a estrela para vê-lo aqui." (`padding: 2px 8px 4px`, 12px, `--tx-10`, line-height 1.45)
+- Vazio: "Fixe uma pasta ou documento com o pin para vê-lo aqui." (`padding: 2px 8px 4px`, 12px, `--tx-10`, line-height 1.45)
 - Linha: `padding: 5px 8px`, raio 12, gap 8, cursor pointer, hover fundo `--hover`
   - Ícone 13px `--tx-5`: `folder` para pasta, `file` para arquivo
   - Nome 13px `--tx-1`, uma linha com ellipsis

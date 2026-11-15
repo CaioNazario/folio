@@ -8,3 +8,5 @@ Todas as mudanças visíveis do Folio. Formato [Keep a Changelog](https://keepac
 
 - Interface em português e inglês, seguindo o idioma do sistema.
 - Janela com a barra lateral e o logo do Folio.
+- Barra lateral com Favoritos, Projetos, Recentes e rodapé, ainda sem dados do workspace.
+- Seletores de tema (claro, escuro, seguir o sistema) e de idioma no rodapé da barra lateral.

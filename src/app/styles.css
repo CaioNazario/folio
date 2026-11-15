@@ -65,6 +65,8 @@
   --plus: #ffffff;
   --ring: #ffffff;
   --nav-accent: #ffffff;
+  /* Same in both themes (Design/specs/10-known-issues.md #3). */
+  --avatar-tx: #a9b0b8;
   --shadow-1: 0 10px 30px rgba(0, 0, 0, 0.45);
   --shadow-2: 0 14px 34px rgba(0, 0, 0, 0.5);
 }
@@ -194,6 +196,7 @@
   --color-paper-mut2: var(--paper-mut2);
   --color-paper-rule: var(--paper-rule);
   --color-paper-edge: var(--paper-edge);
+  --color-avatar-tx: var(--avatar-tx);
 
   /*
    * Nomes semânticos do shadcn/ui, apontados para os tokens do Folio. O
