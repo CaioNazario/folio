@@ -282,40 +282,12 @@ Spec completa: `specs/03-workspace.md`. Regras que valem em todo o código:
 
 ## Documentos e documentos derivados
 
-Um documento é um arquivo real do workspace que o Folio reconhece como documento. O Folio atribui a ele um **id estável**, que sobrevive a renomear e mover, para que favoritos e relações não quebrem.
+Spec completa: `specs/04-documentos.md`. Regras que valem em todo o código:
 
-**Reconhecimento:** pela extensão e confirmado por magic bytes (assinatura do arquivo). Um `.pdf` que na verdade é HTML não é tratado como PDF.
-
-**Metadados mantidos no índice:**
-
-| Campo | Origem |
-| --- | --- |
-| id | Gerado pelo Folio |
-| caminho | Relativo à raiz do workspace |
-| nome, extensão, MIME type | Arquivo |
-| tamanho, criado\_em, modificado\_em | Filesystem |
-| acessado\_em | Folio |
-| projeto, pasta | Derivados do caminho |
-| metadados do formato (ex.: número de páginas) | Extraídos e cacheados |
-| hash do conteúdo | Calculado; ajuda a reencontrar arquivos movidos por fora |
-
-**Metadados por formato:**
-
-| Formato | Metadados extraídos |
-| --- | --- |
-| PDF | Título, autor, assunto, palavras-chave, criador, produtor, datas, versão do PDF |
-| DOCX | Título, autor, assunto, palavras-chave, comentários, revisão, criação e modificação |
-| MD | Front matter: título, autor, tags, data e campos similares |
-| TXT | Nenhum interno; nome, tamanho e datas vêm do filesystem |
-
-**Documento derivado:** o resultado de uma conversão. É um arquivo comum, salvo por padrão ao lado do original. O índice registra a relação:
-
-```text
-Trabalho.pdf ──converted_to──▶ Trabalho.docx
-             (PDF → DOCX, 2026-11-04)
-```
-
-O usuário consegue ver de qual documento um derivado veio, em qual formato e quando. Se a relação se perder (por exemplo, o banco foi apagado), os dois arquivos continuam intactos.
+- **Formatos da 0.1.0:** PDF, DOCX, MD e TXT. A extensão decide o formato e a assinatura (magic bytes) confirma; assinatura que não confere vira documento inválido, que aparece com aviso em vez de sumir.
+- **Id estável** (UUID v7): sobrevive a renomear e mover pelo Folio. A interface só conhece o id; o core resolve o caminho.
+- **Documento protegido por senha:** a senha e o conteúdo decifrado nunca vão para o disco nem para o banco.
+- **Documento derivado** é um arquivo comum; a relação `converted_to` no índice pode se perder sem afetar nenhum arquivo.
 
 ## Entrada (Downloads)
 

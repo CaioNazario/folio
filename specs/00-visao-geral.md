@@ -35,10 +35,10 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 | 01 | [integridade](01-integridade.md) | Garantias transversais: sem sobrescrita, temporários, lixeira, disco antes do banco, banco recuperável, lock do workspace | — | — | Escrita |
 | 02 | [persistencia](02-persistencia.md) | Banco global e do workspace, abertura, migrações, caminhos em bytes, `WorkspaceStore` | S7 | — | Escrita |
 | 03 | [workspace](03-workspace.md) | Modelo de vault, abertura, diretório default, workspace aninhado, operações em projetos e pastas, ícones | — | — | Escrita |
-| 04 | documentos | Reconhecimento, id estável, metadados por formato, documentos derivados | — | Documentos e documentos derivados | A escrever |
+| 04 | [documentos](04-documentos.md) | Reconhecimento, protegidos por senha, links simbólicos, id estável, tabelas do índice, derivados e avisos de desatualizado | — | — | Escrita |
 | 05 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | S5, S6 | Integridade (mudanças externas) | A escrever |
 | 06 | busca-favoritos-recentes | Busca por nome normalizado, filtros, favoritos, recentes | — | Busca, favoritos e recentes | A escrever |
-| 07 | [reader](07-reader.md) | Exibição por formato, modelo de documento, leitores | S1, S2, S4 | — | Escrita |
+| 07 | [reader](07-reader.md) | Exibição por formato, modelo de documento, leitores, extração de metadados | S1, S2, S4 | — | Escrita |
 | 08 | [conversao](08-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | S3 | — | Escrita |
 | 09 | entrada | Downloads, watcher, downloads em andamento, mover para projeto | — | Entrada (Downloads) | A escrever |
 | 10 | compartilhamento | Mostrar na pasta, arrastar para fora, copiar arquivo | S8 | Compartilhamento | A escrever |

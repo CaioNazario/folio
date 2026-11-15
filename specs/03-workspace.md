@@ -38,7 +38,7 @@ O banco guarda só o extra (ícone aqui, favorito na spec 06). A hierarquia vem 
 | Link simbólico para diretório | Não é seguido: pode sair do workspace ou formar ciclo. Fica intacto no disco |
 | Outro workspace dentro deste (um subdiretório com `.folio/`) | Ver "Workspace dentro de workspace" |
 
-Os mesmos critérios para arquivos estão na spec 04.
+Os critérios para arquivos estão na spec 04 (lá, links simbólicos para arquivo aparecem).
 
 ## Abertura
 

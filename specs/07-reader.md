@@ -2,7 +2,7 @@
 
 O Reader oferece a mesma experiência de leitura para os formatos da 0.1.0: **PDF, TXT, MD e DOCX**. XLSX, PPTX e imagens ficam para depois.
 
-Esta spec cobre duas partes: a **exibição** (o que o usuário vê no palco) e os **leitores**, que transformam um arquivo no modelo de documento. Os leitores servem ao Reader, à conversão (spec 08), aos metadados (spec 04) e, no futuro, à busca no conteúdo.
+Esta spec cobre duas partes: a **exibição** (o que o usuário vê no palco) e os **leitores**, que transformam um arquivo no modelo de documento. Os leitores servem ao Reader, à conversão (spec 08), ao cache de metadados (tabela `document_metadata`, spec 04) e, no futuro, à busca no conteúdo.
 
 ## Spikes
 
@@ -10,7 +10,7 @@ Resolver antes de implementar a parte que cada spike bloqueia. O resultado vai p
 
 ### S1 · Leitor de PDF: PDFium ou hayro
 
-**Bloqueia:** o leitor de PDF (abaixo), as conversões a partir de PDF (spec 08) e os metadados de PDF (spec 04).
+**Bloqueia:** o leitor de PDF e os metadados de PDF (abaixo) e as conversões a partir de PDF (spec 08).
 
 **Pergunta:** qual biblioteca dá ao leitor de PDF o texto de cada caractere com posição, fonte, tamanho e peso, com qualidade suficiente para deduzir a estrutura?
 
@@ -67,12 +67,13 @@ arquivo ─▶ core ──┤
 | Formato | Engine | O core entrega | Páginas |
 |---|---|---|---|
 | PDF | `pdfjs-dist` (pdf.js) | Bytes do arquivo | Exatas, do próprio PDF |
-| DOCX | `docx-preview` | Bytes do arquivo | Aproximadas: só as quebras explícitas do documento (o `docx-preview` não diagrama páginas) |
+| DOCX | `docx-preview` | Bytes do arquivo (decifrados em memória, se protegido) | Aproximadas: só as quebras explícitas do documento (o `docx-preview` não diagrama páginas) |
 | MD | `comrak` → HTML, sanitizado com `ammonia` | HTML pronto e o front matter separado | Rolagem contínua |
 | TXT | Própria (texto com `white-space: pre-wrap`) | Texto decodificado | Rolagem contínua |
 
 - **Bytes pela ponte:** PDF e DOCX chegam como binário puro (`tauri::ipc::Response`), sem JSON nem base64.
 - **Markdown seguro:** o `comrak` roda sem HTML embutido (`render.unsafe = false`) e a saída passa pelo `ammonia`. Um `.md` nunca executa script no app.
+- **Documento protegido por senha** (spec 04): o PDF pede a senha pelo `onPassword` do pdf.js; o DOCX pede a senha no frontend, e o core decifra com `office-crypto` antes de entregar os bytes. A senha vai junto no command e nunca é guardada; o conteúdo decifrado nunca vai para o disco.
 - **Front matter:** é separado do corpo e exibido como metadados, não como texto (spec 04).
 - **Controles** (aparência em `Design/specs/05-document-view.md`): zoom, página atual e total, navegação entre páginas e tela cheia. Em MD e TXT, que rolam continuamente, a toolbar mostra só o zoom.
 
@@ -109,6 +110,21 @@ Inline: Texto | Negrito [Inline] | Italico [Inline] | CodigoInline | Link { dest
 
 O leitor de PDF é a peça de maior risco do Reader e da conversão: um PDF guarda posição na página, não estrutura. Um PDF digitalizado (só imagem) produz um documento vazio; OCR está fora da 0.1.0.
 
+**Senha:** os leitores de PDF e DOCX recebem uma senha opcional. Sem ela, um documento protegido falha com `SenhaNecessaria`; com a errada, `SenhaIncorreta` (spec 04). O leitor de DOCX decifra com `office-crypto`, em memória.
+
+### Metadados
+
+Os leitores também extraem os metadados que vão para o cache `document_metadata` (spec 04), sem precisar montar o documento inteiro:
+
+| Formato | De onde |
+|---|---|
+| PDF | Dicionário Info e versão do cabeçalho; páginas exatas |
+| DOCX | `docProps/core.xml` (título, autor, assunto, palavras-chave, comentários, revisão, datas); páginas aproximadas, como na exibição |
+| MD | Front matter: `title`, `author`, `tags` (ou `keywords`), `date`; os demais campos vão para `extra` |
+| TXT | Nenhum: só o filesystem |
+
+Documento protegido por senha não tem metadados extraídos (spec 04).
+
 ## Restrição de plataforma
 
 Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no webview, igual no Linux e no Android. Se o spike S1 escolher o PDFium, a biblioteca `libpdfium` vai embarcada no app, uma por plataforma; nunca a do sistema.
@@ -122,3 +138,5 @@ Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no we
 - [ ] TXT em Windows-1252 abre com acentos corretos.
 - [ ] Cada leitor tem testes com arquivos de exemplo em `crates/folio-core/tests/fixtures/` e produz o modelo esperado.
 - [ ] PDF digitalizado abre na exibição e produz documento vazio no leitor, sem erro.
+- [ ] PDF e DOCX protegidos por senha abrem com a senha certa; o DOCX é decifrado em memória.
+- [ ] Os metadados de PDF, DOCX e MD do corpus de fixtures chegam ao cache conforme a tabela de metadados.
