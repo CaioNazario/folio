@@ -155,7 +155,6 @@ Para cada ciclo, informe: nome do teste, trecho da saída do Red (o motivo da fa
 
 ## Frontend (React + TypeScript + Vite)
 
-- **O frontend é feito por outro agente.** Ao chegar numa tarefa de frontend, pare e avise o mantenedor em vez de implementá-la.
 
 ### Estrutura
 
