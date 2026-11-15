@@ -365,7 +365,7 @@ A Entrada mostra os documentos da pasta Downloads do sistema sem transformá-la 
 
 ## Reader e conversão
 
-Spec completa: `specs/05-reader.md` (exibição, modelo de documento, leitores) e `specs/06-conversao.md` (escritores, fluxo, critério de qualidade). Regras que valem em todo o código:
+Spec completa: `specs/07-reader.md` (exibição, modelo de documento, leitores) e `specs/08-conversao.md` (escritores, fluxo, critério de qualidade). Regras que valem em todo o código:
 
 - **Exibição no webview, leitura no core.** PDF (pdf.js) e DOCX (docx-preview) são exibidos no frontend; o core entrega bytes, texto ou HTML pelo id do documento. Leitores e escritores rodam no `folio-core`.
 - **Toda conversão passa pelo modelo de documento:** leitor do formato de origem → modelo → escritor do formato de destino. Nunca escreva um conversor direto entre dois formatos.
@@ -389,7 +389,7 @@ Na 0.1.0 (Linux) entram "Mostrar na pasta" e "Arrastar para fora"; "Copiar arqui
 
 **Busca (0.1.0):** por nome do arquivo, com filtros por extensão, projeto e pasta. O nome é indexado numa coluna normalizada (minúsculas, sem acento), para que "relatorio" encontre "Relatório". Não usa full-text.
 
-**Busca no conteúdo (futuro):** tabela FTS5 do SQLite com tokenizer `unicode61 remove_diacritics`, alimentada pelos leitores do modelo de documento (`specs/05-reader.md`). O índice é derivado e reconstruível. Português não tem stemmer embutido; plurais são cobertos por busca por prefixo.
+**Busca no conteúdo (futuro):** tabela FTS5 do SQLite com tokenizer `unicode61 remove_diacritics`, alimentada pelos leitores do modelo de documento (`specs/07-reader.md`). O índice é derivado e reconstruível. Português não tem stemmer embutido; plurais são cobertos por busca por prefixo.
 
 **Favoritos:** documentos, pastas e projetos, guardados no SQLite do workspace e ligados ao id estável do documento.
 
@@ -438,7 +438,7 @@ Não depender do binário `git` (inexistente no Android); usar biblioteca (gix o
 
 ## Questões técnicas em aberto
 
-Estão em `specs/11-spikes.md` (S1–S8). Um spike se resolve antes da feature que depende dele, e o resultado vai para a spec da feature.
+São os spikes S1–S8. Cada um fica no topo da spec que ele bloqueia (os das specs ainda não escritas ficam em `specs/00-visao-geral.md`). Um spike se resolve antes da feature que depende dele, e o resultado vai para a spec da feature.
 
 <!-- ai-memory:start -->
 ## Long-term memory (ai-memory)

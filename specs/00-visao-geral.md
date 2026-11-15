@@ -20,43 +20,73 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 | **Entrada** | Visão dos documentos da pasta Downloads, sem transformá-la em workspace |
 | **Banco global** | SQLite do app (`~/.local/share/folio/`): workspaces, preferências, caminho da Entrada |
 | **Banco do workspace** | `<workspace>/.folio/folio.db`: índice e estado daquele workspace |
-| **Engine** | Biblioteca que exibe, lê ou gera um formato (pdf.js, comrak, Typst...) (specs 05, 06) |
-| **Modelo de documento** | Representação neutra de um documento: títulos, parágrafos, listas, ênfase, tabelas, imagens (spec 05) |
-| **Leitor** | Transforma um arquivo de um formato no modelo de documento; um por formato (spec 05) |
-| **Escritor** | Transforma o modelo de documento num arquivo de um formato; um por formato (spec 06) |
+| **Engine** | Biblioteca que exibe, lê ou gera um formato (pdf.js, comrak, Typst...) (specs 07, 08) |
+| **Modelo de documento** | Representação neutra de um documento: títulos, parágrafos, listas, ênfase, tabelas, imagens (spec 07) |
+| **Leitor** | Transforma um arquivo de um formato no modelo de documento; um por formato (spec 07) |
+| **Escritor** | Transforma o modelo de documento num arquivo de um formato; um por formato (spec 08) |
 | **Reindexação** | Reconstrução do banco do workspace a partir do disco |
 
 ## Mapa de specs
 
-As specs ainda não escritas têm o conteúdo na seção indicada do `AGENTS.md`, que sai de lá quando a spec for escrita.
+**O número é a ordem de implementação:** uma spec nunca depende de outra de número maior. Os spikes ficam no topo da spec que eles bloqueiam. As specs ainda não escritas têm o conteúdo na seção indicada do `AGENTS.md`, que sai de lá quando a spec for escrita.
 
-| # | Spec | Cobre | Origem no `AGENTS.md` | Status |
-|---|---|---|---|---|
-| 01 | workspace | Modelo de vault, abertura, diretório default, regras, operações em projetos e pastas | Modelo de workspace | A escrever |
-| 02 | documentos | Reconhecimento, id estável, metadados por formato, documentos derivados | Documentos e documentos derivados | A escrever |
-| 03 | persistencia | Banco global e do workspace, tabelas, caminhos relativos, `WorkspaceStore` | Persistência | A escrever |
-| 04 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | Integridade; spikes S5 e S6 | A escrever |
-| 05 | [reader](05-reader.md) | Exibição por formato, modelo de documento, leitores | — | Escrita |
-| 06 | [conversao](06-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | — | Escrita |
-| 07 | entrada | Downloads, watcher, downloads em andamento, mover para projeto | Entrada (Downloads) | A escrever |
-| 08 | busca-favoritos-recentes | Busca por nome normalizado, filtros, favoritos, recentes | Busca, favoritos e recentes | A escrever |
-| 09 | compartilhamento | Mostrar na pasta, arrastar para fora, copiar arquivo | Compartilhamento | A escrever |
-| 10 | integridade | Garantias transversais: original intocável, lixeira, disco antes do banco, WAL, temporários | Integridade | A escrever |
-| 11 | [spikes](11-spikes.md) | Pontos em aberto a resolver antes da feature dependente (S1–S8) | — | Escrita |
+| # | Spec | Cobre | Spikes | Origem no `AGENTS.md` | Status |
+|---|---|---|---|---|---|
+| 01 | integridade | Garantias transversais: original intocável, lixeira, disco antes do banco, WAL, temporários | — | Integridade | A escrever |
+| 02 | persistencia | Banco global e do workspace, tabelas, caminhos relativos, `WorkspaceStore` | S7 | Persistência | A escrever |
+| 03 | workspace | Modelo de vault, abertura, diretório default, regras, operações em projetos e pastas | — | Modelo de workspace | A escrever |
+| 04 | documentos | Reconhecimento, id estável, metadados por formato, documentos derivados | — | Documentos e documentos derivados | A escrever |
+| 05 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | S5, S6 | Integridade | A escrever |
+| 06 | busca-favoritos-recentes | Busca por nome normalizado, filtros, favoritos, recentes | — | Busca, favoritos e recentes | A escrever |
+| 07 | [reader](07-reader.md) | Exibição por formato, modelo de documento, leitores | S1, S2, S4 | — | Escrita |
+| 08 | [conversao](08-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | S3 | — | Escrita |
+| 09 | entrada | Downloads, watcher, downloads em andamento, mover para projeto | — | Entrada (Downloads) | A escrever |
+| 10 | compartilhamento | Mostrar na pasta, arrastar para fora, copiar arquivo | S8 | Compartilhamento | A escrever |
 
 ## Ordem de implementação
 
-Ordem planejada. Cada spec é escrita antes da feature dela; um spike de `11` se resolve antes da feature que depende dele, e o resultado vai para a spec.
+A ordem é a dos números. Cada spec é escrita antes da feature dela, e os spikes de uma spec se resolvem antes da parte que eles bloqueiam.
 
-1. Base do `folio-core`: tipos de erro, trait `Clock`, referência a arquivo (caminho ou URI)
-2. 03 (persistência) → 01 (workspace): abrir e criar workspace, banco do workspace e banco global
-3. 02 (documentos) → 04 (indexação): reconhecimento, id estável, escaneamento e reindexação
-4. 08 (busca, favoritos, recentes)
-5. 05 (reader): modelo de documento, depois leitores e exibição na ordem TXT → MD → DOCX → PDF (o leitor de PDF depois do spike S1)
-6. 06 (conversão): escritores TXT → MD → DOCX → PDF (o de PDF depois do spike S3)
-7. 07 (entrada) → 09 (compartilhamento)
+- **Base do `folio-core`** (tipos de erro, trait `Clock`, referência a arquivo por caminho ou URI): nasce junto com a primeira spec que precisar dela.
+- **01 (integridade)** é escrita primeiro: as garantias dela valem desde a primeira linha de código e são cobertas pelos testes de cada spec seguinte.
+- **07 (reader):** modelo de documento, depois leitores e exibição na ordem TXT → MD → DOCX → PDF.
+- **08 (conversão):** escritores na ordem TXT → MD → DOCX → PDF.
 
-A spec 10 (integridade) vale para todas as etapas desde a primeira.
+## Spikes das specs ainda não escritas
+
+Cada spike fica no topo da spec que ele bloqueia. Os destas specs ainda não escritas ficam aqui e vão para a spec quando ela for escrita.
+
+### S5 · Reconectar ao id um arquivo movido por fora
+
+**Bloqueia:** spec 05 (indexação).
+
+**Pergunta:** como reconhecer que um arquivo renomeado ou movido fora do Folio é o mesmo documento: hash do conteúdo, inode, ou os dois?
+
+**Resultado:** pendente.
+
+### S6 · Indexação rápida de workspace grande
+
+**Bloqueia:** spec 05 (indexação).
+
+**Pergunta:** como indexar um workspace com milhares de arquivos na primeira abertura sem travar a interface (escaneamento incremental, hash sob demanda, paralelismo)?
+
+**Resultado:** pendente.
+
+### S7 · Workspace em pasta sincronizada
+
+**Bloqueia:** spec 02 (persistência).
+
+**Pergunta:** o que acontece quando o workspace está numa pasta sincronizada (Dropbox, Google Drive), onde o SQLite pode corromper? Detectar e avisar, mover o banco para fora, ou bloquear?
+
+**Resultado:** pendente.
+
+### S8 · "Copiar arquivo" no Wayland/Hyprland
+
+**Bloqueia:** spec 10 (compartilhamento).
+
+**Pergunta:** colocar o arquivo no clipboard como `text/uri-list` funciona de forma confiável no Wayland/Hyprland, a ponto de colar no gerenciador de arquivos e em apps como o WhatsApp Web?
+
+**Resultado:** pendente. Se não funcionar, "Copiar arquivo" sai da 0.1.0 no Linux.
 
 ## Fora de escopo
 

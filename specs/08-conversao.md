@@ -1,10 +1,30 @@
-# 06 · Conversão
+# 08 · Conversão
 
 A conversão gera um **novo arquivo** no filesystem e nunca altera o original. Formatos da 0.1.0: PDF, TXT, MD e DOCX, em qualquer direção (12 conversões).
 
+## Spikes
+
+Resolver antes de implementar a parte que cada spike bloqueia. O resultado vai para a seção da spec que ele decide e para o "Resultado" do spike.
+
+### S3 · Typst embarcado
+
+**Bloqueia:** o escritor de PDF (abaixo).
+
+**Pergunta:** quanto o Typst custa no app, e ele gera um PDF bom a partir do modelo de documento?
+
+**Como testar:** escritor mínimo modelo → Typst → PDF com `typst-as-lib` e `typst-pdf`, com as fontes do `typst-assets`. Medir:
+
+1. Tamanho do binário do app antes e depois
+2. Tempo de compilação limpa e incremental do workspace
+3. Tempo para converter um MD de ~50 páginas
+4. Escape: texto com `#`, `$`, `*`, `_`, `@` e `<` sai literal
+5. Compila para Android (`aarch64-linux-android`)
+
+**Resultado:** pendente.
+
 ## Arquitetura
 
-Toda conversão é um leitor (spec 05) seguido de um escritor, ligados pelo modelo de documento:
+Toda conversão é um leitor (spec 07) seguido de um escritor, ligados pelo modelo de documento:
 
 ```text
 origem ─▶ leitor do formato de origem ─▶ modelo de documento ─▶ escritor do formato de destino ─▶ destino
@@ -34,7 +54,7 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 | MD | Média | Simples | — | Média |
 | DOCX | Média | Simples | Média | — |
 
-A dificuldade vem quase toda do leitor. Sair de PDF é difícil porque o leitor de PDF deduz a estrutura (spec 05). Gerar PDF deixou de ser o gargalo com o Typst: DOCX → PDF e MD → PDF passam a ser médias.
+A dificuldade vem quase toda do leitor. Sair de PDF é difícil porque o leitor de PDF deduz a estrutura (spec 07). Gerar PDF deixou de ser o gargalo com o Typst: DOCX → PDF e MD → PDF passam a ser médias.
 
 ## Fluxo
 
@@ -45,7 +65,7 @@ A dificuldade vem quase toda do leitor. Sair de PDF é difícil porque o leitor 
 5. O índice registra o novo documento e a relação `converted_to` (origem, destino, formatos, data).
 6. O derivado aparece no Folio e pode ser lido, movido, compartilhado e convertido de novo como qualquer outro.
 
-**Falha:** o temporário é descartado, o original fica intacto, o usuário recebe a mensagem de erro e nenhuma relação é registrada. Temporários órfãos de uma conversão interrompida são removidos na próxima abertura do workspace (spec 10).
+**Falha:** o temporário é descartado, o original fica intacto, o usuário recebe a mensagem de erro e nenhuma relação é registrada. Temporários órfãos de uma conversão interrompida são removidos na próxima abertura do workspace (spec 01).
 
 ## Critério mínimo de qualidade
 
