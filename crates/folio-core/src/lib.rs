@@ -12,6 +12,7 @@ pub mod favorites;
 pub mod ids;
 pub mod indexing;
 pub mod integrity;
+pub mod metadata;
 pub mod model;
 pub mod paths;
 pub mod preferences;
