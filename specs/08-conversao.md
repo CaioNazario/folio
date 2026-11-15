@@ -58,14 +58,44 @@ A dificuldade vem quase toda do leitor. Sair de PDF é difícil porque o leitor 
 
 ## Fluxo
 
-1. O usuário escolhe Converter → formato de destino. O dropdown só lista as conversões disponíveis para aquele documento (`Design/specs/05-document-view.md`).
-2. O leitor de origem produz o modelo e o escritor de destino grava o resultado num **arquivo temporário dentro do workspace**.
-3. Sem erro, o temporário é renomeado **atomicamente** para o destino final, por padrão ao lado do original (`Trabalho.pdf` → `Trabalho.docx`).
-4. Se o nome já existir, o Folio pergunta ou usa um sufixo (`Trabalho (1).docx`); nunca sobrescreve em silêncio.
-5. O índice registra o novo documento e a relação `converted_to` (origem, destino, formatos, data).
-6. O derivado aparece no Folio e pode ser lido, movido, compartilhado e convertido de novo como qualquer outro.
+1. O usuário escolhe Converter → formato de destino. O dropdown só lista as conversões disponíveis para aquele documento (`Design/specs/05-document-view.md`). Documento inválido (spec 04) não oferece conversão.
+2. **Documento protegido por senha** (spec 04): o Folio usa a senha do documento aberto ou pede a senha, e avisa antes de começar: "O documento convertido não terá senha." O usuário confirma ou desiste.
+3. A conversão entra na **fila** e roda em segundo plano (ver "Execução").
+4. O leitor de origem produz o modelo e o escritor de destino grava o resultado num temporário em `.folio/tmp/` (spec 01).
+5. Sem erro, o temporário é publicado **atomicamente, sem sobrescrita**, no destino final.
+6. O índice registra o novo documento e a relação `converted_to`, com os `modified_at` dos dois arquivos (spec 04).
+7. O derivado abre no Reader (e entra nos recentes, spec 06), e o toast confirma: "{nome do derivado} criado · {nome do original} preservado".
+8. O derivado pode ser lido, movido, compartilhado e convertido de novo como qualquer outro.
 
-**Falha:** o temporário é descartado, o original fica intacto, o usuário recebe a mensagem de erro e nenhuma relação é registrada. Temporários órfãos de uma conversão interrompida são removidos na próxima abertura do workspace (spec 01).
+**Destino:** na 0.1.0, sempre o diretório do original (de um link simbólico, o diretório do link, spec 04), com o nome do original e a extensão nova: `Trabalho.pdf` → `Trabalho.docx`. Se o nome já existir, sufixo automático (`Trabalho (1).docx`, spec 01); nunca sobrescreve. Não há escolha de outro diretório.
+
+**Falha:** o temporário é descartado, o original fica intacto, o usuário recebe a mensagem de erro e nenhuma relação é registrada. Temporários órfãos de uma conversão interrompida (app fechado, queda de energia) são removidos na próxima abertura do workspace (spec 01).
+
+## Execução
+
+- **Em segundo plano:** a conversão roda numa thread do core e nunca trava a interface. O usuário pode continuar lendo e navegando.
+- **Fila, uma por vez:** pedir outra conversão enquanto uma roda coloca a nova na fila. Uma de cada vez mantém o uso de memória previsível (o modelo de um documento grande, com imagens, ocupa memória) e simplifica a ordem dos sufixos de colisão.
+- **Progresso:** o core informa a etapa (lendo, escrevendo) e, quando dá para medir, a fração (páginas do PDF lidas, blocos escritos), por um canal que o `src-tauri` repassa como evento. A interface mostra um toast que não some sozinho enquanto a conversão roda: "Convertendo {nome} para {formato}… 40%", com "Cancelar". Itens na fila aparecem como "Na fila".
+- **Cancelar:** o core confere o pedido de cancelamento entre páginas e entre blocos. Cancelada, a conversão descarta o temporário, não registra relação e não abre nada; o toast confirma "Conversão cancelada". Um item na fila sai dela sem começar.
+- Fechar o app com conversão em andamento a interrompe; o temporário é limpo na próxima abertura (spec 01).
+
+## Imagens
+
+As imagens que o leitor de origem reconhece (spec 07) entram no destino que aceita imagem (MD, DOCX, PDF):
+
+- **Do MD:** as mesmas regras da exibição (spec 07, "Imagens no Markdown"). Imagem local dentro do workspace entra no destino, imagem remota **não é baixada**: o destino recebe o texto alternativo no lugar dela, e o endereço como link quando o formato aceita link.
+- **Do DOCX:** as imagens embutidas no próprio arquivo.
+- **Para TXT:** imagem vira o texto alternativo entre colchetes (`[Diagrama da arquitetura]`); sem texto alternativo, some.
+- **Para MD:** o MD não embute imagem. As imagens são gravadas numa pasta ao lado do derivado, `{nome do derivado}.assets/`, com nomes sequenciais e a extensão do tipo (`Trabalho.assets/imagem-1.png`), e o MD aponta para cada uma por caminho relativo: `![Diagrama](Trabalho.assets/imagem-1.png)`. O nome da pasta é o mesmo em qualquer idioma (convenção do Typora). Sem imagens, não há pasta.
+
+**Publicação com pasta de imagens** (garantia 2 da spec 01):
+
+1. O MD e a pasta nascem juntos num diretório temporário em `.folio/tmp/`.
+2. O nome final é escolhido para os dois ao mesmo tempo: o menor sufixo em que **o arquivo e a pasta** estão livres (`Trabalho (1).md` com `Trabalho (1).assets/`). O MD aponta para o nome final da pasta.
+3. **A pasta é publicada primeiro, depois o MD**, os dois sem sobrescrita. O MD nunca aparece apontando para uma pasta que não existe.
+4. Se a publicação do MD falhar depois da pasta, a pasta volta para `.folio/tmp/` (rename no mesmo filesystem) e é descartada. Nada fica pela metade no workspace.
+
+A pasta é um diretório comum: aparece na árvore e pode ser movida, renomeada ou excluída como qualquer pasta. As imagens dentro dela não são documentos e não aparecem (spec 04).
 
 ## Critério mínimo de qualidade
 
@@ -77,6 +107,18 @@ Uma conversão só entra na 0.1.0 se, num corpus de documentos reais por formato
 
 A conversão que não atingir o critério sai da 0.1.0 em vez de atrasar o lançamento, e o dropdown deixa de oferecê-la.
 
+## Erros
+
+Além dos da spec 04 (`DocumentoInvalido`, `SenhaNecessaria`, `SenhaIncorreta`) e da 07 (`FalhaAoLer`):
+
+| Erro | Quando |
+|---|---|
+| `ConversaoIndisponivel` | Pedido de uma conversão que não está na 0.1.0 (fora do critério mínimo) |
+| `FalhaAoEscrever` | O escritor não conseguiu gerar o destino (ex.: erro de compilação do Typst); o motivo técnico vai para o log |
+| `ConversaoCancelada` | O usuário cancelou; a interface mostra só o toast de cancelamento, sem tom de erro |
+
+Erros de disco (cheio, sem permissão) seguem a spec 01.
+
 ## Critérios de aceite
 
 - [ ] As 12 conversões que passarem no critério mínimo funcionam pela interface, cada uma com teste de integração no `folio-core`.
@@ -84,3 +126,11 @@ A conversão que não atingir o critério sai da 0.1.0 em vez de atrasar o lanç
 - [ ] Uma conversão interrompida no meio não deixa arquivo final nem relação no índice.
 - [ ] Colisão de nome nunca sobrescreve.
 - [ ] Texto com caracteres especiais do Typst (`#`, `$`, `*`, `_`, `@`, `<`) sai literal no PDF.
+- [ ] Converter um documento protegido avisa que o derivado não terá senha e só começa depois da confirmação.
+- [ ] Converter um PDF grande não trava a interface e mostra o progresso.
+- [ ] Cancelar descarta o temporário: nenhum arquivo final, nenhuma relação, original intacto.
+- [ ] Duas conversões pedidas em seguida rodam uma depois da outra, sem colisão de nome.
+- [ ] O derivado nasce no diretório do original e abre no Reader, com o toast de confirmação.
+- [ ] Imagem remota de um MD não é baixada na conversão; imagem local entra no DOCX e no PDF.
+- [ ] Converter para MD um documento com imagens grava as imagens em `{nome}.assets/`, o MD as referencia por caminho relativo e o Folio as exibe.
+- [ ] Se o nome do MD ou da pasta já existir, os dois ganham o mesmo sufixo; uma falha ao publicar o MD não deixa a pasta no workspace.

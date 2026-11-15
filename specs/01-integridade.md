@@ -10,7 +10,7 @@ A lista é fechada. Qualquer operação nova sobre arquivos do usuário entra pr
 |---|---|---|
 | Ler | Reader, metadados, indexação, conversão | Só leitura; nunca abre o arquivo com permissão de escrita |
 | Criar arquivo | Conversão | Nasce num temporário e é publicado sem sobrescrita |
-| Criar diretório | Projetos e pastas | Falha se o nome já existir |
+| Criar diretório | Projetos e pastas; pasta de imagens da conversão para MD (spec 08) | Falha se o nome já existir; a pasta de imagens nasce no temporário e é publicada sem sobrescrita |
 | Renomear e mover | Workspace, Entrada | Sem sobrescrita; disco antes do banco |
 | Enviar para a lixeira | Workspace, Reader | Nunca apaga permanentemente |
 
@@ -41,6 +41,8 @@ O sufixo é calculado e tentado em laço: se `(1)` for criado por outro processo
 2. O temporário é sincronizado com o disco (`sync_all`).
 3. É publicado no destino final sem sobrescrita (garantia 1), num rename atômico: quem olha o destino vê o arquivo inteiro ou nada.
 4. Qualquer erro antes do passo 3 descarta o temporário. O destino nunca recebe um arquivo pela metade.
+
+**Arquivo com pasta de imagens** (conversão para MD, spec 08): a pasta é publicada antes do arquivo, os dois sem sobrescrita; se o arquivo falhar, a pasta volta para `.folio/tmp/` e é descartada.
 
 **Destino em outro filesystem** (um ponto de montagem dentro do workspace): o rename falha com `EXDEV`. O temporário é recriado no diretório de destino, com nome oculto `.folio-tmp-<uuid>`, e publicado de lá.
 
