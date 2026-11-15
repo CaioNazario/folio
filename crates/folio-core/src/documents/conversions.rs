@@ -12,7 +12,9 @@ use crate::Result;
 use crate::workspace::Workspace;
 
 /// One side of a conversion link, seen from the other side.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
 pub struct ConversionLink {
     /// The source (when asking where a document came from) or the
     /// derivative (when asking for a document's derivatives).

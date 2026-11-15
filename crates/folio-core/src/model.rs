@@ -16,7 +16,9 @@ pub struct DocumentModel {
 /// What a document says about itself, as cached in `document_metadata`
 /// (spec 04). Dates are the document's own, in ms UTC, not the
 /// filesystem's.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Default, serde::Serialize, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
 pub struct Metadata {
     pub title: Option<String>,
     pub author: Option<String>,

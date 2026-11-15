@@ -56,7 +56,7 @@ fn conversion_targets(document: &Document) -> Vec<Format> {
 }
 
 /// The names of the directories above `path`, outermost first.
-fn folder_names(path: &RelativePath) -> Vec<String> {
+pub(super) fn folder_names(path: &RelativePath) -> Vec<String> {
     let Some(parent) = path.parent() else {
         return Vec::new();
     };

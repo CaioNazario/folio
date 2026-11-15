@@ -1,6 +1,8 @@
 //! Opening documents in the Reader (specs 06 and 07).
 
-use folio_core::display::{DisplayText, DocumentView, LinkTarget, MarkdownContent};
+use folio_core::display::{
+    DisplayText, DocumentProperties, DocumentView, LinkTarget, MarkdownContent,
+};
 use folio_core::recents::ReadingPosition;
 use tauri::State;
 use uuid::Uuid;
@@ -26,6 +28,13 @@ pub fn get_text_content(state: State<'_, AppState>, id: Uuid) -> CommandResult<D
 #[tauri::command]
 pub fn open_document(state: State<'_, AppState>, id: Uuid) -> CommandResult<DocumentView> {
     with_workspace(&state, |workspace| workspace.document_view(id))
+}
+
+/// Everything Folio knows about a document, for the Properties dialog:
+/// file, format metadata and conversions (spec 07).
+#[tauri::command]
+pub fn get_properties(state: State<'_, AppState>, id: Uuid) -> CommandResult<DocumentProperties> {
+    with_workspace(&state, |workspace| workspace.document_properties(id))
 }
 
 /// The HTML of a Markdown document, sanitized and with its images resolved.

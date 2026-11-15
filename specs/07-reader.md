@@ -134,6 +134,8 @@ O menu Mais ganha o item **Propriedades** (`Design/specs/05-document-view.md`), 
 - **Documento:** os metadados do formato (spec 04): título, autor, assunto, palavras-chave, datas internas, páginas e os campos de `extra`. Extraídos na hora se o cache estiver velho. Em documento protegido, "Protegido por senha: metadados não extraídos".
 - **Conversão:** de qual documento ele veio (formato e data) e quais derivados tem, cada um com o aviso de desatualizado, se houver (spec 04). Clicar num deles abre o documento.
 
+O command é `get_properties` e devolve um `DocumentProperties`: o `Document` (arquivo), o `location` (projeto e pastas), o `metadata` e as ligações de conversão (`convertedFrom`, `derivatives`). `metadata` vem vazio quando nada foi extraído: documento protegido ou inválido; o frontend escolhe a mensagem por `protected` e `valid`.
+
 ### Atalhos de teclado
 
 Valem com a visualização de documento aberta e o foco fora de campos de texto:
