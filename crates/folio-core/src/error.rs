@@ -24,6 +24,10 @@ pub enum Error {
     NestedWorkspace { ancestor: PathBuf },
     #[error("cannot read and write {0}")]
     PermissionDenied(PathBuf),
+    #[error("a symlink with a relative target cannot change directory: {0}")]
+    RelativeSymlink(crate::paths::RelativePath),
+    #[error("document not found: {0}")]
+    DocumentNotFound(uuid::Uuid),
     #[error("cannot move a directory into itself or a descendant")]
     MoveIntoItself,
     #[error("invalid name: {0}")]

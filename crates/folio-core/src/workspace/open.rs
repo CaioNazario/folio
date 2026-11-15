@@ -6,6 +6,8 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use rusqlite::Connection;
 use uuid::Uuid;
 
+use crate::clock::Clock;
+use crate::ids::IdGenerator;
 use crate::integrity::{Trash, WorkspaceGuard};
 use crate::paths::{Location, RelativePath};
 use crate::services::Services;
@@ -23,7 +25,9 @@ pub struct Workspace {
     meta: Meta,
     recovered: bool,
     db_path: PathBuf,
-    pub(super) trash: Arc<dyn Trash>,
+    pub(crate) trash: Arc<dyn Trash>,
+    pub(crate) ids: Arc<dyn IdGenerator>,
+    pub(crate) clock: Arc<dyn Clock>,
     // Declared before the guard: fields drop in order, so the database
     // closes before the lock is released.
     conn: Mutex<Connection>,
@@ -47,6 +51,8 @@ impl Workspace {
             recovered: db.recovered,
             db_path: db.path,
             trash: services.trash.clone(),
+            ids: services.ids.clone(),
+            clock: services.clock.clone(),
             conn: Mutex::new(db.conn),
             _guard: guard,
         })
@@ -74,14 +80,14 @@ impl Workspace {
         icons::set_icon(&self.conn(), path, icon).map_err(|e| self.db_error(e))
     }
 
-    pub(super) fn conn(&self) -> MutexGuard<'_, Connection> {
+    pub(crate) fn conn(&self) -> MutexGuard<'_, Connection> {
         self.conn.lock().unwrap_or_else(PoisonError::into_inner)
     }
 
     /// Index update for a change already done on disk. The disk is the truth:
     /// a failure here is logged and the operation still stands; the next scan
     /// fixes the index (spec 01, guarantee 5).
-    pub(super) fn update_index_after_disk(
+    pub(crate) fn update_index_after_disk(
         &self,
         update: impl FnOnce(&mut Connection) -> rusqlite::Result<()>,
     ) {
@@ -93,7 +99,7 @@ impl Workspace {
         }
     }
 
-    pub(super) fn db_error(&self, source: rusqlite::Error) -> Error {
+    pub(crate) fn db_error(&self, source: rusqlite::Error) -> Error {
         Error::database(&self.db_path, source)
     }
 

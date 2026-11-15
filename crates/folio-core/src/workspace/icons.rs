@@ -34,46 +34,6 @@ pub fn icon_of(conn: &Connection, path: &RelativePath) -> rusqlite::Result<Optio
     .optional()
 }
 
-/// Moves the icons of the directory `from` and of everything inside it to
-/// `to`, in one transaction. Leftover icons already under `to` (from a
-/// directory renamed outside Folio) are dropped first.
-pub fn carry_icons(
-    conn: &mut Connection,
-    from: &RelativePath,
-    to: &RelativePath,
-) -> rusqlite::Result<()> {
-    let tx = conn.transaction()?;
-    delete_within(&tx, to)?;
-    for old in paths_within(&tx, from)? {
-        let new = old.rebase(from, to);
-        tx.execute("UPDATE icons SET path = ?2 WHERE path = ?1", (&old, &new))?;
-    }
-    tx.commit()
-}
-
-/// `dir` itself plus the byte range `dir/` .. `dir0`: `0` is the byte right
-/// after `/`, so the range holds exactly the paths inside `dir`.
-const WITHIN: &str = "path = ?1 OR (path > ?2 AND path < ?3)";
-
-fn within_params(dir: &RelativePath) -> (&RelativePath, Vec<u8>, Vec<u8>) {
-    let bound = |last: u8| [dir.as_bytes(), &[last]].concat();
-    (dir, bound(b'/'), bound(b'0'))
-}
-
-fn paths_within(conn: &Connection, dir: &RelativePath) -> rusqlite::Result<Vec<RelativePath>> {
-    conn.prepare(&format!("SELECT path FROM icons WHERE {WITHIN}"))?
-        .query_map(within_params(dir), |row| row.get(0))?
-        .collect()
-}
-
-fn delete_within(conn: &Connection, dir: &RelativePath) -> rusqlite::Result<()> {
-    conn.execute(
-        &format!("DELETE FROM icons WHERE {WITHIN}"),
-        within_params(dir),
-    )
-    .map(drop)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

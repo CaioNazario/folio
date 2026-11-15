@@ -7,11 +7,11 @@ mod listing;
 mod meta;
 mod name;
 mod open;
-mod ops;
+pub(crate) mod ops;
 mod schema;
 mod store;
 #[cfg(test)]
-mod test_env;
+pub(crate) mod test_env;
 mod validate;
 
 pub use default_dir::default_workspace_dir;

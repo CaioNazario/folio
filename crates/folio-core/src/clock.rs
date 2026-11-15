@@ -18,3 +18,9 @@ impl Clock for SystemClock {
         i64::try_from(elapsed.as_millis()).unwrap_or(i64::MAX)
     }
 }
+
+/// A filesystem timestamp in ms since the Unix epoch; earlier times clamp to 0.
+pub fn system_time_millis(time: SystemTime) -> i64 {
+    let elapsed = time.duration_since(UNIX_EPOCH).unwrap_or_default();
+    i64::try_from(elapsed.as_millis()).unwrap_or(i64::MAX)
+}

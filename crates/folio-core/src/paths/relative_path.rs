@@ -70,6 +70,13 @@ impl RelativePath {
         Some(Self(self.0[..slash].to_vec()))
     }
 
+    /// Byte bounds of the paths inside this directory: `dir/` .. `dir0`. `0`
+    /// is the byte right after `/`, so the open range holds exactly them.
+    pub fn descendant_bounds(&self) -> (Vec<u8>, Vec<u8>) {
+        let bound = |last: u8| [self.0.as_slice(), &[last]].concat();
+        (bound(b'/'), bound(b'0'))
+    }
+
     /// True for `dir` itself or any path inside it.
     pub fn is_within(&self, dir: &Self) -> bool {
         self == dir
@@ -137,6 +144,12 @@ fn validate_component(component: &[u8]) -> Result<(), InvalidRelativePath> {
         b"" => Err(InvalidRelativePath::EmptyComponent),
         b"." | b".." => Err(InvalidRelativePath::DotComponent),
         _ => Ok(()),
+    }
+}
+
+impl std::fmt::Display for RelativePath {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.display())
     }
 }
 

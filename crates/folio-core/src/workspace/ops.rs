@@ -3,9 +3,12 @@
 
 use std::ffi::OsStr;
 
+use rusqlite::Connection;
+
+use crate::db::rebase::{PathTable, rebase_paths};
 use crate::integrity::{create_dir_no_replace, delete_to_trash, rename_no_replace};
 use crate::paths::{RelativePath, os_bytes};
-use crate::workspace::{Workspace, icons, validate_name};
+use crate::workspace::{Workspace, validate_name};
 use crate::{Error, Result};
 
 impl Workspace {
@@ -52,7 +55,7 @@ impl Workspace {
     /// to the old path (spec 01: disk before the index).
     fn relocate(&self, from: &RelativePath, to: RelativePath) -> Result<RelativePath> {
         rename_no_replace(&from.resolve(self.root()), &to.resolve(self.root()))?;
-        self.update_index_after_disk(|conn| icons::carry_icons(conn, from, &to));
+        self.update_index_after_disk(|conn| carry_paths(conn, from, &to));
         Ok(to)
     }
 
@@ -65,8 +68,22 @@ impl Workspace {
     }
 }
 
+/// Everything the index ties to `from` and below follows it to `to`, in one
+/// transaction.
+fn carry_paths(
+    conn: &mut Connection,
+    from: &RelativePath,
+    to: &RelativePath,
+) -> rusqlite::Result<()> {
+    let tx = conn.transaction()?;
+    for table in [PathTable::Icons, PathTable::Documents] {
+        rebase_paths(&tx, table, from, to)?;
+    }
+    tx.commit()
+}
+
 /// The path of the entry `name` inside `parent`, or at the root for `None`.
-pub(super) fn entry_path(parent: Option<&RelativePath>, name: &OsStr) -> Result<RelativePath> {
+pub(crate) fn entry_path(parent: Option<&RelativePath>, name: &OsStr) -> Result<RelativePath> {
     let path = match parent {
         Some(parent) => parent.join(name)?,
         None => RelativePath::from_bytes(os_bytes::as_bytes(name))?,

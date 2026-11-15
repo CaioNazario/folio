@@ -60,12 +60,13 @@ Um documento protegido por senha é **válido**: ver "Documentos protegidos por 
 | `path` | `RelativePath`, único | Disco |
 | `format` | `pdf`, `docx`, `md`, `txt` | Extensão |
 | `valid` | booleano | Assinatura |
-| `protected` | booleano | Assinatura (DOCX) ou dicionário `/Encrypt` com senha de abertura (PDF) |
+| `protected` | booleano | Assinatura (DOCX) ou dicionário `/Encrypt` com senha de abertura (PDF). O do PDF depende do leitor da spec 07; até ele existir, PDFs ficam como não protegidos |
 | `size` | bytes | Filesystem |
 | `modified_at` | ms UTC | Filesystem (mtime) |
 | `created_at` | ms UTC, opcional | Filesystem (birth time, via `statx`; nem todo filesystem tem) |
 | `hash` | BLAKE3, opcional | Calculado; a spec 05 define quando |
-| `hash_of` | `size` + `modified_at` do momento do cálculo | Para saber se o hash ficou velho |
+| `hash_of` | `size` + `modified_at` do momento do cálculo, em duas colunas (`hash_size`, `hash_modified_at`) | Para saber se o hash ficou velho |
+| `missing_since` | ms UTC, opcional | Quando o documento saiu do disco (lixeira ou sumiço). A spec 05 define o que acontece com ele; enquanto está marcado, não aparece na interface nem nas contagens |
 
 **Derivados, não guardados:**
 
@@ -88,7 +89,7 @@ Cache dos metadados do formato, preenchido pelos leitores (spec 07). Uma linha p
 | `doc_created_at`, `doc_modified_at` | Datas internas do documento, opcionais (diferentes das do filesystem) |
 | `pages` | Opcional: exato no PDF, aproximado no DOCX (spec 07), ausente em MD e TXT |
 | `extra` | JSON com o que é próprio do formato: criador, produtor e versão do PDF; comentários e revisão do DOCX; os demais campos do front matter do MD |
-| `extracted_from` | `size` + `modified_at` do arquivo na extração |
+| `extracted_from` | `size` + `modified_at` do arquivo na extração, em duas colunas (`extracted_size`, `extracted_modified_at`) |
 
 O cache vale enquanto `extracted_from` bate com o arquivo; se não bate, é recalculado na próxima vez que alguém pedir os metadados. Apagar a tabela inteira não perde nada: tudo volta dos arquivos.
 
@@ -120,7 +121,7 @@ Trabalho.pdf ──converted_to──▶ Trabalho.docx
   - "O original mudou depois da conversão": o derivado pode estar desatualizado.
   - "O derivado foi modificado depois da conversão": ele não é mais o resultado exato da conversão.
 
-  A relação continua valendo nos dois casos. Os avisos são calculados na consulta, sem tarefa em segundo plano.
+  A relação continua valendo nos dois casos. Os avisos são calculados na consulta, sem tarefa em segundo plano, com o `modified_at` lido do disco naquela hora: editar um dos arquivos produz o aviso sem esperar um novo escaneamento.
 - **A relação fica oculta enquanto um dos lados está ausente** (excluído, ou sumiu do disco) **e some quando ele sai do índice**, 30 dias depois (spec 05). Os arquivos nunca são afetados.
 - Se o banco for apagado, as relações se perdem e os dois arquivos continuam intactos (spec 01).
 

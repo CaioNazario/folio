@@ -4,6 +4,7 @@
 
 pub mod clock;
 pub mod db;
+pub mod documents;
 mod error;
 pub mod ids;
 pub mod integrity;
