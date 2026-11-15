@@ -397,28 +397,12 @@ Na 0.1.0 (Linux) entram "Mostrar na pasta" e "Arrastar para fora"; "Copiar arqui
 
 ## Persistência
 
-O Folio usa dois bancos SQLite com papéis diferentes; nenhum deles guarda documentos.
+Spec completa: `specs/02-persistencia.md`. Regras que valem em todo o código:
 
-| Banco | Onde | Guarda |
-| --- | --- | --- |
-| Global do app | Diretório de dados do app: `~/.local/share/folio/` (Linux), `%APPDATA%\Folio` (Windows), storage interno (Android) | Workspaces conhecidos, workspaces recentes, preferências, caminho da Entrada |
-| Do workspace | `<workspace>/.folio/folio.db` | Ids dos documentos, cache de metadados, índice de busca, ícones, favoritos, recentes, relações de conversão |
-
-**Por que o banco do workspace fica dentro dele:** copiar ou mover a pasta do workspace leva junto favoritos, ícones e relações, e o futuro repo git mora no mesmo `.folio/`.
-
-**Tabelas iniciais do workspace (esboço):** `documents`, `document_metadata`, `conversions`, `favorites`, `recent_documents`, `icons`. Não há tabela de hierarquia de pastas como fonte de verdade: a hierarquia vem do disco.
-
-**Caminhos:**
-
-- No banco do workspace, **todo caminho é relativo à raiz do workspace** (`Faculdade/TCC/Trabalho.pdf`), nunca absoluto.
-- Caminhos absolutos só existem no banco global (localização dos workspaces e da Downloads).
-- A referência a um arquivo é um tipo que aceita caminho (desktop) ou URI persistida (Android), não uma coluna de texto que assume `/home/...`.
-
-**Android:** o workspace default fica no storage interno do app, onde SQLite e arquivos funcionam normalmente. Se o usuário escolher uma pasta externa via SAF (URI `content://`), o `folio.db` daquele workspace fica no storage interno, indexado pelo id do workspace, porque o SQLite precisa de um caminho de arquivo real.
-
-**Abstração:** o local do estado do workspace fica atrás de uma interface no core (ex.: `WorkspaceStore`), para que a diferença entre plataformas seja detalhe de implementação.
-
-**Biblioteca:** `rusqlite` com a feature `bundled`, para não depender do SQLite do sistema e já ter FTS5 disponível no futuro.
+- **Dois bancos SQLite, nenhum guarda documentos:** o global (`~/.local/share/folio/folio.db` no Linux) e o do workspace (`<workspace>/.folio/folio.db`).
+- **No banco do workspace, todo caminho é relativo à raiz**, no tipo `CaminhoRelativo`, guardado em bytes: nomes que não são UTF-8 também são indexados e exibidos. Caminhos absolutos só existem no banco global.
+- **Cada spec que cria uma tabela traz a migração dela.** Migração publicada nunca é editada.
+- **`rusqlite` com a feature `bundled`**, em WAL; o local do estado do workspace fica atrás da trait `WorkspaceStore`.
 
 ## Integridade
 

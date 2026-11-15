@@ -33,7 +33,7 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 | # | Spec | Cobre | Spikes | Origem no `AGENTS.md` | Status |
 |---|---|---|---|---|---|
 | 01 | [integridade](01-integridade.md) | Garantias transversais: sem sobrescrita, temporários, lixeira, disco antes do banco, banco recuperável, lock do workspace | — | — | Escrita |
-| 02 | persistencia | Banco global e do workspace, tabelas, caminhos relativos, `WorkspaceStore` | S7 | Persistência | A escrever |
+| 02 | [persistencia](02-persistencia.md) | Banco global e do workspace, abertura, migrações, caminhos em bytes, `WorkspaceStore` | S7 | — | Escrita |
 | 03 | workspace | Modelo de vault, abertura, diretório default, regras, operações em projetos e pastas | — | Modelo de workspace | A escrever |
 | 04 | documentos | Reconhecimento, id estável, metadados por formato, documentos derivados | — | Documentos e documentos derivados | A escrever |
 | 05 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | S5, S6 | Integridade (mudanças externas) | A escrever |
@@ -69,14 +69,6 @@ Cada spike fica no topo da spec que ele bloqueia. Os destas specs ainda não esc
 **Bloqueia:** spec 05 (indexação).
 
 **Pergunta:** como indexar um workspace com milhares de arquivos na primeira abertura sem travar a interface (escaneamento incremental, hash sob demanda, paralelismo)?
-
-**Resultado:** pendente.
-
-### S7 · Workspace em pasta sincronizada
-
-**Bloqueia:** spec 02 (persistência).
-
-**Pergunta:** o que acontece quando o workspace está numa pasta sincronizada (Dropbox, Google Drive), onde o SQLite pode corromper? Detectar e avisar, mover o banco para fora, ou bloquear?
 
 **Resultado:** pendente.
 
