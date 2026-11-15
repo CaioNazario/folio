@@ -265,41 +265,13 @@ src/
 
 ## Modelo de workspace
 
-Workspace é um diretório no modelo de vault, marcado por uma pasta oculta `.folio/`. Projeto é cada diretório de primeiro nível dentro dele. Pasta é qualquer diretório dentro de um projeto.
+Spec completa: `specs/03-workspace.md`. Regras que valem em todo o código:
 
-```plain
-~/Documents/Folio/              ← WORKSPACE
-├── .folio/                     ← oculto: estado do workspace
-│   └── folio.db                   (futuro: repo git aqui)
-├── Faculdade/                  ← PROJETO
-│   ├── TCC/                    ← pasta
-│   │   ├── Trabalho.pdf        ← original
-│   │   └── Trabalho.docx       ← convertido, ao lado do original
-│   └── Disciplinas/
-├── Trabalho/                   ← PROJETO
-│   └── Contrato.docx
-└── leia-me.pdf                 ← documento sem projeto
-```
-
-### Abertura e diretório default
-
-- O Folio pode ser aberto em **qualquer diretório** escolhido pelo usuário. Ao abrir, cria `.folio/` nele se ainda não existir.
-- Na primeira execução, um diálogo pede a raiz do workspace: um diretório escolhido pelo usuário ou o **diretório default** `Folio/` dentro da pasta de documentos do sistema: `~/Documents/Folio` no Linux (com fallback se `XDG_DOCUMENTS_DIR` não estiver definido), `Documentos\Folio` no Windows, armazenamento interno do app no Android. O default vem pré-selecionado. A escolha acontece no app, não no instalador, para funcionar igual com .exe, AppImage, AUR e Android; fica no banco global e pode ser trocada depois.
-- **Um workspace por janela.** Trocar de workspace é uma ação explícita ("Abrir/trocar workspace").
-
-### Regras
-
-1. **Projeto = diretório de primeiro nível.** Não há cadastro: se a pasta existe na raiz do workspace, ela é um projeto. O SQLite guarda só o extra (ícone, favorito).
-2. **Documento solto na raiz** aparece na seção "Sem projeto". O Folio nunca esconde um documento do usuário.
-3. **Workspace dentro de workspace é proibido.** Se o diretório escolhido estiver dentro de um workspace, ou contiver outro `.folio/`, o Folio bloqueia e explica o motivo.
-4. **Só documentos são exibidos.** Arquivos de outros tipos continuam no disco e são ignorados pela interface.
-5. **`.folio/` é reservado ao Folio** e nunca é listado como projeto nem como pasta.
-
-### Operações
-
-- Criar, renomear, mover e excluir projetos e pastas: sempre operações reais no filesystem, refletidas no índice em seguida.
-- Associar ícone a um projeto ou pasta (guardado no SQLite).
-- Excluir envia para a lixeira do sistema; o Folio nunca apaga permanentemente.
+- **Workspace** é um diretório marcado por `.folio/`; **projeto** é cada diretório de primeiro nível; **pasta** é qualquer diretório dentro de um projeto. Não há cadastro: a hierarquia vem do disco, e o banco guarda só o extra (ícone, favorito).
+- **`.folio/` é reservado ao Folio** e nunca aparece como projeto nem pasta.
+- **Workspace dentro de workspace é proibido.**
+- **Diretório default:** `Folio/` dentro da pasta de documentos do sistema (`XDG_DOCUMENTS_DIR` no Linux), que segue o idioma do sistema.
+- **Diretórios não têm id estável:** o que o banco liga a um diretório usa o caminho e é atualizado quando o Folio renomeia ou move.
 
 ## Documentos e documentos derivados
 

@@ -34,7 +34,7 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 |---|---|---|---|---|---|
 | 01 | [integridade](01-integridade.md) | Garantias transversais: sem sobrescrita, temporários, lixeira, disco antes do banco, banco recuperável, lock do workspace | — | — | Escrita |
 | 02 | [persistencia](02-persistencia.md) | Banco global e do workspace, abertura, migrações, caminhos em bytes, `WorkspaceStore` | S7 | — | Escrita |
-| 03 | workspace | Modelo de vault, abertura, diretório default, regras, operações em projetos e pastas | — | Modelo de workspace | A escrever |
+| 03 | [workspace](03-workspace.md) | Modelo de vault, abertura, diretório default, workspace aninhado, operações em projetos e pastas, ícones | — | — | Escrita |
 | 04 | documentos | Reconhecimento, id estável, metadados por formato, documentos derivados | — | Documentos e documentos derivados | A escrever |
 | 05 | indexacao | Escaneamento, mudanças externas, reconexão por hash, reindexação | S5, S6 | Integridade (mudanças externas) | A escrever |
 | 06 | busca-favoritos-recentes | Busca por nome normalizado, filtros, favoritos, recentes | — | Busca, favoritos e recentes | A escrever |
