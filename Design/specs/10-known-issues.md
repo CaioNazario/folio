@@ -5,7 +5,7 @@ Pontos do protótipo para decidir ou corrigir na implementação.
 ## Bugs visuais
 1. **Ícone "+" com cor fixa:** o SVG tem `stroke: #F6F6F6` e `stroke="#FFFFFF"` no inline style, o que ignora `--plus` e fica invisível no tema claro. Usar `currentColor`
 2. **Hover dos arquivos da árvore sem raio:** a linha tem fundo de hover sem border-radius, mas a seleção tem raio 12. Sugestão: aplicar o mesmo overlay arredondado no hover
-3. **Hover do thumb da scrollbar** (#454545) e **letra do avatar** (#a9b0b8) são hardcoded e não mudam no light
+3. **Hover do thumb da scrollbar** (#454545) e **letra do avatar** (#a9b0b8) são hardcoded e não mudam no light. **Resolvido:** viraram os tokens `--bar-hover` e `--avatar-tx`, com valor no light (`01-tokens.md`)
 
 ## Copy
 4. O texto vazio de Favoritos fala em "estrela", mas o ícone é um **pin**. **Resolvido:** o texto fala em pin (`03-sidebar.md`)

@@ -27,6 +27,7 @@
   --line-7: #2a2a2a;
   --sel: #2b2b2b;
   --bar: #2e2e2e;
+  --bar-hover: #454545;
   --line-8: #303030;
   --line-9: #3a3a3a;
   --tx-1: #ffffff;
@@ -65,7 +66,6 @@
   --plus: #ffffff;
   --ring: #ffffff;
   --nav-accent: #ffffff;
-  /* Same in both themes (Design/specs/10-known-issues.md #3). */
   --avatar-tx: #a9b0b8;
   --shadow-1: 0 10px 30px rgba(0, 0, 0, 0.45);
   --shadow-2: 0 14px 34px rgba(0, 0, 0, 0.5);
@@ -91,6 +91,8 @@
   --line-7: #d2d0c9;
   --sel: #e3e0d9;
   --bar: #cbc8c1;
+  --bar-hover: #a9a59d;
+  --avatar-tx: #5f636a;
   --line-8: #c9c6bf;
   --line-9: #b7b4ac;
   --tx-1: #16171a;
@@ -278,9 +280,8 @@
     background-clip: content-box;
   }
 
-  /* Hardcoded no protótipo e igual nos dois temas: Design/specs/10-known-issues.md #3. */
   ::-webkit-scrollbar-thumb:hover {
-    background: #454545;
+    background: var(--bar-hover);
     background-clip: content-box;
   }
 

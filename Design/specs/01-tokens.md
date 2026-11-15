@@ -23,6 +23,8 @@ Todos os tokens são CSS custom properties aplicadas no elemento raiz via `data-
 | --line-6 | #282828 | #d6d4ce | Borda de botões, do grupo de tema e do botão fullscreen |
 | --line-9 | #3a3a3a | #b7b4ac | Borda em hover (botões e cards) |
 | --bar | #2e2e2e | #cbc8c1 | Borda de dropdowns e toast, divisor interno de dropdown, thumb da scrollbar |
+| --bar-hover | #454545 | #a9a59d | Hover do thumb da scrollbar |
+| --avatar-tx | #a9b0b8 | #5f636a | Letra do avatar |
 
 ### Texto
 | Token | Dark | Light | Uso |
@@ -64,8 +66,7 @@ Todos os tokens são CSS custom properties aplicadas no elemento raiz via `data-
 
 ### Fora dos tokens (hardcoded)
 - Html/body no light: `#ffffff`
-- Hover do thumb da scrollbar: `#454545`
-- Letra do avatar: `#a9b0b8`
+- Hover do thumb da scrollbar e letra do avatar viraram os tokens `--bar-hover` e `--avatar-tx`, com valor no light (`10-known-issues.md`, item 3)
 
 ## Sombras
 | Token | Dark | Light |
@@ -121,7 +122,7 @@ Sem escala formal. Valores recorrentes: 2, 5, 6, 7, 8, 9, 10, 12, 14, 18, 20, 32
 | 2600ms | — | Auto-dismiss do toast |
 
 ## Scrollbar
-11px, thumb `--bar` com raio 14 e borda transparente de 3px (`background-clip: content-box`), track transparente. Firefox: `scrollbar-width: thin; scrollbar-color: var(--bar) transparent`.
+11px, thumb `--bar` com raio 14 e borda transparente de 3px (`background-clip: content-box`), hover do thumb `--bar-hover`, track transparente. Firefox: `scrollbar-width: thin; scrollbar-color: var(--bar) transparent`.
 
 ## Links
 `a { color: var(--accent); text-decoration: none }` · `a:hover { color: var(--accent-2) }`
