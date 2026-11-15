@@ -1,66 +1,18 @@
 # AGENTS.md — Folio
 
-Contexto técnico do Folio extraído do `PRD — Folio V1 (2).md` (PRD V1, produto alvo 0.1.0). O PRD continua sendo a referência de produto; este arquivo reúne só o que é técnico.
-
-O Folio 0.1.0 é um leitor e gerenciador local de documentos: os documentos vivem como arquivos reais no filesystem, e o SQLite guarda só o estado e o índice do app.
-
-> **Princípio central:** o filesystem guarda os documentos. O SQLite guarda o que o Folio entende sobre eles. Nada que o usuário possa perder mora só no banco.
+O Folio é um leitor e gerenciador local de documentos (Rust + Tauri 2 + React). Este arquivo diz **como trabalhar** no projeto. **O que** o Folio faz está só nas specs.
 
 ## Specs
 
-- **Frontend:** `Design/specs/`. Comece por `Design/specs/00-visao-geral.md` (mapa, glossário, ordem de implementação, divergências com a 0.1.0).
-- **Backend:** `specs/`. Comece por `specs/00-visao-geral.md`. Parte das specs de backend ainda não foi escrita: o mapa diz de qual seção deste arquivo sai cada uma.
+- **As specs são a fonte da verdade do comportamento.** Este arquivo não repete nenhuma: antes de mexer numa área, leia a spec dela.
+  - **Backend:** `specs/`. Comece por `specs/00-visao-geral.md` (produto, princípios, mapa, ordem de implementação, spikes, fora de escopo).
+  - **Frontend:** `Design/specs/`. Comece por `Design/specs/00-visao-geral.md` (regras de design, mapa, ordem de implementação, divergências com a 0.1.0).
 - Uma spec é escrita ou atualizada antes da feature que ela cobre. Mudou comportamento, atualize a spec no mesmo commit.
 
-## Visão geral técnica
+## PRD
 
-| Campo | Valor |
-| --- | --- |
-| Tipo | Aplicação nativa multiplataforma |
-| Stack | Rust + Tauri 2 + React |
-| Persistência de documentos | Filesystem |
-| Estado e índice | SQLite |
-| Versionamento (git) | Fora da 0.1.0; previsto para versão futura |
-| Execução | Local-first e offline-first |
-| IA integrada | Fora de escopo |
-| Plataformas, em ordem de prioridade | 1. Linux (alvo de referência: Omarchy/Arch) · 2. Windows · 3. Android |
-| Repositório | Um único repositório para todas as plataformas, com as branches `dev` (desenvolvimento) e `main` (releases) |
-| Licença | MIT |
-
-Plataforma da 0.1.0: **Linux**. Windows e Android vêm depois, mas a arquitetura já é escrita para as três.
-
-## Princípios arquiteturais
-
-Cada camada tem uma única responsabilidade e uma única fonte de verdade.
-
-| Camada | Guarda | Responde |
-| --- | --- | --- |
-| Filesystem | Os bytes de todos os documentos: originais, convertidos e importados | Qual é o conteúdo deste arquivo? |
-| SQLite | Estado e índice: identidades, favoritos, recentes, ícones, relações de conversão, cache de metadados, índice de busca | O que este arquivo significa para o usuário? |
-| Git (versão futura) | Histórico dos bytes, dentro de `.folio/` | Como este arquivo era antes? |
-
-**Regras:**
-
-1. **Nenhum documento é armazenado no SQLite**, nem como BLOB, nem como cópia.
-2. **Teste do banco:** se o usuário apagar o `folio.db`, nenhum documento é perdido. Ele pode perder favoritos, ícones e relações; documentos, nunca.
-3. **O filesystem é a verdade da hierarquia.** Projetos e pastas do Folio são diretórios reais. O SQLite indexa e cacheia o que está no disco e pode ser reconstruído escaneando o workspace.
-4. **Tudo que é derivado pode ser reconstruído:** cache de metadados e índice de busca são recalculáveis a partir dos arquivos.
-5. **Arquitetura pronta para git sem implementá-lo:** como todo documento é um arquivo real, o versionamento futuro só precisa apontar para o workspace. A 0.1.0 não cria abstrações de versionamento por antecipação.
-
-## Fora do escopo da 0.1.0
-
-Não implementar:
-
-- Edição de documentos e editor próprio.
-- Versionamento: git, commits, diff, restauração, timeline.
-- Armazenar documentos no SQLite.
-- Busca no conteúdo dos documentos (full-text com FTS5) e procurar dentro do documento aberto (`Ctrl+F`).
-- Tags.
-- OCR.
-- Monitorar mudanças externas em tempo real dentro dos projetos, file locking, FUSE.
-- Sincronização em nuvem e colaboração.
-- IA integrada.
-- Builds de Windows e Android (a arquitetura os suporta, mas não são entregues na 0.1.0).
+- **Não leia o PRD (`PRD — Folio V1 (2).md`) por conta própria**, nem para tirar dúvida: as specs já trazem o que vale. Ele só é lido quando o mantenedor pedir.
+- **A cada release minor ou major** (`X.Y.0` ou `X.0.0`), antes do commit `chore(release)`, lembre o mantenedor de comparar o direcionamento atual do projeto com o PRD e pergunte se deve lê-lo. O objetivo é acompanhar a evolução e ver onde o projeto se afastou do PRD.
 
 ## Arquitetura, repositório e CI
 
@@ -110,9 +62,10 @@ Duas branches permanentes, as mesmas para todas as plataformas. Plataformas se s
 
 **Release:**
 
-1. Na `dev`, um commit `chore(release): X.Y.Z` move `[Unreleased]` para `[X.Y.Z] - AAAA-MM-DD` no `CHANGELOG.md` e troca a versão no `package.json` (`npm version X.Y.Z --no-git-tag-version`) e no `Cargo.toml`.
-2. Tag anotada `vX.Y.Z` nesse commit; push da `dev` e da tag.
-3. O workflow `release` (`.github/workflows/release.yml`), disparado pela tag:
+1. Em release minor ou major, o lembrete do PRD (ver "PRD") vem antes deste passo.
+2. Na `dev`, um commit `chore(release): X.Y.Z` move `[Unreleased]` para `[X.Y.Z] - AAAA-MM-DD` no `CHANGELOG.md` e troca a versão no `package.json` (`npm version X.Y.Z --no-git-tag-version`) e no `Cargo.toml`.
+3. Tag anotada `vX.Y.Z` nesse commit; push da `dev` e da tag.
+4. O workflow `release` (`.github/workflows/release.yml`), disparado pela tag:
    1. roda o `just check`;
    2. confere que a tag, o `package.json`, o `Cargo.toml` e o `CHANGELOG.md` dizem a mesma versão;
    3. builda com `tauri-action` e cria a GitHub Release com os artefatos e as notas da seção da versão no `CHANGELOG.md`;
@@ -214,6 +167,7 @@ src/
 ```
 
 - Organização por feature. Todo código de uma funcionalidade fica dentro da pasta dela.
+- Aparência: siga as regras de `Design/specs/00-visao-geral.md`.
 - Um componente só vai para `components/ui/` quando duas features diferentes o usam.
 - Primitivos de UI via shadcn/ui. Não reimplemente botão, dialog, input etc. do zero.
 
@@ -239,10 +193,9 @@ src/
 - O frontend só exibe dados e captura input. Nenhuma regra de negócio em componente: lógica fica no Rust.
 - **O backend nunca devolve texto para o usuário:** erros cruzam a ponte como variantes tipadas (ts-rs), e o frontend escolhe a mensagem no idioma ativo.
 
-### Idiomas (i18n)
+### Textos e idiomas
 
-- O app é bilíngue (português do Brasil e inglês), com `i18next` + `react-i18next`. Spec: `Design/specs/11-i18n.md`.
-- **Nenhum texto fixo em componente:** todo texto visível vem do `t()`, com chaves tipadas; chave faltando em qualquer idioma quebra o `tsc -b`.
+- **Nenhum texto fixo em componente:** todo texto visível vem do `t()` do `react-i18next`, com chaves tipadas (`Design/specs/11-i18n.md`).
 - Números, tamanhos e datas são formatados pelo `Intl` com o idioma ativo, nunca à mão.
 
 ### Tipos compartilhados (ts-rs)
@@ -270,99 +223,6 @@ src/
 - Use `mockIPC` de `@tauri-apps/api/mocks` para simular os commands do Rust.
 - Cubra os fluxos principais. TDD estrito não é exigido no frontend.
 - Os testes do frontend rodam no `just check`.
-
-## Modelo de workspace
-
-Spec completa: `specs/03-workspace.md`. Regras que valem em todo o código:
-
-- **Workspace** é um diretório marcado por `.folio/`; **projeto** é cada diretório de primeiro nível; **pasta** é qualquer diretório dentro de um projeto. Não há cadastro: a hierarquia vem do disco, e o banco guarda só o extra (ícone, favorito).
-- **`.folio/` é reservado ao Folio** e nunca aparece como projeto nem pasta.
-- **Workspace dentro de workspace é proibido.**
-- **Diretório default:** `Folio/` dentro da pasta de documentos do sistema (`XDG_DOCUMENTS_DIR` no Linux), que segue o idioma do sistema.
-- **Diretórios não têm id estável:** o que o banco liga a um diretório usa o caminho e é atualizado quando o Folio renomeia ou move.
-
-## Documentos e documentos derivados
-
-Spec completa: `specs/04-documentos.md`. Regras que valem em todo o código:
-
-- **Formatos da 0.1.0:** PDF, DOCX, MD e TXT. A extensão decide o formato e a assinatura (magic bytes) confirma; assinatura que não confere vira documento inválido, que aparece com aviso em vez de sumir.
-- **Id estável** (UUID v7): sobrevive a renomear e mover pelo Folio. A interface só conhece o id; o core resolve o caminho.
-- **Documento protegido por senha:** a senha e o conteúdo decifrado nunca vão para o disco nem para o banco.
-- **Documento derivado** é um arquivo comum; a relação `converted_to` no índice pode se perder sem afetar nenhum arquivo.
-
-## Entrada e importação
-
-Spec completa: `specs/09-entrada.md`. Regras que valem em todo o código:
-
-- **Entrada:** visão da pasta Downloads sem transformá-la em workspace (nada de `.folio/` lá). O caminho fica no banco global. Um watcher (`notify`) observa só essa pasta; dentro do workspace não há watcher.
-- **Entrada move, nunca copia**, para não existir duas versões do mesmo documento. **Importação copia**, porque a origem pode ser um pendrive ou a pasta de outro app.
-- **Android:** fora da 0.1.0; a Downloads lá passa por MediaStore/SAF.
-
-## Design e interface
-
-**A fonte da verdade do design é o diretório `Design/`.** Toda tela, componente e estilo do Folio segue o que está lá. Comece por `Design/specs/00-visao-geral.md`.
-
-**Regras:**
-
-1. **Fidelidade alta.** Cores, tipografia, espaçamentos, raios e transições das specs são finais: recriar pixel a pixel.
-2. **Tudo via tokens.** Cores e superfícies vêm das CSS custom properties de `01-tokens.md`, nunca de hex fixo no componente. O tema é o atributo `data-theme` no elemento raiz; dark é o padrão.
-3. **O que as specs não cobrem segue a mesma aparência.** Telas, estados e componentes novos (erro de conversão, loading, estados vazios, diálogos) reutilizam os tokens, os componentes de `06-components.md`, os ícones Lucide, IBM Plex Sans/Mono e os mesmos raios e espaçamentos. Nenhuma linguagem visual nova.
-4. **O protótipo define a aparência, não o escopo nem o código.** A lógica do HTML e o `support.js` não são portados, e funcionalidades do protótipo fora da 0.1.0 (ver "Fora do escopo") não são implementadas só por aparecerem nele.
-5. **Pendências conhecidas** estão em `10-known-issues.md` e são resolvidas na implementação, seguindo as sugestões de lá.
-
-**Android:** a mesma UI em layout responsivo, com a sidebar virando navegação em gaveta ou inferior. A plataforma é detectada via `@tauri-apps/plugin-os`.
-
-## Reader e conversão
-
-Spec completa: `specs/07-reader.md` (exibição, modelo de documento, leitores) e `specs/08-conversao.md` (escritores, fluxo, critério de qualidade). Regras que valem em todo o código:
-
-- **Exibição no webview, leitura no core.** PDF (pdf.js) e DOCX (docx-preview) são exibidos no frontend; o core entrega bytes, texto ou HTML pelo id do documento. Leitores e escritores rodam no `folio-core`.
-- **Toda conversão passa pelo modelo de documento:** leitor do formato de origem → modelo → escritor do formato de destino. Nunca escreva um conversor direto entre dois formatos.
-- **Nenhuma engine depende de binário do sistema** (LibreOffice, Pandoc, poppler...). Biblioteca nativa, se necessária, vai embarcada no app. Licenças AGPL/GPL (ex.: MuPDF) são proibidas: o Folio é MIT.
-- **A conversão nunca altera o original:** o resultado nasce num temporário dentro do workspace e é renomeado atomicamente; colisão de nome nunca sobrescreve.
-
-## Compartilhamento
-
-Spec completa: `specs/10-compartilhamento.md`. Regras que valem em todo o código:
-
-- **O que se compartilha é o próprio documento**, nunca uma cópia escondida. Na 0.1.0 (Linux): "Mostrar na pasta", "Arrastar para fora" (se o spike S9 passar) e "Copiar arquivo" (se o S8 passar). O share sheet entra com a versão Android.
-- **O frontend nunca recebe caminho:** toda ação é um command pelo id, e o `src-tauri` chama o plugin do lado do Rust. As capabilities do webview não liberam o `plugin-opener` nem o clipboard.
-- **Arrastar para fora é sempre cópia.**
-
-## Busca, favoritos e recentes
-
-Spec completa: `specs/06-busca-favoritos-recentes.md`. Regras que valem em todo o código:
-
-- **Busca só pelo nome**, normalizado (sem acento, minúsculas) por uma única função do core, registrada no SQLite. Sem full-text na 0.1.0.
-- **Busca no conteúdo (futuro):** tabela FTS5 com tokenizer `unicode61 remove_diacritics`, alimentada pelos leitores (`specs/07-reader.md`); derivada e reconstruível. Português não tem stemmer embutido; plurais são cobertos por busca por prefixo.
-- **Favoritos e recentes** de documento ficam ligados ao id; favorito de pasta, ao caminho. Documentos ausentes não aparecem em nenhum dos dois.
-
-## Persistência
-
-Spec completa: `specs/02-persistencia.md`. Regras que valem em todo o código:
-
-- **Dois bancos SQLite, nenhum guarda documentos:** o global (`~/.local/share/folio/folio.db` no Linux) e o do workspace (`<workspace>/.folio/folio.db`).
-- **No banco do workspace, todo caminho é relativo à raiz**, no tipo `CaminhoRelativo`, guardado em bytes: nomes que não são UTF-8 também são indexados e exibidos. Caminhos absolutos só existem no banco global.
-- **Cada spec que cria uma tabela traz a migração dela.** Migração publicada nunca é editada.
-- **`rusqlite` com a feature `bundled`**, em WAL; o local do estado do workspace fica atrás da trait `WorkspaceStore`.
-
-## Integridade
-
-Spec completa: `specs/01-integridade.md`. Regras que valem em todo o código:
-
-- **Lista fechada de operações** sobre arquivos do usuário: ler, criar arquivo, criar diretório, renomear/mover, enviar para a lixeira. O Folio nunca escreve dentro de um arquivo existente; operação nova entra primeiro na spec 01.
-- **Nunca sobrescrever:** rename e move usam o rename sem sobrescrita do sistema (`RENAME_NOREPLACE`); nunca "confere e renomeia".
-- **Arquivo novo nasce num temporário** sincronizado e é publicado por rename atômico.
-- **Exclusão só pela lixeira**, sem fallback para apagar permanentemente.
-- **Disco antes do banco:** se o índice falhar depois, o próximo escaneamento corrige.
-
-## Notas para o versionamento futuro
-
-Não depender do binário `git` (inexistente no Android); usar biblioteca (gix ou git2) dentro de `.folio/`. DOCX e XLSX são ZIPs e versionam mal no git, então avaliar normalizar o ZIP (modo store, ordem e timestamps fixos) antes de cada commit; rodar compactação (`gc`) periodicamente.
-
-## Questões técnicas em aberto
-
-São os spikes S1–S9. Cada um fica no topo da spec que ele bloqueia. Um spike se resolve antes da feature que depende dele, e o resultado vai para a spec da feature.
 
 <!-- ai-memory:start -->
 ## Long-term memory (ai-memory)

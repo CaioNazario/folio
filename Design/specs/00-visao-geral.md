@@ -4,7 +4,18 @@
 
 O Folio é um leitor e gerenciador local de documentos (Tauri 2 + React). A interface tem duas colunas: a **sidebar** à esquerda, com navegação por favoritos, projetos e recentes, e a **área principal** à direita, que mostra uma view por vez: a **Home** ("Documentos") ou a **visualização de documento**, com o leitor. Não há edição: o usuário lê, organiza e converte. O tema é escuro por padrão, com claro e "seguir o sistema".
 
-Estas specs descrevem o protótipo `Design/Folio v5.dc.html` e são a fonte da verdade da **aparência**. O **escopo** da 0.1.0 e o comportamento do backend estão em `AGENTS.md` e em `specs/` (comece por `specs/00-visao-geral.md`).
+Estas specs descrevem o protótipo `Design/Folio v5.dc.html` e são a fonte da verdade da **aparência**. O **escopo** da 0.1.0 e o comportamento do backend estão em `specs/` (comece por `specs/00-visao-geral.md`).
+
+## Regras
+
+Toda tela, componente e estilo do Folio segue o que está em `Design/`.
+
+1. **Fidelidade alta.** Cores, tipografia, espaçamentos, raios e transições destas specs são finais: recriar pixel a pixel.
+2. **Tudo via tokens.** Cores e superfícies vêm das CSS custom properties de `01-tokens.md`, nunca de hex fixo no componente. O tema é o atributo `data-theme` no elemento raiz; dark é o padrão.
+3. **O que estas specs não cobrem segue a mesma aparência.** Telas, estados e componentes novos (erro de conversão, loading, estados vazios, diálogos, Entrada, Propriedades) reutilizam os tokens, os componentes de `06-components.md`, os ícones Lucide, IBM Plex Sans/Mono e os mesmos raios e espaçamentos. Nenhuma linguagem visual nova.
+4. **O protótipo define a aparência, não o escopo nem o código.** A lógica do HTML e o `support.js` não são portados, e funcionalidades do protótipo fora da 0.1.0 não são implementadas só por aparecerem nele.
+5. **Pendências conhecidas** estão em `10-known-issues.md` e são resolvidas na implementação, seguindo as sugestões de lá.
+6. **Android:** a mesma UI em layout responsivo, com a sidebar virando navegação em gaveta ou inferior. A plataforma é detectada via `@tauri-apps/plugin-os`.
 
 ## Glossário
 
@@ -59,7 +70,7 @@ O `08-data.md` não é implementado: os tipos reais vêm de `src/lib/bindings/` 
 
 ## Divergências do protótipo com a 0.1.0
 
-O protótipo mostra coisas que a 0.1.0 não entrega (ver "Fora do escopo da 0.1.0" no `AGENTS.md`). A aparência vale; o comportamento abaixo não.
+O protótipo mostra coisas que a 0.1.0 não entrega (ver "Fora do escopo da 0.1.0" em `specs/00-visao-geral.md`). A aparência vale; o comportamento abaixo não.
 
 - **Versões e timeline:** o badge "v1/v2/v3", os tokens reservados de diff (`--add-*`, `--del-*`, `--mod-*`) e a nota "entra na timeline como derivado" do dropdown Converter dependem de versionamento, que está fora da 0.1.0. O badge só mostra "derivado".
 - **Formatos de conversão:** o dropdown oferece PDF, MD, TXT, PNG e JPG. Na 0.1.0 os formatos são PDF, TXT, MD e DOCX, e o dropdown só lista as conversões disponíveis para o documento aberto.

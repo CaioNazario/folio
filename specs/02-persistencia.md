@@ -88,7 +88,7 @@ Não há tabela de hierarquia de pastas: a hierarquia vem do disco.
 
 - Ids são UUID v7 em texto, gerados por um `GeradorId` injetado (seed fixa nos testes).
 - Datas são `INTEGER` em milissegundos UTC desde a época Unix, vindas do `Clock` injetado.
-- Nomes de tabelas e colunas em inglês, em `snake_case`, como as tabelas do esboço do PRD.
+- Nomes de tabelas e colunas em inglês, em `snake_case`.
 
 ## Caminhos
 

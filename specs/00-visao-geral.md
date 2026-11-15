@@ -2,9 +2,36 @@
 
 ## O produto
 
-O Folio é um leitor e gerenciador local de documentos. Os documentos são arquivos reais no filesystem; o SQLite guarda só o que o Folio entende sobre eles (identidades, favoritos, recentes, ícones, relações de conversão, cache de metadados, índice de busca). Toda a lógica vive no crate `folio-core`, sem dependência do Tauri; o `src-tauri` só expõe commands que delegam a ele. Plataforma da 0.1.0: Linux.
+O Folio é um leitor e gerenciador local de documentos. Os documentos são arquivos reais no filesystem; o SQLite guarda só o que o Folio entende sobre eles (identidades, favoritos, recentes, ícones, relações de conversão, cache de metadados, índice de busca). Toda a lógica vive no crate `folio-core`, sem dependência do Tauri; o `src-tauri` só expõe commands que delegam a ele.
+
+> **Princípio central:** o filesystem guarda os documentos. O SQLite guarda o que o Folio entende sobre eles. Nada que o usuário possa perder mora só no banco.
+
+| Campo | Valor |
+|---|---|
+| Tipo | Aplicação nativa multiplataforma, local-first e offline-first |
+| Stack | Rust + Tauri 2 + React |
+| Plataformas, em ordem de prioridade | 1. Linux (alvo de referência: Omarchy/Arch) · 2. Windows · 3. Android |
+| Plataforma da 0.1.0 | Linux. Windows e Android vêm depois, mas a arquitetura já é escrita para as três |
+| Licença | MIT |
 
 Estas specs cobrem o comportamento do backend. A aparência está em `Design/specs/` (comece por `Design/specs/00-visao-geral.md`).
+
+## Princípios
+
+Cada camada tem uma única responsabilidade e uma única fonte de verdade.
+
+| Camada | Guarda | Responde |
+|---|---|---|
+| Filesystem | Os bytes de todos os documentos: originais, convertidos e importados | Qual é o conteúdo deste arquivo? |
+| SQLite | Estado e índice: identidades, favoritos, recentes, ícones, relações de conversão, cache de metadados, índice de busca | O que este arquivo significa para o usuário? |
+| Git (versão futura) | Histórico dos bytes, dentro de `.folio/` | Como este arquivo era antes? |
+
+1. **Nenhum documento é armazenado no SQLite**, nem como BLOB, nem como cópia.
+2. **Teste do banco:** se o usuário apagar o `folio.db`, nenhum documento é perdido. Ele pode perder favoritos, ícones e relações; documentos, nunca.
+3. **O filesystem é a verdade da hierarquia.** Projetos e pastas são diretórios reais; o SQLite indexa e cacheia o que está no disco e pode ser reconstruído escaneando o workspace.
+4. **Tudo que é derivado pode ser reconstruído:** cache de metadados e índice de busca são recalculáveis a partir dos arquivos.
+5. **Pronto para git sem implementá-lo:** como todo documento é um arquivo real, o versionamento futuro só precisa apontar para o workspace. A 0.1.0 não cria abstrações de versionamento por antecipação.
+6. **Nenhuma engine depende de binário do sistema** (LibreOffice, Pandoc, poppler...). Biblioteca nativa, se necessária, vai embarcada no app. **Dependências com licença AGPL ou GPL (ex.: MuPDF) são proibidas:** o Folio é MIT.
 
 ## Glossário
 
@@ -52,9 +79,41 @@ A ordem é a dos números. Cada spec é escrita antes da feature dela, e os spik
 - **07 (reader):** modelo de documento, depois leitores e exibição na ordem TXT → MD → DOCX → PDF.
 - **08 (conversão):** escritores na ordem TXT → MD → DOCX → PDF.
 
-## Fora de escopo
+## Spikes
 
-O mesmo de "Fora do escopo da 0.1.0" no `AGENTS.md`: edição, versionamento, documentos no SQLite, busca no conteúdo, procurar dentro do documento, tags, OCR, monitorar mudanças externas em tempo real dentro dos projetos, nuvem e colaboração, IA, builds de Windows e Android.
+Cada spike fica no topo da spec que ele bloqueia e se resolve antes da parte que depende dele; o resultado vai para a spec.
+
+| Spike | Pergunta | Spec |
+|---|---|---|
+| S1 | Leitor de PDF: hayro ou PDFium | 07 |
+| S2 | pdf.js no WebKitGTK e no WebView do Android | 07 |
+| S3 | Typst embarcado | 08 |
+| S4 | Fidelidade do docx-preview | 07 |
+| S5 | Reconectar ao id um arquivo movido por fora | 05 |
+| S6 | Indexação rápida de workspace grande | 05 |
+| S7 | Workspace em pasta sincronizada | 02 |
+| S8 | "Copiar arquivo" no Wayland/Hyprland | 10 |
+| S9 | Arrastar para fora no WebKitGTK/Wayland | 10 |
+
+## Fora do escopo da 0.1.0
+
+Não implementar:
+
+- Edição de documentos e editor próprio.
+- Versionamento: git, commits, diff, restauração, timeline.
+- Armazenar documentos no SQLite.
+- Busca no conteúdo dos documentos (full-text) e procurar dentro do documento aberto (`Ctrl+F`).
+- Tags.
+- OCR.
+- Monitorar mudanças externas em tempo real dentro dos projetos (a Entrada é a única pasta observada, spec 09), locking de documentos, FUSE.
+- Sincronização em nuvem e colaboração.
+- IA integrada.
+- Builds de Windows e Android (a arquitetura os suporta, mas não são entregues na 0.1.0).
+
+## Notas para versões futuras
+
+- **Versionamento:** não depender do binário `git` (inexistente no Android); usar biblioteca (gix ou git2) dentro de `.folio/`. DOCX e XLSX são ZIPs e versionam mal no git, então avaliar normalizar o ZIP (modo store, ordem e timestamps fixos) antes de cada commit; rodar compactação (`gc`) periodicamente.
+- **Busca no conteúdo:** tabela FTS5 do SQLite (já disponível pelo `rusqlite` com `bundled`) com tokenizer `unicode61 remove_diacritics`, alimentada pelos leitores do modelo de documento (spec 07). O índice é derivado e reconstruível. Português não tem stemmer embutido; plurais são cobertos por busca por prefixo.
 
 ## Critérios de aceite globais
 
