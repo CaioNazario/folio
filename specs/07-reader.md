@@ -195,7 +195,7 @@ Inline: Texto | Negrito [Inline] | Italico [Inline] | CodigoInline | Link { dest
 | Formato | Base | O que é nosso | O que reconhece na 0.1.0 |
 |---|---|---|---|
 | TXT | — | Decodificar com `encoding_rs`: pela marca de início (BOM) quando existe (UTF-8, UTF-16 LE ou BE), senão UTF-8, com fallback para Windows-1252. Separar parágrafos por linha em branco (ou só com espaços); uma quebra simples vira quebra de linha dentro do parágrafo, e `\r\n` conta como `\n` | Parágrafos |
-| MD | `comrak` (árvore do Markdown, front matter com delimitador `---`) + um parser de YAML em Rust puro (o `serde_yaml` está descontinuado; a escolha fica para a implementação) | Traduzir a árvore do comrak para o modelo | Tudo do modelo |
+| MD | `comrak` (árvore do Markdown, com tabelas, tachado, listas de tarefas e front matter com delimitador `---`) + `saphyr` (YAML 1.2 em Rust puro, sem `unsafe`; o `serde_yaml` está descontinuado) | Traduzir a árvore do comrak para o modelo. Tachado vira texto comum, item de tarefa vira item de lista, quebra suave vira espaço. Tags HTML inline são descartadas e o texto entre elas fica; um bloco HTML inteiro é descartado. Até os leitores resolverem arquivos de imagem, uma imagem vira o seu texto alternativo | Tudo do modelo |
 | DOCX | `zip` + `quick-xml` | Ler `document.xml`, `styles.xml`, `numbering.xml` e `docProps/core.xml` e traduzir: estilos "Heading N" viram títulos, numeração vira lista, negrito e itálico viram ênfase | Tudo do modelo |
 | PDF | A definir no spike S1 (`pdfium-render` ou `hayro`), acima | **A dedução da estrutura:** juntar caracteres em linhas, linhas em parágrafos, reconhecer títulos (tamanho e peso da fonte) e listas (marcadores e recuo) | Títulos, parágrafos, listas, ênfase. Tabelas e imagens não são reconhecidas: tabela vira parágrafos, imagem é ignorada |
 
@@ -211,7 +211,7 @@ Os leitores também extraem os metadados que vão para o cache `document_metadat
 |---|---|
 | PDF | Dicionário Info e versão do cabeçalho; páginas exatas |
 | DOCX | `docProps/core.xml` (título, autor, assunto, palavras-chave, comentários, revisão, datas); páginas aproximadas, como na exibição |
-| MD | Front matter: `title`, `author`, `tags` (ou `keywords`), `date`; os demais campos vão para `extra` |
+| MD | Front matter: `title`, `author`, `tags` (ou `keywords`; lista ou um texto só), `date`; os demais campos vão para `extra`, convertidos de YAML para JSON. `date` vira a data de criação interna: instante RFC 3339 ou `AAAA-MM-DD` (meia-noite UTC); uma data ilegível fica em `extra` como texto. Front matter com YAML inválido continua fora do corpo e não gera metadados |
 | TXT | Nenhum: só o filesystem |
 
 Documento protegido por senha não tem metadados extraídos (spec 04).

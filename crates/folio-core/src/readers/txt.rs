@@ -14,7 +14,10 @@ pub fn read_txt(bytes: &[u8]) -> DocumentModel {
         .filter(|group| !group.is_empty())
         .map(paragraph)
         .collect();
-    DocumentModel { blocks }
+    DocumentModel {
+        blocks,
+        ..DocumentModel::default()
+    }
 }
 
 /// Consecutive non-blank lines as one paragraph, joined by line breaks.
