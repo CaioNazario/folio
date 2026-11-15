@@ -57,7 +57,7 @@ Duas branches permanentes, as mesmas para todas as plataformas. Plataformas se s
 - **Commits atômicos:** um commit = uma mudança lógica, completa e com o `just check` verde. Não misture assuntos (ex.: `refactor` nunca junto com `feat` ou `fix`); a spec atualizada, os bindings e o CHANGELOG vão no mesmo commit da mudança que os motivou.
 - **Conventional Commits, em inglês:** `tipo(escopo): descrição`, no imperativo, minúscula, sem ponto final, até 72 caracteres. Tipos: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `ci`, `perf`, `build`, `style`. Escopo opcional, pela área (`core`, `ui`, `reader`, `conversao`...). Quebra de compatibilidade: `!` depois do tipo e rodapé `BREAKING CHANGE:`.
 - **Issues:** fechadas por `Closes #N` na mensagem do commit ou na descrição do PR. O GitHub só fecha a issue quando o commit ou o PR chega à branch padrão, por isso a padrão é a `dev`.
-- **CHANGELOG:** toda mudança visível entra em `## [Unreleased]` no `CHANGELOG.md` (formato Keep a Changelog), no mesmo commit. A seção de cada versão vira a nota da GitHub Release.
+- **CHANGELOG:** toda mudança visível entra em `## [Unreleased]` no `CHANGELOG.md` (formato Keep a Changelog), **em inglês**, no mesmo commit. A seção de cada versão vira a nota da GitHub Release.
 - **Versão:** SemVer na série 0.x: `minor` para feature ou quebra de compatibilidade, `patch` só para correção. A versão vive no `package.json` e no `[workspace.package]` do `Cargo.toml`; o `tauri.conf.json` lê a do `package.json` (`"version": "../package.json"`).
 
 **Release:**
