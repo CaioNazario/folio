@@ -26,11 +26,15 @@ export type WorkspaceSummary = { path: string; userName: string; fileCount: numb
 export type SidebarData = {
   favorites: FavoriteItem[]
   recents: RecentItem[]
+  /** False until the first answer: the empty text waits for it. */
+  recentsLoaded: boolean
   workspace: WorkspaceSummary | null
 }
 
 export type TreeView = {
   root: TreeLevel
+  /** False until the root is listed: the empty text waits for it. */
+  loaded: boolean
   children: ReadonlyMap<string, TreeLevel>
   openKeys: ReadonlySet<string>
   toggle: (folder: FolderRef) => void

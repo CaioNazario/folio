@@ -41,12 +41,12 @@ function useOpenFolders(load: (folder: FolderRef) => Promise<unknown>) {
 // Project tree, loaded lazily: the root at once, each folder when opened.
 export function useTree() {
   const report = useReportError()
-  const [root, setRoot] = useState<TreeLevel>(EMPTY)
+  const [root, setRoot] = useState<TreeLevel | null>(null)
   const { children, load } = useFolderContents()
   const { openKeys, toggle, reloadOpen } = useOpenFolders(load)
   const reload = useCallback(() => {
     listDir(null).then((contents) => setRoot(toTreeLevel(contents))).catch(report)
     reloadOpen()
   }, [reloadOpen, report])
-  return { root, children, openKeys, toggle, reload }
+  return { root: root ?? EMPTY, loaded: root !== null, children, openKeys, toggle, reload }
 }

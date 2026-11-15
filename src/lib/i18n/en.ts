@@ -22,7 +22,9 @@ export const en = {
     },
     otherWorkspace: 'This folder is another workspace',
     projects: 'Projects',
+    projectsEmpty: 'This workspace has no documents yet.',
     recents: 'Recent',
+    recentsEmpty: 'Documents you open show up here.',
     pin: {
       add: 'Add to favorites',
       remove: 'Remove from favorites',

@@ -3,17 +3,20 @@ import { SectionLabel } from '@/components/ui/section-label'
 import { useFormat } from '@/lib/i18n/useFormat'
 import type { RecentItem, SidebarActions } from '../types'
 import { pinKey } from '../sidebarData'
+import { EmptyNote } from './EmptyNote'
 import { NavRow, RowName } from './NavRow'
 import { PinButton } from './PinButton'
 
 type RecentsSectionProps = Pick<SidebarActions, 'onOpenDocument' | 'onTogglePin'> & {
   recents: RecentItem[]
+  /** The empty text waits for the first answer. */
+  loaded: boolean
   pinnedKeys: ReadonlySet<string>
   now: Date
 }
 
 // Recents (Design/specs/03-sidebar.md): no icon, relative time on the right.
-export function RecentsSection({ recents, pinnedKeys, now, onOpenDocument, onTogglePin }: RecentsSectionProps) {
+export function RecentsSection({ recents, loaded, pinnedKeys, now, onOpenDocument, onTogglePin }: RecentsSectionProps) {
   const { t } = useTranslation()
   const format = useFormat()
   return (
@@ -21,6 +24,7 @@ export function RecentsSection({ recents, pinnedKeys, now, onOpenDocument, onTog
       <SectionLabel id="sidebar-recents" tone="sidebar" className="px-2 pt-4 pb-1.5">
         {t('sidebar.recents')}
       </SectionLabel>
+      {loaded && recents.length === 0 && <EmptyNote>{t('sidebar.recentsEmpty')}</EmptyNote>}
       {recents.map((item) => (
         <NavRow
           key={item.id}

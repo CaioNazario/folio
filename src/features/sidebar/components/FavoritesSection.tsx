@@ -2,6 +2,7 @@ import { File, Folder } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { SectionLabel } from '@/components/ui/section-label'
 import type { FavoriteItem, FolderRef } from '../types'
+import { EmptyNote } from './EmptyNote'
 import { NavRow, RowName } from './NavRow'
 import { PinButton } from './PinButton'
 
@@ -20,9 +21,7 @@ export function FavoritesSection({ favorites, onOpenFile, onToggleFolder, onTogg
       <SectionLabel id="sidebar-favorites" tone="sidebar" className="px-2 pt-[10px] pb-1.5">
         {t('sidebar.favorites.title')}
       </SectionLabel>
-      {favorites.length === 0 && (
-        <p className="m-0 px-2 pt-0.5 pb-1 text-[12px] leading-[1.45] text-tx-10">{t('sidebar.favorites.empty')}</p>
-      )}
+      {favorites.length === 0 && <EmptyNote>{t('sidebar.favorites.empty')}</EmptyNote>}
       {favorites.map(({ key, name, target }) => {
         const Icon = target.kind === 'folder' ? Folder : File
         const open = () => (target.kind === 'folder' ? onToggleFolder({ path: target.path, name }) : onOpenFile(target.id, name))

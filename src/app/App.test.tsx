@@ -220,3 +220,17 @@ test('an anchor to a missing heading does nothing', async () => {
   expect(screen.queryByText(pt.document.linkUnsupported)).not.toBeInTheDocument()
   expect(screen.getByRole('heading', { name: 'Referências', level: 1 })).toBeInTheDocument()
 })
+
+test('an empty workspace says so in projects and recents', async () => {
+  await renderApp({ list_dir: () => ({ folders: [], documents: [] }), get_recent_documents: () => [] })
+
+  expect(within(projects()).getByText(pt.sidebar.projectsEmpty)).toBeInTheDocument()
+  expect(within(section(pt.sidebar.recents)).getByText(pt.sidebar.recentsEmpty)).toBeInTheDocument()
+})
+
+test('a workspace with documents shows no empty text', async () => {
+  await renderApp()
+
+  expect(screen.queryByText(pt.sidebar.projectsEmpty)).not.toBeInTheDocument()
+  expect(screen.queryByText(pt.sidebar.recentsEmpty)).not.toBeInTheDocument()
+})

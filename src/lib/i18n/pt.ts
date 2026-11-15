@@ -23,7 +23,9 @@ export const pt = {
     },
     otherWorkspace: 'Esta pasta é outro workspace',
     projects: 'Projetos',
+    projectsEmpty: 'Este workspace ainda não tem documentos.',
     recents: 'Recentes',
+    recentsEmpty: 'Os documentos que você abrir aparecem aqui.',
     pin: {
       add: 'Adicionar aos favoritos',
       remove: 'Remover dos favoritos',

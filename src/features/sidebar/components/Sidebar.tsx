@@ -42,7 +42,7 @@ export function Sidebar({ data, tree, actions, selectedId, now }: SidebarProps) 
         />
         <hr className="mx-2 mt-3 mb-0.5 h-px border-none bg-line-2" />
         <ProjectsSection {...shared} tree={tree} selectedId={selectedId} />
-        <RecentsSection {...shared} recents={data.recents} now={now} />
+        <RecentsSection {...shared} recents={data.recents} loaded={data.recentsLoaded} now={now} />
       </div>
       <SidebarFooter workspace={data.workspace} />
     </aside>

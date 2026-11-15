@@ -10,12 +10,13 @@ import { useTree } from './useTree'
 function useSidebarLists() {
   const report = useReportError()
   const [favorites, setFavorites] = useState<FavoriteItem[]>([])
-  const [recents, setRecents] = useState<RecentItem[]>([])
+  const [recents, setRecents] = useState<RecentItem[] | null>(null)
   const [workspace, setWorkspace] = useState<WorkspaceSummary | null>(null)
   const reloadFavorites = useCallback(() => getFavorites().then((list) => setFavorites(list.map(toFavoriteItem))).catch(report), [report])
   const reloadRecents = useCallback(() => getRecentDocuments().then((list) => setRecents(list.map(toRecentItem))).catch(report), [report])
   const reloadSummary = useCallback(() => getWorkspaceSummary().then((summary) => setWorkspace(toWorkspaceSummary(summary))).catch(report), [report])
-  return { data: { favorites, recents, workspace }, reloadFavorites, reloadRecents, reloadSummary }
+  const data = { favorites, recents: recents ?? [], recentsLoaded: recents !== null, workspace }
+  return { data, reloadFavorites, reloadRecents, reloadSummary }
 }
 
 // Loads now and again after every scan.

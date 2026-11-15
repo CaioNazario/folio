@@ -25,7 +25,7 @@ Pontos do protótipo para decidir ou corrigir na implementação.
 14. Arquivos fora da timeline não abrem: o leitor continua no último item
 15. Derivados criados pela conversão não aparecem na árvore da sidebar
 16. Não há UI de timeline nem de diff na v5, mas os tokens e o modelo de dados existem. Decidir se entra
-17. Sem estados de loading, erro (ex.: conversão falhou) ou vazio para projetos e recentes
+17. Sem estados de loading, erro (ex.: conversão falhou) ou vazio para projetos e recentes. **Resolvido para projetos e recentes:** texto de vazio depois da primeira resposta e erro no toast (`03-sidebar.md`); o erro de conversão fica com a conversão (`specs/08-conversao.md`)
 18. Sem animação de entrada ou saída em dropdowns e toast
 
 ## Responsividade

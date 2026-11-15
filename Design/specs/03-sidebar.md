@@ -72,6 +72,8 @@ Cabeçalho: flex `space-between`, `padding: 10px 8px 6px`. Rótulo "Projetos" + 
 
 Estado inicial: todas as pastas fechadas. A contagem ao lado de "Projetos" é o número de projetos na raiz.
 
+Vazio (não está no protótipo): workspace sem projetos e sem documentos na raiz mostra "Este workspace ainda não tem documentos.", no estilo do vazio de Favoritos. O texto só aparece depois que a raiz foi listada, para não piscar durante o carregamento.
+
 ### Recentes
 - Rótulo "Recentes"
 - Linha: `padding: 5px 8px`, raio 12, gap 8, hover `--hover`
@@ -79,6 +81,7 @@ Estado inicial: todas as pastas fechadas. A contagem ao lado de "Projetos" é o 
   - Botão de pin (margin-left auto)
   - Tempo relativo em Mono 10px `--tx-1` ("há 2 d")
 - Sem ícone
+- Vazio (não está no protótipo): "Os documentos que você abrir aparecem aqui.", no estilo do vazio de Favoritos, só depois da primeira resposta
 
 ## 3.4 Rodapé
 `padding: 10px 14px`, `border-top: 1px solid --line-1`, flex, gap 9.
