@@ -67,7 +67,7 @@ O escaneamento completo é a reconciliação de todos os diretórios do workspac
 | Abertura do workspace | Escaneamento completo, em segundo plano |
 | Banco novo ou recriado (primeira abertura, banco corrompido, spec 01) | Escaneamento completo: a reindexação é só isso, com o índice vazio |
 | Expandir um projeto ou pasta na árvore | Aquele diretório |
-| Abrir um documento que sumiu do disco | O diretório dele, e o documento vira ausente; a interface mostra `DocumentoNaoEncontrado` (spec 04) |
+| Abrir um documento que sumiu do disco | O diretório dele, e o documento vira ausente; a interface mostra `DocumentNotFound` (spec 04) |
 | Janela volta ao foco | Os diretórios expandidos na árvore |
 | Operação do próprio Folio (renomear, mover, converter, excluir) | Nada: a operação já atualiza o índice (spec 01) |
 

@@ -95,11 +95,11 @@ O `folio-core` distingue, num tipo de erro próprio, as falhas que esta spec def
 
 | Erro | Quando |
 |---|---|
-| `JaExiste` | Rename, move ou criação com destino ocupado (onde não há sufixo automático) |
-| `SemSuporteAtomico` | Filesystem sem `RENAME_NOREPLACE` |
-| `LixeiraIndisponivel` | Lixeira do sistema falhou ou não existe |
-| `CopiaDivergente` | Hash da cópia diferente da origem ao mover entre filesystems |
-| `WorkspaceEmUso` | Lock de `.folio/lock` com outra janela |
+| `AlreadyExists` | Rename, move ou criação com destino ocupado (onde não há sufixo automático) |
+| `NoAtomicSupport` | Filesystem sem `RENAME_NOREPLACE` |
+| `TrashUnavailable` | Lixeira do sistema falhou ou não existe |
+| `CopyMismatch` | Hash da cópia diferente da origem ao mover entre filesystems |
+| `WorkspaceInUse` | Lock de `.folio/lock` com outra janela |
 
 Erros de I/O do sistema (permissão, disco cheio) passam adiante com o caminho relativo do arquivo.
 

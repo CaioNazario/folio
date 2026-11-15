@@ -38,7 +38,7 @@ Um documento protegido por senha é **válido**: ver "Documentos protegidos por 
 - Renomear, mover e enviar para a lixeira **agem no atalho**. O arquivo real nunca é tocado.
 - O derivado de uma conversão nasce ao lado do atalho, dentro do workspace, nunca ao lado do arquivo real.
 - **Atalho quebrado** (o arquivo real sumiu) aparece como documento inválido.
-- **Atalho com alvo relativo** (`../Downloads/Boleto.pdf`) só pode ser renomeado no mesmo diretório. Movê-lo para outro diretório o quebraria, e o Folio recusa (`AtalhoRelativo`).
+- **Atalho com alvo relativo** (`../Downloads/Boleto.pdf`) só pode ser renomeado no mesmo diretório. Movê-lo para outro diretório o quebraria, e o Folio recusa (`RelativeSymlink`).
 - Links simbólicos para diretório continuam não sendo seguidos (spec 03).
 
 **Nome que não é UTF-8:** o formato vem da extensão, que é lida dos bytes; um nome inválido em UTF-8 com extensão `.pdf` é um PDF como qualquer outro (spec 02).
@@ -136,7 +136,7 @@ PDF e DOCX podem ter senha de abertura. O Folio os exibe e converte, pedindo a s
 - **A senha nunca é guardada:** nem no banco, nem em arquivo. Ela vive só na memória enquanto o documento está aberto; fechou, reabrir pede de novo.
 - **O conteúdo decifrado nunca vai para o disco.** A decifração acontece em memória.
 - **Nada do conteúdo vai para o índice:** documento protegido não tem metadados extraídos em `document_metadata` (título, autor e páginas ficariam legíveis no banco). O índice guarda só o que vem do filesystem.
-- Senha errada: o diálogo avisa e pede de novo (`SenhaIncorreta`).
+- Senha errada: o diálogo avisa e pede de novo (`WrongPassword`).
 - **Converter** pede a senha (ou usa a do documento aberto) e avisa antes de começar: "O documento convertido não terá senha." O derivado nasce sem proteção.
 - PDF com senha só de permissões (impressão, cópia), sem senha de abertura, abre direto, sem pedir nada: não é marcado como protegido.
 
@@ -163,11 +163,11 @@ Documentos inválidos entram nas contagens: eles aparecem na interface.
 
 | Erro | Quando |
 |---|---|
-| `AtalhoRelativo` | Mover para outro diretório um link simbólico com alvo relativo |
-| `DocumentoNaoEncontrado` | O id não está no índice, ou o arquivo sumiu do disco desde o último escaneamento |
-| `DocumentoInvalido` | Pedido para abrir ou converter um documento inválido |
-| `SenhaNecessaria` | Pedido para ler um documento protegido sem senha |
-| `SenhaIncorreta` | A senha não abre o documento |
+| `RelativeSymlink` | Mover para outro diretório um link simbólico com alvo relativo |
+| `DocumentNotFound` | O id não está no índice, ou o arquivo sumiu do disco desde o último escaneamento |
+| `InvalidDocument` | Pedido para abrir ou converter um documento inválido |
+| `PasswordRequired` | Pedido para ler um documento protegido sem senha |
+| `WrongPassword` | A senha não abre o documento |
 
 ## Critérios de aceite
 

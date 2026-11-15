@@ -94,6 +94,7 @@ Valem para todo o código do projeto (Rust e TypeScript).
 3. **Indentação rasa:** no máximo 2 níveis dentro do corpo de uma função. Prefira 1; vá para 2 só se necessário.
 4. **Guard clauses e early return:** trate os casos inválidos ou triviais no início e retorne cedo, em vez de aninhar `if`/`else`.
 5. **Sem `unsafe`:** não use `unsafe` em Rust. Se parecer necessário, pare e pergunte antes.
+6. **Código em inglês:** todo identificador (funções, testes, tipos, variantes, módulos, variáveis) e todo comentário são em inglês. Specs, documentação e textos da interface (via i18n) seguem em português.
 
 ### Verificação automática
 
@@ -138,7 +139,7 @@ O limite de 500 linhas por arquivo Rust e o de indentação no Rust não têm li
 ### Qualidade dos testes
 
 - Unitários em `#[cfg(test)] mod tests` no mesmo arquivo; integração em `tests/`.
-- Nome descreve o comportamento: `retorna_not_found_quando_documento_nao_existe`.
+- Nome descreve o comportamento: `returns_not_found_when_document_does_not_exist`.
 - Testes rodam em paralelo: nada de estado global, caminho de arquivo fixo ou variável de ambiente compartilhada.
 - Lógica de domínio não toca disco: use trait + implementação em memória. Testes de armazenamento usam diretório temporário (crate `tempfile`).
 - Tempo e aleatoriedade são injetados (trait `Clock`, seed fixa). Nunca `SystemTime::now()` ou RNG direto em código testado.
@@ -183,11 +184,11 @@ src/
 
 - Funções e hooks (`.ts`): máximo 20 linhas. Componentes (`.tsx`): máximo 80 linhas. Limites verificados pelo ESLint; não altere a config.
 - Estado, efeitos e handlers não triviais vão para custom hooks (`use*.ts`) da feature. O componente deve ser majoritariamente layout.
-- Ao extrair um componente, ele precisa ter significado próprio no domínio da UI (`DocumentoItem`, `ListaFavoritos`). Nunca divida um componente só para caber no limite (`SidebarParte1`, `HeaderTopLeft`). Se não há divisão com significado, pare e me avise.
+- Ao extrair um componente, ele precisa ter significado próprio no domínio da UI (`DocumentItem`, `FavoritesList`). Nunca divida um componente só para caber no limite (`SidebarPart1`, `HeaderTopLeft`). Se não há divisão com significado, pare e me avise.
 
 ### Integração com o Tauri
 
-- Nunca chame `invoke()` dentro de componente. Toda chamada fica no `api.ts` da feature; o componente chama funções como `abrirDocumento()` e não sabe que o Tauri existe.
+- Nunca chame `invoke()` dentro de componente. Toda chamada fica no `api.ts` da feature; o componente chama funções como `openDocument()` e não sabe que o Tauri existe.
 - Tipos compartilhados com o Rust vêm de `src/lib/bindings/` (ver "Tipos compartilhados (ts-rs)").
 - Sem SSR. O app é um SPA estático servido pelo Vite.
 - O frontend só exibe dados e captura input. Nenhuma regra de negócio em componente: lógica fica no Rust.

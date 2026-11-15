@@ -80,9 +80,9 @@ Resolver antes de implementar a parte que cada spike bloqueia. O resultado vai p
 
 | Erro | Quando |
 |---|---|
-| `ClipboardIndisponivel` | Não foi possível servir o clipboard (compositor sem data-control) |
+| `ClipboardUnavailable` | Não foi possível servir o clipboard (compositor sem data-control) |
 
-Mais `DocumentoNaoEncontrado` (spec 04), quando o arquivo sumiu antes da ação.
+Mais `DocumentNotFound` (spec 04), quando o arquivo sumiu antes da ação.
 
 ## Critérios de aceite
 

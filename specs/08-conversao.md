@@ -109,13 +109,13 @@ A conversão que não atingir o critério sai da 0.1.0 em vez de atrasar o lanç
 
 ## Erros
 
-Além dos da spec 04 (`DocumentoInvalido`, `SenhaNecessaria`, `SenhaIncorreta`) e da 07 (`FalhaAoLer`):
+Além dos da spec 04 (`InvalidDocument`, `PasswordRequired`, `WrongPassword`) e da 07 (`ReadFailed`):
 
 | Erro | Quando |
 |---|---|
-| `ConversaoIndisponivel` | Pedido de uma conversão que não está na 0.1.0 (fora do critério mínimo) |
-| `FalhaAoEscrever` | O escritor não conseguiu gerar o destino (ex.: erro de compilação do Typst); o motivo técnico vai para o log |
-| `ConversaoCancelada` | O usuário cancelou; a interface mostra só o toast de cancelamento, sem tom de erro |
+| `ConversionUnavailable` | Pedido de uma conversão que não está na 0.1.0 (fora do critério mínimo) |
+| `WriteFailed` | O escritor não conseguiu gerar o destino (ex.: erro de compilação do Typst); o motivo técnico vai para o log |
+| `ConversionCancelled` | O usuário cancelou; a interface mostra só o toast de cancelamento, sem tom de erro |
 
 Erros de disco (cheio, sem permissão) seguem a spec 01.
 

@@ -120,14 +120,14 @@ Todas seguem a spec 01: operação real no disco, sem sobrescrita, disco antes d
 
 | Erro | Quando |
 |---|---|
-| `WorkspaceNaoEncontrado` | O diretório não existe ou não é diretório |
-| `SemPermissao` | Não dá para ler ou escrever no diretório |
-| `RaizProibida` | `/` ou a home |
-| `WorkspaceAninhado` | Um ancestral tem `.folio/` (o erro traz o caminho do ancestral) |
-| `NomeInvalido` | Falha na validação de nome (o erro traz o motivo) |
-| `MoverParaDentroDeSi` | Destino é o próprio diretório ou um descendente |
+| `WorkspaceNotFound` | O diretório não existe ou não é diretório |
+| `PermissionDenied` | Não dá para ler ou escrever no diretório |
+| `ForbiddenRoot` | `/` ou a home |
+| `NestedWorkspace` | Um ancestral tem `.folio/` (o erro traz o caminho do ancestral) |
+| `InvalidName` | Falha na validação de nome (o erro traz o motivo) |
+| `MoveIntoItself` | Destino é o próprio diretório ou um descendente |
 
-Mais os da spec 01 (`JaExiste`, `WorkspaceEmUso`...).
+Mais os da spec 01 (`AlreadyExists`, `WorkspaceInUse`...).
 
 ## Critérios de aceite
 

@@ -201,7 +201,7 @@ Inline: Texto | Negrito [Inline] | Italico [Inline] | CodigoInline | Link { dest
 
 O leitor de PDF é a peça de maior risco do Reader e da conversão: um PDF guarda posição na página, não estrutura. Um PDF digitalizado (só imagem) produz um documento vazio; OCR está fora da 0.1.0.
 
-**Senha:** os leitores de PDF e DOCX recebem uma senha opcional. Sem ela, um documento protegido falha com `SenhaNecessaria`; com a errada, `SenhaIncorreta` (spec 04). O leitor de DOCX decifra com `office-crypto`, em memória.
+**Senha:** os leitores de PDF e DOCX recebem uma senha opcional. Sem ela, um documento protegido falha com `PasswordRequired`; com a errada, `WrongPassword` (spec 04). O leitor de DOCX decifra com `office-crypto`, em memória.
 
 ### Metadados
 
@@ -218,11 +218,11 @@ Documento protegido por senha não tem metadados extraídos (spec 04).
 
 ## Erros
 
-Além dos da spec 04 (`DocumentoNaoEncontrado`, `DocumentoInvalido`, `SenhaNecessaria`, `SenhaIncorreta`):
+Além dos da spec 04 (`DocumentNotFound`, `InvalidDocument`, `PasswordRequired`, `WrongPassword`):
 
 | Erro | Quando |
 |---|---|
-| `FalhaAoLer` | O leitor não conseguiu montar o documento (ZIP ou XML quebrado, PDF corrompido por dentro); o motivo técnico vai para o log |
+| `ReadFailed` | O leitor não conseguiu montar o documento (ZIP ou XML quebrado, PDF corrompido por dentro); o motivo técnico vai para o log |
 
 ## Restrição de plataforma
 
