@@ -11,6 +11,7 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 ### Fixed
 
 - Reloading the window no longer fails with "workspace already open in another window".
+- Opening a document that is gone from disk removes it from the sidebar, recents and favorites instead of leaving it listed.
 
 ### Added
 

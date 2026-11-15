@@ -37,18 +37,22 @@ impl Workspace {
             return Err(Error::InvalidDocument(id));
         }
         let full = doc.path.resolve(self.root());
-        let file = File::open(&full).map_err(|e| open_error(id, &full, e))?;
+        let file = File::open(&full).map_err(|e| self.open_error(&doc, &full, e))?;
         Ok((doc, file, full))
     }
-}
 
-/// A file gone from disk is a document not found: the stage says so and
-/// the tree gets reconciled (spec 07, "Estados do palco").
-fn open_error(id: Uuid, path: &Path, error: io::Error) -> Error {
-    if error.kind() == io::ErrorKind::NotFound {
-        return Error::DocumentNotFound(id);
+    /// A file gone from disk is a document not found: its directory is
+    /// reconciled, so it becomes missing, and the stage says so (spec 05,
+    /// "Quando a indexação roda"; spec 07, "Estados do palco").
+    fn open_error(&self, doc: &Document, path: &Path, error: io::Error) -> Error {
+        if error.kind() != io::ErrorKind::NotFound {
+            return Error::io(path, error);
+        }
+        if let Err(failure) = self.reconcile_dir(doc.path.parent().as_ref()) {
+            log::warn!("reconciling the directory of a missing document failed: {failure}");
+        }
+        Error::DocumentNotFound(doc.id)
     }
-    Error::io(path, error)
 }
 
 #[cfg(test)]
@@ -56,6 +60,7 @@ mod tests {
     use super::*;
     use crate::display::image_files::IMAGE_LIMIT;
     use crate::documents::test_docs::write_doc;
+    use crate::paths::RelativePath;
     use crate::workspace::test_env::TestEnv;
 
     fn indexed(workspace: &Workspace, path: &str, content: &[u8]) -> Uuid {
@@ -84,6 +89,53 @@ mod tests {
         let result = workspace.text_content(gone);
 
         assert!(matches!(result, Err(Error::DocumentNotFound(id)) if id == gone));
+    }
+
+    fn listed_names(workspace: &Workspace, dir: Option<&RelativePath>) -> Vec<String> {
+        let documents = workspace.list_documents(dir).unwrap();
+        documents.into_iter().map(|doc| doc.name).collect()
+    }
+
+    #[test]
+    fn opening_missing_document_returns_not_found_and_marks_it_absent() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let gone = indexed(&workspace, "Nota.txt", b"texto");
+        indexed(&workspace, "Fica.txt", b"texto");
+        std::fs::remove_file(workspace.root().join("Nota.txt")).unwrap();
+
+        let result = workspace.text_content(gone);
+
+        assert!(matches!(result, Err(Error::DocumentNotFound(id)) if id == gone));
+        assert_eq!(listed_names(&workspace, None), ["Fica.txt"]);
+    }
+
+    #[test]
+    fn opening_missing_document_reconciles_its_directory() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let gone = indexed(&workspace, "Notas/Velha.txt", b"texto");
+        std::fs::remove_file(workspace.root().join("Notas/Velha.txt")).unwrap();
+        std::fs::write(workspace.root().join("Notas/Nova.txt"), b"texto").unwrap();
+
+        _ = workspace.text_content(gone);
+
+        let notas = RelativePath::from_bytes(b"Notas".to_vec()).unwrap();
+        assert_eq!(listed_names(&workspace, Some(&notas)), ["Nova.txt"]);
+    }
+
+    #[test]
+    fn opening_document_in_missing_directory_marks_it_absent() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let gone = indexed(&workspace, "Notas/Doc.txt", b"texto");
+        std::fs::remove_dir_all(workspace.root().join("Notas")).unwrap();
+
+        let result = workspace.text_content(gone);
+
+        assert!(matches!(result, Err(Error::DocumentNotFound(id)) if id == gone));
+        let notas = RelativePath::from_bytes(b"Notas".to_vec()).unwrap();
+        assert!(listed_names(&workspace, Some(&notas)).is_empty());
     }
 
     #[test]
