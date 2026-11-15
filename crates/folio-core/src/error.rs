@@ -14,6 +14,8 @@ pub enum Error {
     TrashUnavailable { path: PathBuf, reason: String },
     #[error("copy does not match its source: {0}")]
     CopyMismatch(PathBuf),
+    #[error("no workspace is open")]
+    NoWorkspaceOpen,
     #[error("workspace is already open in another window")]
     WorkspaceInUse,
     #[error("workspace not found: {0}")]

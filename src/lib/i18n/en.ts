@@ -83,6 +83,7 @@ export const en = {
     TrashUnavailable: 'The system trash is not available for {{path}}',
     CopyMismatch: 'The copy of {{path}} does not match the original. Nothing was removed.',
     WorkspaceInUse: 'This workspace is already open in another window',
+    NoWorkspaceOpen: 'No workspace is open',
     WorkspaceNotFound: 'Workspace not found: {{path}}',
     ForbiddenRoot: '{{path}} cannot be a workspace: it is the system root or your home folder',
     NestedWorkspace: 'This folder is inside the workspace {{path}}',

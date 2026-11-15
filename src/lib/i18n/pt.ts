@@ -84,6 +84,7 @@ export const pt = {
     TrashUnavailable: 'A lixeira do sistema não está disponível para {{path}}',
     CopyMismatch: 'A cópia de {{path}} não confere com o original. Nada foi removido.',
     WorkspaceInUse: 'Este workspace já está aberto em outra janela',
+    NoWorkspaceOpen: 'Nenhum workspace aberto',
     WorkspaceNotFound: 'Workspace não encontrado: {{path}}',
     ForbiddenRoot: '{{path}} não pode ser um workspace: é a raiz do sistema ou a pasta pessoal',
     NestedWorkspace: 'Esta pasta fica dentro do workspace {{path}}',

@@ -11,7 +11,8 @@ use crate::workspace::{Workspace, icons};
 use crate::{Error, Result};
 
 /// A project (top level) or folder (anywhere below).
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[ts(export)]
 pub struct DirEntry {
     pub path: RelativePath,
     /// Name for the UI; invalid UTF-8 bytes show as U+FFFD.
@@ -21,7 +22,8 @@ pub struct DirEntry {
     pub icon: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[ts(export)]
 pub enum DirKind {
     Folder,
     /// Another workspace inside this one: shown blocked, never entered.

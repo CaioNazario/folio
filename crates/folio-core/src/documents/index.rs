@@ -14,7 +14,9 @@ use crate::workspace::Workspace;
 use crate::{Error, Result};
 
 /// A document as the index knows it.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
 pub struct Document {
     pub id: Uuid,
     pub path: RelativePath,
@@ -265,5 +267,37 @@ mod tests {
         let docs = workspace.list_documents(None).unwrap();
 
         assert_eq!((names(&docs), docs[0].valid), (vec!["Boleto.pdf"], false));
+    }
+
+    fn sample_document() -> Document {
+        Document {
+            id: Uuid::from_u128(1),
+            path: RelativePath::from_bytes("A/Nota.pdf").unwrap(),
+            name: "Nota.pdf".to_string(),
+            format: Format::Pdf,
+            valid: true,
+            protected: false,
+            size: 10,
+            modified_at: 5,
+            created_at: None,
+        }
+    }
+
+    #[test]
+    fn document_serializes_with_string_id_and_camel_case_fields() {
+        assert_eq!(
+            serde_json::to_value(sample_document()).unwrap(),
+            serde_json::json!({
+                "id": "00000000-0000-0000-0000-000000000001",
+                "path": [65, 47, 78, 111, 116, 97, 46, 112, 100, 102],
+                "name": "Nota.pdf",
+                "format": "pdf",
+                "valid": true,
+                "protected": false,
+                "size": 10,
+                "modifiedAt": 5,
+                "createdAt": null,
+            })
+        );
     }
 }

@@ -6,7 +6,8 @@ use crate::paths::RelativePath;
 use crate::workspace::Workspace;
 
 /// Documents of the whole workspace, for the sidebar footer.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[ts(export)]
 pub struct WorkspaceTotals {
     pub documents: u64,
     /// Sum of the file sizes, in bytes.

@@ -4,13 +4,15 @@ use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use super::os_bytes;
 
 /// Path relative to the workspace root, stored as the exact bytes on disk
 /// with `/` as separator. Never absolute, empty, with `.` or `..`, or inside
 /// `.folio/`.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, ts_rs::TS)]
+#[ts(export)]
 pub struct RelativePath(Vec<u8>);
 
 /// Why a byte string is not a valid [`RelativePath`].
@@ -168,6 +170,23 @@ impl FromSql for RelativePath {
     }
 }
 
+/// Crosses the bridge as its exact bytes, so names that are not UTF-8 come
+/// back intact from the UI.
+impl Serialize for RelativePath {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.collect_seq(&self.0)
+    }
+}
+
+impl<'de> Deserialize<'de> for RelativePath {
+    /// Only valid paths come back from the UI: the same checks as
+    /// [`RelativePath::from_bytes`].
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let bytes = Vec::<u8>::deserialize(deserializer)?;
+        Self::from_bytes(bytes).map_err(serde::de::Error::custom)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -292,5 +311,23 @@ mod tests {
             .unwrap();
 
         assert_eq!((read, kind.as_str()), (path, "blob"));
+    }
+
+    #[test]
+    fn relative_path_serializes_as_byte_array() {
+        let path = RelativePath::from_bytes(b"Fac/\xe7".to_vec()).unwrap();
+
+        let json = serde_json::to_value(&path).unwrap();
+
+        assert_eq!(json, serde_json::json!([70, 97, 99, 47, 231]));
+    }
+
+    #[test]
+    fn relative_path_deserializes_from_byte_array_and_rejects_invalid() {
+        let valid: RelativePath = serde_json::from_value(serde_json::json!([70, 47, 231])).unwrap();
+        let absolute = serde_json::from_value::<RelativePath>(serde_json::json!([47, 70]));
+
+        assert_eq!(valid, RelativePath::from_bytes(b"F/\xe7".to_vec()).unwrap());
+        assert!(absolute.is_err());
     }
 }

@@ -22,7 +22,8 @@ pub struct ScanOptions {
 }
 
 /// Running totals, reported after each directory.
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[ts(export)]
 pub struct ScanProgress {
     pub dirs: u64,
     pub documents: u64,

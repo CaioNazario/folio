@@ -11,15 +11,18 @@ use crate::workspace::Workspace;
 use crate::{Error, Result};
 
 /// What a favorite points to: a document by id, a directory by path.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[serde(tag = "kind")]
+#[ts(export)]
 pub enum FavoriteTarget {
-    Document(Uuid),
-    Project(RelativePath),
-    Folder(RelativePath),
+    Document { id: Uuid },
+    Project { path: RelativePath },
+    Folder { path: RelativePath },
 }
 
 /// A favorite as the sidebar shows it.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[ts(export)]
 pub struct Favorite {
     pub id: Uuid,
     /// File or directory name; invalid UTF-8 bytes show as U+FFFD.
@@ -49,6 +52,25 @@ impl Workspace {
             .map_err(|e| self.db_error(e))
     }
 
+    /// Adds the document `id` to the favorites, or removes it if it is
+    /// there. Returns whether it is a favorite now.
+    pub fn toggle_favorite_document(&self, id: Uuid) -> Result<bool> {
+        let sql = "DELETE FROM favorites WHERE document_id = ?1";
+        if self.delete_favorites(sql, &id.to_string())? {
+            return Ok(false);
+        }
+        self.add_favorite_document(id).map(|()| true)
+    }
+
+    /// Adds the project or folder at `path` to the favorites, or removes it if
+    /// it is there. Returns whether it is a favorite now.
+    pub fn toggle_favorite_dir(&self, path: &RelativePath) -> Result<bool> {
+        if self.delete_favorites("DELETE FROM favorites WHERE path = ?1", path)? {
+            return Ok(false);
+        }
+        self.add_favorite_dir(path).map(|()| true)
+    }
+
     /// Favorites in the order they were added, without missing documents.
     pub fn favorites(&self) -> Result<Vec<Favorite>> {
         let conn = self.conn();
@@ -56,6 +78,15 @@ impl Workspace {
             conn.prepare(LIST)?.query_map([], favorite_row)?.collect()
         };
         query().map_err(|e| self.db_error(e))
+    }
+
+    /// Runs the `DELETE` in `sql` with `param`; whether it removed a row.
+    fn delete_favorites(&self, sql: &str, param: &dyn rusqlite::ToSql) -> Result<bool> {
+        let removed = self
+            .conn()
+            .execute(sql, [param])
+            .map_err(|e| self.db_error(e))?;
+        Ok(removed > 0)
     }
 
     fn insert_favorite(&self, document: Option<String>, path: Option<&RelativePath>) -> Result<()> {
@@ -86,7 +117,9 @@ const LIST: &str = "SELECT f.id, f.document_id, coalesce(d.path, f.path)
 fn favorite_row(row: &Row<'_>) -> rusqlite::Result<Favorite> {
     let path: RelativePath = row.get(2)?;
     let target = match row.get::<_, Option<String>>(1)? {
-        Some(_) => FavoriteTarget::Document(uuid_column(row, 1)?),
+        Some(_) => FavoriteTarget::Document {
+            id: uuid_column(row, 1)?,
+        },
         None => dir_target(path.clone()),
     };
     Ok(Favorite {
@@ -99,8 +132,8 @@ fn favorite_row(row: &Row<'_>) -> rusqlite::Result<Favorite> {
 /// A directory at the root is a project; any deeper one is a folder.
 fn dir_target(path: RelativePath) -> FavoriteTarget {
     match path.parent() {
-        None => FavoriteTarget::Project(path),
-        Some(_) => FavoriteTarget::Folder(path),
+        None => FavoriteTarget::Project { path },
+        Some(_) => FavoriteTarget::Folder { path },
     }
 }
 
@@ -118,6 +151,14 @@ mod tests {
 
     fn rel(text: &str) -> RelativePath {
         RelativePath::from_bytes(text).unwrap()
+    }
+
+    fn project(path: &str) -> FavoriteTarget {
+        FavoriteTarget::Project { path: rel(path) }
+    }
+
+    fn folder(path: &str) -> FavoriteTarget {
+        FavoriteTarget::Folder { path: rel(path) }
     }
 
     fn names(workspace: &Workspace) -> Vec<String> {
@@ -184,15 +225,9 @@ mod tests {
         assert_eq!(
             shown(&workspace),
             [
-                ("Nota.txt".to_string(), FavoriteTarget::Document(doc)),
-                (
-                    "Faculdade".to_string(),
-                    FavoriteTarget::Project(rel("Faculdade"))
-                ),
-                (
-                    "Prova".to_string(),
-                    FavoriteTarget::Folder(rel("Faculdade/Prova"))
-                ),
+                ("Nota.txt".to_string(), FavoriteTarget::Document { id: doc }),
+                ("Faculdade".to_string(), project("Faculdade")),
+                ("Prova".to_string(), folder("Faculdade/Prova")),
             ]
         );
     }
@@ -233,7 +268,10 @@ mod tests {
 
         assert_eq!(
             shown(&workspace),
-            [("Final.txt".to_string(), FavoriteTarget::Document(doc))]
+            [(
+                "Final.txt".to_string(),
+                FavoriteTarget::Document { id: doc }
+            )]
         );
     }
 
@@ -261,7 +299,7 @@ mod tests {
 
         assert_eq!(
             shown(&workspace),
-            [("Ata.txt".to_string(), FavoriteTarget::Document(doc))]
+            [("Ata.txt".to_string(), FavoriteTarget::Document { id: doc })]
         );
     }
 
@@ -310,8 +348,8 @@ mod tests {
         assert_eq!(
             shown(&workspace),
             [
-                ("Escola".to_string(), FavoriteTarget::Project(rel("Escola"))),
-                ("Prova".to_string(), FavoriteTarget::Project(rel("Prova"))),
+                ("Escola".to_string(), project("Escola")),
+                ("Prova".to_string(), project("Prova")),
             ]
         );
     }
@@ -333,5 +371,53 @@ mod tests {
         workspace.full_scan(options, &mut |_| {}).unwrap();
 
         assert_eq!(names(&workspace), ["Trabalho"]);
+    }
+
+    #[test]
+    fn favorite_serializes_target_with_kind_tag() {
+        let favorite = Favorite {
+            id: Uuid::from_u128(1),
+            name: "Prova".to_string(),
+            target: FavoriteTarget::Folder {
+                path: rel("A/Prova"),
+            },
+        };
+
+        assert_eq!(
+            serde_json::to_value(&favorite).unwrap(),
+            serde_json::json!({
+                "id": "00000000-0000-0000-0000-000000000001",
+                "name": "Prova",
+                "target": { "kind": "Folder", "path": [65, 47, 80, 114, 111, 118, 97] },
+            })
+        );
+    }
+
+    #[test]
+    fn toggling_document_favorite_adds_then_removes() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let doc = indexed(&workspace, "Nota.txt");
+
+        let added = workspace.toggle_favorite_document(doc).unwrap();
+        let listed = names(&workspace);
+        let removed = workspace.toggle_favorite_document(doc).unwrap();
+
+        assert_eq!((added, listed), (true, vec!["Nota.txt".to_string()]));
+        assert_eq!((removed, names(&workspace)), (false, vec![]));
+    }
+
+    #[test]
+    fn toggling_dir_favorite_adds_then_removes() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        fs::create_dir(workspace.root().join("Faculdade")).unwrap();
+
+        let added = workspace.toggle_favorite_dir(&rel("Faculdade")).unwrap();
+        let listed = names(&workspace);
+        let removed = workspace.toggle_favorite_dir(&rel("Faculdade")).unwrap();
+
+        assert_eq!((added, listed), (true, vec!["Faculdade".to_string()]));
+        assert_eq!((removed, names(&workspace)), (false, vec![]));
     }
 }

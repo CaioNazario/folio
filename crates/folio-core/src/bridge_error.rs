@@ -30,6 +30,7 @@ pub enum BridgeError {
     CopyMismatch {
         path: String,
     },
+    NoWorkspaceOpen,
     WorkspaceInUse,
     WorkspaceNotFound {
         path: String,
@@ -119,6 +120,7 @@ fn with_other_data(error: &Error) -> BridgeError {
         Error::InvalidPath(reason) => BridgeError::InvalidPath {
             reason: reason.clone(),
         },
+        Error::NoWorkspaceOpen => BridgeError::NoWorkspaceOpen,
         Error::WorkspaceInUse => BridgeError::WorkspaceInUse,
         Error::InvalidPosition => BridgeError::InvalidPosition,
         Error::MoveIntoItself => BridgeError::MoveIntoItself,
@@ -281,5 +283,13 @@ mod tests {
 
             assert_eq!(bridged(error), json!({ "kind": kind, "path": path }));
         }
+    }
+
+    #[test]
+    fn bridge_error_of_no_workspace_open_has_only_kind() {
+        assert_eq!(
+            bridged(Error::NoWorkspaceOpen),
+            json!({ "kind": "NoWorkspaceOpen" })
+        );
     }
 }

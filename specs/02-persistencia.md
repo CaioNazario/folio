@@ -108,6 +108,7 @@ Todo caminho no banco do workspace é relativo à raiz (`Faculdade/TCC/Trabalho.
 - **Armazenamento:** a coluna de caminho é `BLOB` com os bytes do caminho. Quando o nome é UTF-8 válido (o caso comum), os bytes são o próprio UTF-8, iguais em qualquer plataforma. Quando não é, são os bytes crus do Unix (`OsStrExt::as_bytes`), nunca o `as_encoded_bytes`, cuja codificação a std não garante entre versões. A forma no Windows (nomes UTF-16 malformados) será especificada com a versão Windows.
 - **Busca por pasta:** como o separador é o byte `/`, "tudo dentro de `Faculdade/TCC/`" continua sendo um intervalo de bytes no índice.
 - **Exibição:** o core entrega à interface o nome convertido com `to_string_lossy`: os bytes inválidos aparecem como `�`. O nome exibido nunca é usado para achar o arquivo: a interface fala com o core pelo id do documento (spec 04), e o core usa os bytes guardados.
+- **Na ponte com a interface:** um `RelativePath` atravessa como a lista dos seus bytes (`number[]` no TypeScript), sempre ao lado do nome exibido. Pastas e projetos, que não têm id, voltam da interface pelos mesmos bytes, então um diretório com nome que não é UTF-8 também pode ser aberto, favoritado ou renomeado. Ao voltar, os bytes passam pelas mesmas validações do `RelativePath`.
 - **Nome novo** (renomear, criar pasta, sufixo de colisão) vem sempre de texto digitado ou gerado, portanto é UTF-8.
 
 ### No banco global: `Location`

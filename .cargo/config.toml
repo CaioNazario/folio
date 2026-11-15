@@ -1,3 +1,5 @@
 [env]
 # Os bindings do ts-rs vão para o frontend, relativos à raiz do repositório.
 TS_RS_EXPORT_DIR = { value = "src/lib/bindings", relative = true }
+# i64 and u64 (timestamps in ms, sizes, counts) stay below 2^53: plain numbers.
+TS_RS_LARGE_INT = "number"

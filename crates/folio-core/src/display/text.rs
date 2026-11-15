@@ -9,7 +9,8 @@ use crate::readers::{decode_text, decode_text_start};
 pub const DISPLAY_TEXT_LIMIT: usize = 10 * 1024 * 1024;
 
 /// Decoded text for the stage.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[ts(export)]
 pub struct DisplayText {
     pub text: String,
     /// The file was larger than the limit and only its start is here.

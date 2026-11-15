@@ -13,7 +13,9 @@ use crate::paths::RelativePath;
 use crate::workspace::Workspace;
 
 /// A recently opened document, as the sidebar and the Home show it.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, ts_rs::TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
 pub struct RecentDocument {
     pub id: Uuid,
     /// File name; invalid UTF-8 bytes show as U+FFFD.
