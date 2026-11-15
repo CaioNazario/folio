@@ -71,6 +71,20 @@ test('a document gone from disk shows the not found state', async () => {
   expect(await screen.findByText(pt.errors.DocumentNotFound)).toBeInTheDocument()
 })
 
+test('a document gone from disk reloads the sidebar', async () => {
+  const { calls, user } = await renderApp({
+    get_text_content: () => {
+      throw { kind: 'DocumentNotFound', id: 'd-readme' }
+    },
+  })
+  const count = (cmd: string) => calls.filter((call) => call.cmd === cmd).length
+  const before = ['list_dir', 'get_favorites', 'get_recent_documents', 'get_workspace_summary'].map(count)
+  await user.click(within(projects()).getByRole('button', { name: 'Leia-me.txt' }))
+  await screen.findByText(pt.errors.DocumentNotFound)
+
+  await waitFor(() => expect(['list_dir', 'get_favorites', 'get_recent_documents', 'get_workspace_summary'].map(count)).toEqual(before.map((n) => n + 1)))
+})
+
 async function openReferences(user: ReturnType<typeof userEvent.setup>) {
   await user.click(within(projects()).getByRole('button', { name: 'Faculdade' }))
   await user.click(await screen.findByRole('button', { name: 'Referências.md' }))

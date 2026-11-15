@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ToastViewport } from '@/components/ui/toast'
 import { DocumentView } from '@/features/document/components/DocumentView'
 import type { DocumentActions } from '@/features/document/types'
@@ -26,7 +26,9 @@ const PENDING_ACTIONS: Omit<DocumentActions, 'onRetry' | 'onLink'> = {
 export function Shell() {
   const sidebar = useSidebar()
   const [openRef, setOpenRef] = useState<DocumentRef | null>(null)
-  const { document, content, retry } = useDocument(openRef, sidebar.reloadRecents)
+  const { reload, reloadRecents } = sidebar
+  const events = useMemo(() => ({ onRecorded: reloadRecents, onNotFound: reload }), [reloadRecents, reload])
+  const { document, content, retry } = useDocument(openRef, events)
   const reader = useReaderState()
   const onLink = useLinkHandler(openRef?.id ?? null, setOpenRef)
   const actions = { onImport: noop, onOpenDocument: setOpenRef, onTogglePin: sidebar.togglePin }

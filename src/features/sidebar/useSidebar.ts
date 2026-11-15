@@ -28,7 +28,8 @@ function useScanFinished(reload: () => void) {
 }
 
 // Sidebar data from the workspace commands. Everything reloads when a scan
-// finishes; favorites after a pin, recents after a document opens.
+// finishes or an opened document turns out gone; favorites after a pin,
+// recents after a document opens.
 export function useSidebar() {
   const report = useReportError()
   const tree = useTree()
@@ -41,5 +42,5 @@ export function useSidebar() {
   useScanFinished(reload)
   const togglePin = (target: PinTarget) =>
     (target.kind === 'document' ? toggleFavoriteDocument(target.id) : toggleFavoriteDir(target.path)).then(reloadFavorites).catch(report)
-  return { data, tree, togglePin, reloadRecents }
+  return { data, tree, togglePin, reload, reloadRecents }
 }
