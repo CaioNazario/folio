@@ -36,7 +36,7 @@ Resolver antes de implementar a parte que cada spike bloqueia. O resultado vai p
 
 **Pergunta:** o `pdfjs-dist` atual roda no WebKitGTK do Linux e no WebView do Android, com o worker carregado dentro do Tauri?
 
-**Como testar:** abrir os PDFs do corpus do S1 no app (`npm run tauri dev`), com o worker do pdf.js empacotado pelo Vite. Conferir renderização, seleção de texto, zoom e uso de memória num PDF de 300 páginas. Anotar a versão do WebKitGTK testada e a CSP necessária.
+**Como testar:** abrir os PDFs do corpus do S1 no app (`npm run tauri dev`), com o worker do pdf.js empacotado pelo Vite. Conferir renderização, seleção de texto, zoom e uso de memória num PDF de 300 páginas. Medir também um PDF de 200 MB entregue pela ponte (`tauri::ipc::Response`): memória e tempo até a primeira página. Se não aguentar, o pdf.js passa a ler por faixas de bytes, servidas por um protocolo próprio do app pelo id do documento (nunca o protocolo de assets, que expõe o filesystem). Confirmar a CSP da seção "Segurança do webview".
 
 **Resultado:** pendente.
 
@@ -69,13 +69,106 @@ arquivo ─▶ core ──┤
 | PDF | `pdfjs-dist` (pdf.js) | Bytes do arquivo | Exatas, do próprio PDF |
 | DOCX | `docx-preview` | Bytes do arquivo (decifrados em memória, se protegido) | Aproximadas: só as quebras explícitas do documento (o `docx-preview` não diagrama páginas) |
 | MD | `comrak` → HTML, sanitizado com `ammonia` | HTML pronto e o front matter separado | Rolagem contínua |
-| TXT | Própria (texto com `white-space: pre-wrap`) | Texto decodificado | Rolagem contínua |
+| TXT | Própria (texto com `white-space: pre-wrap`) | Texto decodificado (ver o leitor de TXT) | Rolagem contínua |
 
 - **Bytes pela ponte:** PDF e DOCX chegam como binário puro (`tauri::ipc::Response`), sem JSON nem base64.
 - **Markdown seguro:** o `comrak` roda sem HTML embutido (`render.unsafe = false`) e a saída passa pelo `ammonia`. Um `.md` nunca executa script no app.
 - **Documento protegido por senha** (spec 04): o PDF pede a senha pelo `onPassword` do pdf.js; o DOCX pede a senha no frontend, e o core decifra com `office-crypto` antes de entregar os bytes. A senha vai junto no command e nunca é guardada; o conteúdo decifrado nunca vai para o disco.
-- **Front matter:** é separado do corpo e exibido como metadados, não como texto (spec 04).
-- **Controles** (aparência em `Design/specs/05-document-view.md`): zoom, página atual e total, navegação entre páginas e tela cheia. Em MD e TXT, que rolam continuamente, a toolbar mostra só o zoom.
+- **Front matter:** só em YAML, entre linhas `---` no início do arquivo. É separado do corpo e não aparece como texto: os campos vão para os metadados (spec 04) e aparecem em Propriedades. Um bloco entre `+++` (TOML) não é reconhecido e aparece como texto comum.
+- **Controles** (aparência em `Design/specs/05-document-view.md`): zoom, página atual e total, navegação entre páginas e tela cheia. Em MD e TXT, que rolam continuamente, a toolbar mostra só o zoom. Zoom de 50% a 300%, em passos de 10%, igual para todos os documentos durante a sessão.
+- **Posição:** o documento abre onde o usuário parou (página no PDF e no DOCX, fração da rolagem no MD e no TXT), e a exibição informa a posição ao sair (spec 06).
+
+### Arquivos grandes
+
+- **MD e TXT acima de 10 MB:** o core entrega só os primeiros 10 MB, cortados no fim de uma linha, e avisa que cortou. O palco mostra "Arquivo grande: mostrando os primeiros 10 MB", com a ação "Abrir no app padrão". A conversão e os metadados continuam usando o arquivo inteiro.
+- **PDF e DOCX:** entregues inteiros; o limite prático do PDF sai do S2.
+
+### Links
+
+Clicar num link dentro do documento (MD, DOCX ou PDF) nunca navega o webview. O frontend intercepta o clique e pergunta ao core o que o link é; a decisão fica no core:
+
+| Link | O que acontece |
+|---|---|
+| `http:`, `https:`, `mailto:` | Abre no app padrão do sistema (`plugin-opener`) |
+| Relativo, para um documento do workspace (`[ver](../Notas.md)`) | Abre esse documento no Folio |
+| Relativo, para outro arquivo do workspace ou para fora dele | Nada abre; toast "Este link aponta para um arquivo que o Folio não abre" |
+| `#âncora` | Rola até o ponto, no MD; vai à página de destino, no PDF |
+| Qualquer outro esquema (`file:`, `javascript:`...) | Ignorado |
+
+O caminho relativo é resolvido a partir do diretório do documento e precisa continuar dentro do workspace.
+
+### Imagens no Markdown
+
+O HTML de um `.md` nunca carrega imagem por conta própria. Depois do `ammonia`, o core reescreve cada `<img>`:
+
+| Origem da imagem | Resultado |
+|---|---|
+| Arquivo dentro do workspace, relativo ao documento | Embutido no HTML como `data:` (PNG, JPEG, GIF, WebP ou SVG, confirmados por assinatura) |
+| Arquivo fora do workspace, inexistente ou de outro tipo | Espaço reservado com o texto alternativo |
+| Remota (`https://...`) | **Não é baixada:** espaço reservado com o texto alternativo e o endereço como link. O Folio é offline-first, e uma imagem remota avisaria um terceiro de que o documento foi aberto |
+
+Limite de 10 MB por imagem e 50 MB por documento; o que passar vira espaço reservado. SVG só entra como `<img>`, onde não executa script. A reescrita vem depois do `ammonia`, que remove qualquer `data:` vindo do próprio documento: só sobrevive o que o core gerou.
+
+### Estados do palco
+
+O palco tem um estado para cada situação, todos com os tokens e componentes de `Design/specs/06-components.md` e textos do i18n:
+
+| Estado | Quando | O que mostra |
+|---|---|---|
+| Carregando | O conteúdo ainda não chegou | Nada nos primeiros 300 ms (para não piscar); depois, "Abrindo…" |
+| Senha | Documento protegido (spec 04) | Campo de senha e "Abrir" no próprio palco; senha errada mostra o erro no campo |
+| Inválido | Documento inválido (spec 04) | O motivo ("Este arquivo não é um PDF válido"), "Mostrar na pasta" e "Abrir no app padrão" |
+| Não encontrado | O arquivo sumiu do disco | "Este documento não está mais no disco"; a árvore é reconciliada (spec 05) |
+| Falha ao exibir | Passou na assinatura, mas o leitor ou a engine falhou (arquivo corrompido por dentro) | "Não foi possível exibir este documento", com "Tentar de novo", "Mostrar na pasta" e "Abrir no app padrão". O detalhe técnico vai para o log |
+| Vazio | MD ou TXT sem conteúdo | "Documento vazio" |
+
+"Abrir no app padrão" usa o `plugin-opener` e não altera o arquivo.
+
+### Propriedades
+
+O menu Mais ganha o item **Propriedades** (`Design/specs/05-document-view.md`), que abre um diálogo com tudo o que o Folio sabe do documento, num único command:
+
+- **Arquivo:** nome, local (caminho relativo), formato, tamanho, criado e modificado.
+- **Documento:** os metadados do formato (spec 04): título, autor, assunto, palavras-chave, datas internas, páginas e os campos de `extra`. Extraídos na hora se o cache estiver velho. Em documento protegido, "Protegido por senha: metadados não extraídos".
+- **Conversão:** de qual documento ele veio (formato e data) e quais derivados tem, cada um com o aviso de desatualizado, se houver (spec 04). Clicar num deles abre o documento.
+
+### Atalhos de teclado
+
+Valem com a visualização de documento aberta e o foco fora de campos de texto:
+
+| Tecla | Ação |
+|---|---|
+| `Page Down`, `→` / `Page Up`, `←` | Próxima / página anterior (PDF, DOCX); rola uma tela (MD, TXT) |
+| `Home` / `End` | Primeira / última página, ou início / fim |
+| `Ctrl` `+` / `Ctrl` `-` / `Ctrl` `0` | Mais zoom / menos zoom / 100% |
+| `F11` | Liga e desliga o fullscreen do palco |
+| `Esc` | Fecha o menu aberto; sem menu, sai do fullscreen |
+
+### Fora da 0.1.0
+
+- **Procurar no documento** (`Ctrl+F`): fica para depois, junto com a busca no conteúdo.
+
+### Segurança do webview
+
+A CSP do app (`app.security.csp` no `tauri.conf.json`, hoje `null`) é definida junto com o Reader, antes do Reader de MD:
+
+```text
+default-src 'self';
+script-src 'self' 'wasm-unsafe-eval';
+style-src 'self' 'unsafe-inline';
+img-src 'self' data: blob:;
+font-src 'self' data: blob:;
+worker-src 'self' blob:;
+connect-src 'self' ipc: http://ipc.localhost;
+object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'
+```
+
+- Nenhuma origem de rede: o webview não carrega nada de fora, nem por engano de um documento.
+- `'wasm-unsafe-eval'`: decodificadores de imagem do pdf.js em WebAssembly.
+- `style-src 'unsafe-inline'`: o `docx-preview` injeta os estilos do documento.
+- `blob:`: worker do pdf.js e imagens e fontes do `docx-preview`.
+
+Os spikes S2 e S4 confirmam a lista; o que eles mostrarem desnecessário sai.
 
 ## Modelo de documento
 
@@ -103,8 +196,8 @@ Inline: Texto | Negrito [Inline] | Italico [Inline] | CodigoInline | Link { dest
 
 | Formato | Base | O que é nosso | O que reconhece na 0.1.0 |
 |---|---|---|---|
-| TXT | — | Decodificar (UTF-8, com fallback para Windows-1252 via `encoding_rs`) e separar parágrafos por linha em branco | Parágrafos |
-| MD | `comrak` (árvore do Markdown, front matter) | Traduzir a árvore do comrak para o modelo | Tudo do modelo |
+| TXT | — | Decodificar com `encoding_rs`: pela marca de início (BOM) quando existe (UTF-8, UTF-16 LE ou BE), senão UTF-8, com fallback para Windows-1252. Separar parágrafos por linha em branco | Parágrafos |
+| MD | `comrak` (árvore do Markdown, front matter com delimitador `---`) + um parser de YAML em Rust puro (o `serde_yaml` está descontinuado; a escolha fica para a implementação) | Traduzir a árvore do comrak para o modelo | Tudo do modelo |
 | DOCX | `zip` + `quick-xml` | Ler `document.xml`, `styles.xml`, `numbering.xml` e `docProps/core.xml` e traduzir: estilos "Heading N" viram títulos, numeração vira lista, negrito e itálico viram ênfase | Tudo do modelo |
 | PDF | A definir no spike S1 (`pdfium-render` ou `hayro`), acima | **A dedução da estrutura:** juntar caracteres em linhas, linhas em parágrafos, reconhecer títulos (tamanho e peso da fonte) e listas (marcadores e recuo) | Títulos, parágrafos, listas, ênfase. Tabelas e imagens não são reconhecidas: tabela vira parágrafos, imagem é ignorada |
 
@@ -125,6 +218,14 @@ Os leitores também extraem os metadados que vão para o cache `document_metadat
 
 Documento protegido por senha não tem metadados extraídos (spec 04).
 
+## Erros
+
+Além dos da spec 04 (`DocumentoNaoEncontrado`, `DocumentoInvalido`, `SenhaNecessaria`, `SenhaIncorreta`):
+
+| Erro | Quando |
+|---|---|
+| `FalhaAoLer` | O leitor não conseguiu montar o documento (ZIP ou XML quebrado, PDF corrompido por dentro); o motivo técnico vai para o log |
+
 ## Restrição de plataforma
 
 Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no webview, igual no Linux e no Android. Se o spike S1 escolher o PDFium, a biblioteca `libpdfium` vai embarcada no app, uma por plataforma; nunca a do sistema.
@@ -135,8 +236,16 @@ Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no we
 - [ ] PDF: página atual e total corretos, zoom e navegação entre páginas, texto selecionável.
 - [ ] DOCX: título, parágrafos, listas, tabelas e imagens aparecem com layout reconhecível.
 - [ ] MD: um `.md` com `<script>` ou `onerror=` não executa nada; o front matter aparece como metadados.
-- [ ] TXT em Windows-1252 abre com acentos corretos.
+- [ ] TXT em Windows-1252 e em UTF-16 com BOM abre com acentos corretos.
 - [ ] Cada leitor tem testes com arquivos de exemplo em `crates/folio-core/tests/fixtures/` e produz o modelo esperado.
 - [ ] PDF digitalizado abre na exibição e produz documento vazio no leitor, sem erro.
 - [ ] PDF e DOCX protegidos por senha abrem com a senha certa; o DOCX é decifrado em memória.
 - [ ] Os metadados de PDF, DOCX e MD do corpus de fixtures chegam ao cache conforme a tabela de metadados.
+- [ ] O documento reabre na posição em que o usuário parou.
+- [ ] Um link `https:` abre no navegador do sistema; um link relativo para outro documento do workspace abre no Folio; nenhum link navega o webview.
+- [ ] Imagem relativa dentro do workspace aparece no MD; imagem remota não é baixada e vira espaço reservado.
+- [ ] Um TXT de 50 MB abre sem travar, com o aviso de corte.
+- [ ] Cada estado do palco (carregando, senha, inválido, não encontrado, falha ao exibir, vazio) aparece na situação certa.
+- [ ] Propriedades mostra arquivo, metadados e conversões, com os avisos de desatualizado.
+- [ ] Os atalhos de teclado funcionam e não disparam enquanto o foco está num campo de texto.
+- [ ] A CSP está definida no `tauri.conf.json` e nenhum documento consegue carregar recurso da rede.

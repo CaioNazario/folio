@@ -38,7 +38,8 @@ Posição: absoluta, `top: 38px; right: 0`, largura 186, z-index 40. Itens `padd
 1. Renomear
 2. Adicionar tag
 3. Abrir pasta no sistema
-4. Mover para lixeira (cor `--danger`)
+4. Propriedades (não está no protótipo; conteúdo em `specs/07-reader.md`)
+5. Mover para lixeira (cor `--danger`)
 
 Nenhum item tem ação no protótipo.
 

@@ -11,7 +11,7 @@ A extração dos metadados de cada formato é feita pelos leitores (spec 07). Es
 | PDF | `.pdf` | `%PDF-` nos primeiros 1024 bytes (onde os leitores de PDF aceitam o cabeçalho) |
 | DOCX | `.docx` | ZIP (`PK\x03\x04`) que contém `word/document.xml`; ou, se protegido por senha, o contêiner criptografado do Office (CFB, `D0 CF 11 E0`, com os streams `EncryptionInfo` e `EncryptedPackage`) |
 | MD | `.md`, `.markdown` | Texto: nenhum byte nulo nos primeiros 8 KiB |
-| TXT | `.txt` | Texto: nenhum byte nulo nos primeiros 8 KiB |
+| TXT | `.txt` | Texto: começa com a marca de UTF-16 (`FF FE` ou `FE FF`), ou não tem byte nulo nos primeiros 8 KiB |
 
 Qualquer outra extensão não é documento: o arquivo fica no disco e não aparece na interface. Isso inclui `.doc`, `.xlsx`, `.pptx` e imagens, que ficam para depois da 0.1.0.
 

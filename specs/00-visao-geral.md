@@ -38,7 +38,7 @@ Estas specs cobrem o comportamento do backend. A aparência está em `Design/spe
 | 04 | [documentos](04-documentos.md) | Reconhecimento, protegidos por senha, links simbólicos, id estável, tabelas do índice, derivados e avisos de desatualizado | — | — | Escrita |
 | 05 | [indexacao](05-indexacao.md) | Reconciliação, escaneamento em segundo plano, hash, reconexão, ausentes por 30 dias, reindexação | S5, S6 | — | Escrita |
 | 06 | [busca-favoritos-recentes](06-busca-favoritos-recentes.md) | Busca por nome normalizado, filtros, favoritos, recentes, continuar de onde parou | — | — | Escrita |
-| 07 | [reader](07-reader.md) | Exibição por formato, modelo de documento, leitores, extração de metadados | S1, S2, S4 | — | Escrita |
+| 07 | [reader](07-reader.md) | Exibição por formato, posição, links, imagens do MD, estados do palco, Propriedades, atalhos, CSP, modelo de documento, leitores, metadados | S1, S2, S4 | — | Escrita |
 | 08 | [conversao](08-conversao.md) | Escritores, as 12 conversões, fluxo atômico, critério mínimo de qualidade | S3 | — | Escrita |
 | 09 | entrada | Downloads, watcher, downloads em andamento, mover para projeto | — | Entrada (Downloads) | A escrever |
 | 10 | compartilhamento | Mostrar na pasta, arrastar para fora, copiar arquivo | S8 | Compartilhamento | A escrever |
