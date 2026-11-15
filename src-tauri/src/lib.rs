@@ -1,7 +1,7 @@
+#[macro_use]
 mod commands;
 mod state;
 
-use commands::{documents, library, preferences, workspace};
 use tauri::ipc::Invoke;
 use tauri::{App, Manager};
 
@@ -18,23 +18,7 @@ pub fn run() {
 
 /// Every command the UI can invoke.
 fn commands() -> impl Fn(Invoke) -> bool + Send + Sync + 'static {
-    tauri::generate_handler![
-        preferences::get_preferences,
-        preferences::set_language,
-        preferences::set_theme,
-        workspace::get_default_workspace_dir,
-        workspace::open_last_workspace,
-        workspace::open_workspace,
-        workspace::create_workspace,
-        library::list_dir,
-        library::get_favorites,
-        library::toggle_favorite_document,
-        library::toggle_favorite_dir,
-        library::get_recent_documents,
-        library::get_workspace_summary,
-        documents::record_opened,
-        documents::get_text_content,
-    ]
+    command_list!()
 }
 
 /// Logging in debug builds, then the app state the commands share.

@@ -88,6 +88,16 @@ impl Workspace {
         query().map_err(|e| self.db_error(e))
     }
 
+    /// The present document at `path`, if the index has one there.
+    pub(crate) fn document_at(&self, path: &RelativePath) -> Result<Option<Document>> {
+        let sql =
+            format!("SELECT {COLUMNS} FROM documents WHERE path = ?1 AND missing_since IS NULL");
+        self.conn()
+            .query_row(&sql, [path], document_row)
+            .optional()
+            .map_err(|e| self.db_error(e))
+    }
+
     /// The indexed document with `id`.
     pub fn document(&self, id: Uuid) -> Result<Document> {
         let sql = format!("SELECT {COLUMNS} FROM documents WHERE id = ?1");

@@ -1,6 +1,7 @@
 //! Opening documents in the Reader (specs 06 and 07).
 
-use folio_core::display::DisplayText;
+use folio_core::display::{DisplayText, DocumentView, LinkTarget, MarkdownContent};
+use folio_core::recents::ReadingPosition;
 use tauri::State;
 use uuid::Uuid;
 
@@ -18,4 +19,40 @@ pub fn record_opened(state: State<'_, AppState>, id: Uuid) -> CommandResult<()> 
 #[tauri::command]
 pub fn get_text_content(state: State<'_, AppState>, id: Uuid) -> CommandResult<DisplayText> {
     with_workspace(&state, |workspace| workspace.text_content(id))
+}
+
+/// The document with what the view shows around the stage: breadcrumb,
+/// derived badge, conversion targets and where the user stopped.
+#[tauri::command]
+pub fn open_document(state: State<'_, AppState>, id: Uuid) -> CommandResult<DocumentView> {
+    with_workspace(&state, |workspace| workspace.document_view(id))
+}
+
+/// The HTML of a Markdown document, sanitized and with its images resolved.
+#[tauri::command]
+pub fn get_markdown_content(
+    state: State<'_, AppState>,
+    id: Uuid,
+) -> CommandResult<MarkdownContent> {
+    with_workspace(&state, |workspace| workspace.markdown_content(id))
+}
+
+/// What a link clicked inside the document `id` leads to (spec 07, Links).
+#[tauri::command]
+pub fn resolve_link(
+    state: State<'_, AppState>,
+    id: Uuid,
+    href: String,
+) -> CommandResult<LinkTarget> {
+    with_workspace(&state, |workspace| workspace.resolve_link(id, &href))
+}
+
+/// Where the user stopped in the document, saved when leaving it (spec 06).
+#[tauri::command]
+pub fn save_position(
+    state: State<'_, AppState>,
+    id: Uuid,
+    position: ReadingPosition,
+) -> CommandResult<()> {
+    with_workspace(&state, |workspace| workspace.save_position(id, position))
 }

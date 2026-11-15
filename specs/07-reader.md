@@ -95,7 +95,7 @@ Clicar num link dentro do documento (MD, DOCX ou PDF) nunca navega o webview. O 
 | `#âncora` | Rola até o ponto, no MD; vai à página de destino, no PDF |
 | Qualquer outro esquema (`file:`, `javascript:`...) | Ignorado |
 
-O caminho relativo é resolvido a partir do diretório do documento e precisa continuar dentro do workspace.
+O caminho relativo é resolvido a partir do diretório do documento e precisa continuar dentro do workspace (nunca em `.folio/`); os escapes `%` são decodificados, e o fragmento e a query depois do arquivo (`Notas.md#secao`) são ignorados. O documento de destino precisa estar no índice e no disco. A resposta é um `LinkTarget` com tag `kind`: `External`, `Document`, `Unsupported`, `Anchor` ou `Ignored`.
 
 ### Imagens no Markdown
 
@@ -107,7 +107,9 @@ O HTML de um `.md` nunca carrega imagem por conta própria. Depois do `ammonia`,
 | Arquivo fora do workspace, inexistente ou de outro tipo | Espaço reservado com o texto alternativo |
 | Remota (`https://...`) | **Não é baixada:** espaço reservado com o texto alternativo e o endereço como link. O Folio é offline-first, e uma imagem remota avisaria um terceiro de que o documento foi aberto |
 
-Limite de 10 MB por imagem e 50 MB por documento; o que passar vira espaço reservado. SVG só entra como `<img>`, onde não executa script. A reescrita vem depois do `ammonia`, que remove qualquer `data:` vindo do próprio documento: só sobrevive o que o core gerou.
+Limite de 10 MB por imagem e 50 MB por documento; o que passar vira espaço reservado. O tamanho é conferido antes da leitura: um arquivo grande demais nunca é lido. SVG só entra como `<img>`, onde não executa script. A reescrita vem depois do `ammonia`, que remove qualquer `data:` vindo do próprio documento: só sobrevive o que o core gerou. Para isso, antes de gerar o HTML, o core troca o endereço de cada imagem por um marcador `folio-image:N`, que o `ammonia` deixa passar, e depois troca cada marcador pelo resultado.
+
+**Espaço reservado:** `<span data-folio-image="motivo">texto alternativo</span>`, com o motivo `remote`, `missing`, `outside`, `unsupported` (esquema que não é `http(s)`, ou conteúdo que não é imagem reconhecida) ou `too-large`. A imagem remota também leva o endereço como link. O core não escreve texto de interface no HTML: o frontend rotula e estiliza o espaço reservado pelo motivo.
 
 ### Estados do palco
 

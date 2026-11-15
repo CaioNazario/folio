@@ -19,6 +19,9 @@ pub enum Format {
 }
 
 impl Format {
+    /// Every format of 0.1.0, in the order the UI lists them.
+    pub const ALL: [Self; 4] = [Self::Pdf, Self::Docx, Self::Md, Self::Txt];
+
     /// The format of a file named `name`, by extension and ignoring case;
     /// `None` when it is not a document.
     pub fn from_name(name: &OsStr) -> Option<Self> {

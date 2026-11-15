@@ -6,5 +6,6 @@ mod md;
 mod txt;
 
 pub use decode::{decode_text, decode_text_start};
+pub(crate) use md::options as markdown_options;
 pub use md::read_md;
 pub use txt::read_txt;

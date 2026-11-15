@@ -35,7 +35,7 @@ fn front_matter_of<'a>(root: &'a AstNode<'a>) -> Option<String> {
 
 /// The GitHub extensions the model can represent, and YAML front matter
 /// between `---` lines.
-fn options() -> Options<'static> {
+pub(crate) fn options() -> Options<'static> {
     let mut options = Options::default();
     options.extension.front_matter_delimiter = Some("---".to_string());
     options.extension.tasklist = true;

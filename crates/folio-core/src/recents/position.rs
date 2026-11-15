@@ -9,12 +9,14 @@ use crate::workspace::Workspace;
 use crate::{Error, Result};
 
 /// A place in a document, in the unit its format pages by.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize, ts_rs::TS)]
+#[serde(tag = "kind")]
+#[ts(export)]
 pub enum ReadingPosition {
     /// Page number, from 1 (PDF, DOCX).
-    Page(u32),
+    Page { page: u32 },
     /// Fraction of the scroll, from 0 to 1 (MD, TXT).
-    Scroll(f64),
+    Scroll { fraction: f64 },
 }
 
 impl ReadingPosition {
@@ -22,8 +24,10 @@ impl ReadingPosition {
     /// 0 to 1.
     fn fits(self, format: Format) -> bool {
         match (self, format) {
-            (Self::Page(page), Format::Pdf | Format::Docx) => page >= 1,
-            (Self::Scroll(fraction), Format::Md | Format::Txt) => (0.0..=1.0).contains(&fraction),
+            (Self::Page { page }, Format::Pdf | Format::Docx) => page >= 1,
+            (Self::Scroll { fraction }, Format::Md | Format::Txt) => {
+                (0.0..=1.0).contains(&fraction)
+            }
             _ => false,
         }
     }
@@ -31,16 +35,16 @@ impl ReadingPosition {
     /// The stored value: the page number or the fraction.
     fn stored(self) -> f64 {
         match self {
-            Self::Page(page) => f64::from(page),
-            Self::Scroll(fraction) => fraction,
+            Self::Page { page } => f64::from(page),
+            Self::Scroll { fraction } => fraction,
         }
     }
 
     /// The stored `value` read back in the unit of `format`.
     fn from_stored(format: Format, value: f64) -> Self {
         match format {
-            Format::Pdf | Format::Docx => Self::Page(value as u32),
-            Format::Md | Format::Txt => Self::Scroll(value),
+            Format::Pdf | Format::Docx => Self::Page { page: value as u32 },
+            Format::Md | Format::Txt => Self::Scroll { fraction: value },
         }
     }
 }
@@ -96,10 +100,10 @@ mod tests {
         let txt = opened(&workspace, "Nota.txt", b"text");
 
         workspace
-            .save_position(pdf, ReadingPosition::Page(12))
+            .save_position(pdf, ReadingPosition::Page { page: 12 })
             .unwrap();
         workspace
-            .save_position(txt, ReadingPosition::Scroll(0.5))
+            .save_position(txt, ReadingPosition::Scroll { fraction: 0.5 })
             .unwrap();
 
         assert_eq!(
@@ -108,8 +112,8 @@ mod tests {
                 workspace.position(txt).unwrap()
             ),
             (
-                Some(ReadingPosition::Page(12)),
-                Some(ReadingPosition::Scroll(0.5))
+                Some(ReadingPosition::Page { page: 12 }),
+                Some(ReadingPosition::Scroll { fraction: 0.5 })
             )
         );
     }
@@ -120,7 +124,7 @@ mod tests {
         let workspace = env.open_workspace();
         let txt = opened(&workspace, "Nota.txt", b"text");
 
-        let result = workspace.save_position(txt, ReadingPosition::Page(3));
+        let result = workspace.save_position(txt, ReadingPosition::Page { page: 3 });
 
         assert!(matches!(result, Err(Error::InvalidPosition)));
         assert_eq!(workspace.position(txt).unwrap(), None);
@@ -132,7 +136,7 @@ mod tests {
         let workspace = env.open_workspace();
         let pdf = opened(&workspace, "Livro.pdf", b"%PDF-1.7\n");
 
-        let result = workspace.save_position(pdf, ReadingPosition::Scroll(0.5));
+        let result = workspace.save_position(pdf, ReadingPosition::Scroll { fraction: 0.5 });
 
         assert!(matches!(result, Err(Error::InvalidPosition)));
     }
@@ -144,7 +148,7 @@ mod tests {
         let txt = opened(&workspace, "Nota.txt", b"text");
 
         let rejected = [-0.1, 1.5, f64::NAN]
-            .map(|fraction| workspace.save_position(txt, ReadingPosition::Scroll(fraction)))
+            .map(|fraction| workspace.save_position(txt, ReadingPosition::Scroll { fraction }))
             .map(|result| matches!(result, Err(Error::InvalidPosition)));
 
         assert_eq!(rejected, [true, true, true]);
@@ -156,8 +160,20 @@ mod tests {
         let workspace = env.open_workspace();
         let pdf = opened(&workspace, "Livro.pdf", b"%PDF-1.7\n");
 
-        let result = workspace.save_position(pdf, ReadingPosition::Page(0));
+        let result = workspace.save_position(pdf, ReadingPosition::Page { page: 0 });
 
         assert!(matches!(result, Err(Error::InvalidPosition)));
+    }
+
+    #[test]
+    fn reading_position_serializes_with_kind_tag() {
+        let page = serde_json::to_value(ReadingPosition::Page { page: 3 }).unwrap();
+        let scroll = serde_json::to_value(ReadingPosition::Scroll { fraction: 0.5 }).unwrap();
+
+        assert_eq!(page, serde_json::json!({ "kind": "Page", "page": 3 }));
+        assert_eq!(
+            scroll,
+            serde_json::json!({ "kind": "Scroll", "fraction": 0.5 })
+        );
     }
 }
