@@ -1,15 +1,15 @@
-import type { Language } from './language'
+import type { ActiveLanguage } from './language'
 
 // Number, size and date formatting for the active language
 // (Design/specs/11-i18n.md, "O que é traduzido").
 
-export function formatNumber(value: number, language: Language): string {
+export function formatNumber(value: number, language: ActiveLanguage): string {
   return new Intl.NumberFormat(language).format(value)
 }
 
 const SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB']
 
-export function formatSize(bytes: number, language: Language): string {
+export function formatSize(bytes: number, language: ActiveLanguage): string {
   const exponent = bytes < 1024 ? 0 : Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), SIZE_UNITS.length - 1)
   const value = bytes / 1024 ** exponent
   const digits = exponent > 0 && value < 10 ? 1 : 0
@@ -31,7 +31,7 @@ const RELATIVE_STEPS: [limit: number, unit: Intl.RelativeTimeFormatUnit, size: n
   [Infinity, 'year', YEAR],
 ]
 
-export function formatRelativeTime(date: Date, now: Date, language: Language): string {
+export function formatRelativeTime(date: Date, now: Date, language: ActiveLanguage): string {
   const seconds = Math.max(0, (now.getTime() - date.getTime()) / 1000)
   if (seconds < MINUTE) {
     return new Intl.RelativeTimeFormat(language, { style: 'narrow', numeric: 'auto' }).format(0, 'second')
@@ -55,7 +55,7 @@ const DATE_TIME_OPTIONS: Intl.DateTimeFormatOptions = {
   hourCycle: 'h23',
 }
 
-export function formatDateTime(date: Date, language: Language): string {
+export function formatDateTime(date: Date, language: ActiveLanguage): string {
   const formatter = new Intl.DateTimeFormat(language, DATE_TIME_OPTIONS)
   if (language === 'en') return formatter.format(date)
   // ICU gives "18 de mar., 21:30"; the design wants "18 mar, 21:30".

@@ -1,19 +1,19 @@
 import { Monitor, Moon, Sun } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import type { ThemePreference } from '../theme'
-import { useThemePreference } from '../useThemePreference'
+import type { Theme } from '@/lib/bindings/Theme'
+import { usePreferences } from '../preferences-context'
 
 const OPTIONS = [
   { value: 'light', Icon: Sun, key: 'preferences.theme.light' },
   { value: 'dark', Icon: Moon, key: 'preferences.theme.dark' },
   { value: 'system', Icon: Monitor, key: 'preferences.theme.system' },
-] as const satisfies readonly { value: ThemePreference; Icon: unknown; key: string }[]
+] as const satisfies readonly { value: Theme; Icon: unknown; key: string }[]
 
 // Three-segment theme selector (Design/specs/03-sidebar.md, 3.4).
 export function ThemeSelector() {
   const { t } = useTranslation()
-  const { preference, setPreference } = useThemePreference()
+  const { theme: preference, setTheme: setPreference } = usePreferences()
   return (
     <div role="radiogroup" className="flex gap-0.5 rounded-14 border border-line-6 bg-surf-2 p-0.5">
       {OPTIONS.map(({ value, Icon, key }) => (

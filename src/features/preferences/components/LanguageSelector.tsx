@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import type { LanguagePreference } from '@/lib/i18n/language'
-import { useLanguagePreference } from '../useLanguagePreference'
+import { usePreferences } from '../preferences-context'
 
 const OPTIONS = [
   { value: 'system', key: 'preferences.language.system' },
@@ -19,7 +19,7 @@ const OPTIONS = [
 // the dropdown upwards, aligned to its right edge.
 export function LanguageSelector() {
   const { t } = useTranslation()
-  const { preference, choose } = useLanguagePreference()
+  const { language: preference, setLanguage: choose } = usePreferences()
   return (
     <DropdownMenu>
       <div className="flex rounded-14 border border-line-6 bg-surf-2 p-0.5">

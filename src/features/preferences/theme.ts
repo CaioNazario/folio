@@ -1,10 +1,13 @@
-// Theme preference (Design/specs/07-state-interactions.md, "Tema"). Becomes
-// the ts-rs binding once the preferences command exists.
-export type ThemePreference = 'light' | 'dark' | 'system'
+import type { Theme } from '@/lib/bindings/Theme'
 
-export type Theme = 'light' | 'dark'
+export type ResolvedTheme = 'light' | 'dark'
 
-export function resolveTheme(preference: ThemePreference, systemDark: boolean): Theme {
+// Design/specs/07-state-interactions.md, "Tema".
+export function resolveTheme(preference: Theme, systemDark: boolean): ResolvedTheme {
   if (preference !== 'system') return preference
   return systemDark ? 'dark' : 'light'
+}
+
+export function applyTheme(theme: ResolvedTheme) {
+  document.documentElement.dataset.theme = theme
 }

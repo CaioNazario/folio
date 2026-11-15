@@ -1,19 +1,23 @@
 import { ToastProvider, ToastViewport } from '@/components/ui/toast'
+import { PreferencesProvider } from '@/features/preferences/components/PreferencesProvider'
 import { Sidebar } from '@/features/sidebar/components/Sidebar'
 import { useSidebar } from '@/features/sidebar/useSidebar'
+import type { Preferences } from '@/lib/bindings/Preferences'
 
 // Window shell (Design/specs/02-layout.md): sidebar + main area, which anchors
 // the toast over every view.
-export function App() {
+export function App({ preferences }: { preferences: Preferences }) {
   const sidebar = useSidebar()
   return (
     <ToastProvider>
-      <div className="flex h-screen w-full overflow-hidden bg-bg font-sans text-tx-2">
-        <Sidebar {...sidebar} now={new Date()} />
-        <main className="relative flex min-w-0 flex-1 flex-col">
-          <ToastViewport />
-        </main>
-      </div>
+      <PreferencesProvider initial={preferences}>
+        <div className="flex h-screen w-full overflow-hidden bg-bg font-sans text-tx-2">
+          <Sidebar {...sidebar} now={new Date()} />
+          <main className="relative flex min-w-0 flex-1 flex-col">
+            <ToastViewport />
+          </main>
+        </div>
+      </PreferencesProvider>
     </ToastProvider>
   )
 }

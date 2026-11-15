@@ -1,7 +1,8 @@
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test, vi } from 'vitest'
 import { pt } from '@/lib/i18n/pt'
+import { renderWithProviders } from '@/test-utils'
 import type { SidebarData } from '../types'
 import { Sidebar } from './Sidebar'
 
@@ -31,7 +32,7 @@ const DATA: SidebarData = {
 
 function renderSidebar(data: SidebarData = DATA, selectedId: string | null = null) {
   const actions = { onImport: vi.fn(), onOpenDocument: vi.fn(), onTogglePin: vi.fn() }
-  render(<Sidebar data={data} actions={actions} selectedId={selectedId} now={NOW} />)
+  renderWithProviders(<Sidebar data={data} actions={actions} selectedId={selectedId} now={NOW} />)
   return { actions, user: userEvent.setup() }
 }
 

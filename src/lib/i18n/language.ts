@@ -1,22 +1,17 @@
-export type Language = 'pt-BR' | 'en'
+import type { Language } from '@/lib/bindings/Language'
 
-export type LanguagePreference = 'system' | Language
+// The stored preference (ts-rs binding) and the language actually shown.
+export type LanguagePreference = Language
 
-const LANGUAGES: readonly string[] = ['pt-BR', 'en']
-
-// Unknown or missing stored values fall back to following the system.
-export function parsePreference(value: string | null | undefined): LanguagePreference {
-  if (value && LANGUAGES.includes(value)) return value as Language
-  return 'system'
-}
+export type ActiveLanguage = 'pt-BR' | 'en'
 
 // Any Portuguese variant maps to pt-BR; everything else to English.
-export function languageFromLocale(locale: string | null): Language {
+export function languageFromLocale(locale: string | null): ActiveLanguage {
   if (locale?.toLowerCase().split(/[-_]/)[0] === 'pt') return 'pt-BR'
   return 'en'
 }
 
-export function resolveLanguage(preference: LanguagePreference, systemLocale: string | null): Language {
+export function resolveLanguage(preference: LanguagePreference, systemLocale: string | null): ActiveLanguage {
   if (preference !== 'system') return preference
   return languageFromLocale(systemLocale)
 }
