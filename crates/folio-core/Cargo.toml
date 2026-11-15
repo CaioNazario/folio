@@ -1,0 +1,13 @@
+[package]
+name = "folio-core"
+description = "Lógica de negócio do Folio, sem dependência do Tauri"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true

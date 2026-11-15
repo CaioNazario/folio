@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+
+jobs:
+  # O nome do job é o check `ci` exigido pelo ruleset da `dev`.
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Dependências de sistema do Tauri 2 no Linux (WebKitGTK 4.1).
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
+      - run: npm ci
+      - run: just check
+      # O `cargo test` do `just check` regenera os bindings do ts-rs: se eles
+      # mudaram, alguém alterou um tipo exportado e não commitou os bindings.
+      - run: git diff --exit-code -- src/lib/bindings

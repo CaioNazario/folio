@@ -1,0 +1,86 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      # Histórico completo: avançar a `main` exige saber se ela é ancestral da tag.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Dependências de sistema do Tauri 2 no Linux (WebKitGTK 4.1).
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: just
+      - run: npm ci
+      - run: just check
+      # A tag, o package.json, o Cargo.toml e o CHANGELOG.md precisam dizer a
+      # mesma versão. O tauri.conf.json lê a do package.json.
+      - run: |
+          version="${GITHUB_REF_NAME#v}"
+          cargo_version=$(sed -n '/^\[workspace\.package\]/,/^\[/{s/^version *= *"\(.*\)"/\1/p}' Cargo.toml)
+          test "$(jq -r .version package.json)" = "$version"
+          test "$cargo_version" = "$version"
+          grep -q "^## \[$version\]" CHANGELOG.md
+      # Notas: a seção da versão no CHANGELOG.md, sem o título.
+      - run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v v="$version" '
+            index($0, "## [" v "]") == 1 { on = 1; next }
+            on && /^## \[/ { exit }
+            on && /^\[/ { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+      - id: notes
+        run: |
+          {
+            echo 'body<<EOF_NOTES'
+            cat notes.md
+            echo 'EOF_NOTES'
+          } >> "$GITHUB_OUTPUT"
+      # Builda o app e cria a GitHub Release com os artefatos (AppImage, .deb, .rpm).
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: ${{ github.ref_name }}
+          releaseBody: ${{ steps.notes.outputs.body }}
+          releaseDraft: false
+          prerelease: false
+      # A `main` só tem versões publicadas: avança em fast-forward até o commit
+      # da tag. Uma tag que não é mais nova que a `main` (rodada de novo, ou
+      # versão antiga) não mexe nela. Se a `main` não for ancestral da tag,
+      # alguém commitou nela à mão: falha em vez de sobrescrever.
+      - run: |
+          version="${GITHUB_REF_NAME#v}"
+          if ! git rev-parse --verify --quiet origin/main >/dev/null; then
+            git push origin "$GITHUB_SHA:refs/heads/main"
+            exit 0
+          fi
+          current=$(git show origin/main:package.json | jq -r .version)
+          newest=$(printf '%s\n' "$current" "$version" | sort -V | tail -1)
+          if [ "$current" = "$version" ] || [ "$newest" != "$version" ]; then
+            echo "main já está na $current; nada a publicar"
+            exit 0
+          fi
+          git merge-base --is-ancestor origin/main "$GITHUB_SHA"
+          git push origin "$GITHUB_SHA:refs/heads/main"

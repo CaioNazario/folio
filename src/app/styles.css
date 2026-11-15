@@ -1,0 +1,287 @@
+@import 'tailwindcss';
+
+/*
+ * Tokens do design: Design/specs/01-tokens.md (valores do <style> do protótipo
+ * Design/Folio v5.dc.html). O tema é o atributo data-theme no <html>; dark é o
+ * padrão. Componentes nunca usam a variante dark: — a troca acontece aqui.
+ */
+
+:root,
+[data-theme='dark'] {
+  --bg: #000000;
+  --bg-rail: #050505;
+  --surf-1: #0a0a0a;
+  --surf-2: #0d0d0d;
+  --hover: #101010;
+  --surf-3: #111111;
+  --line-1: #121212;
+  --pop: #141414;
+  --hover-2: #151515;
+  --line-2: #161616;
+  --surf-4: #1a1a1a;
+  --line-3: #1c1c1c;
+  --hover-3: #1e1e1e;
+  --line-4: #212121;
+  --line-5: #242424;
+  --line-6: #282828;
+  --line-7: #2a2a2a;
+  --sel: #2b2b2b;
+  --bar: #2e2e2e;
+  --line-8: #303030;
+  --line-9: #3a3a3a;
+  --tx-1: #ffffff;
+  --tx-0: #f0f2f4;
+  --tx-2: #e6e8ea;
+  --tx-3: #c3c8ce;
+  --tx-4: #b9bfc6;
+  --tx-5: #afafaf;
+  --tx-6: #9aa1a9;
+  --tx-7: #8b9299;
+  --tx-8: #7d848c;
+  --tx-9: #6b727b;
+  --tx-10: #5f666f;
+  --tx-11: #4a4a4a;
+  --accent: #ffffff;
+  --accent-2: #e6e6e6;
+  --teal: #6fb3a8;
+  --teal-line: #25352f;
+  --acc-line: #3a3a3a;
+  --add-bg: #2e4038;
+  --add-tx: #bcd9cb;
+  --del-bg: #432f2f;
+  --del-tx: #e0c4c0;
+  --mod-bg: #3d3728;
+  --mod-tx: #e3d6b8;
+  --danger: #c98b7f;
+  --icon: #787f88;
+  --icon-2: #565d66;
+  --paper: #efece5;
+  --paper-alt: #e8e5dd;
+  --paper-tx: #22242a;
+  --paper-mut: #8a857a;
+  --paper-mut2: #6c6960;
+  --paper-rule: #d8d3c8;
+  --paper-edge: transparent;
+  --plus: #ffffff;
+  --ring: #ffffff;
+  --nav-accent: #ffffff;
+  --shadow-1: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --shadow-2: 0 14px 34px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='light'] {
+  --bg: #ffffff;
+  --bg-rail: #faf9f7;
+  --surf-1: #f3f2ef;
+  --surf-2: #f6f5f2;
+  --hover: #ecebe7;
+  --surf-3: #f3f2ef;
+  --line-1: #e6e4df;
+  --pop: #ffffff;
+  --hover-2: #eeece8;
+  --line-2: #e8e6e1;
+  --surf-4: #eae8e3;
+  --line-3: #e4e2dd;
+  --hover-3: #ecebe7;
+  --line-4: #dedcd6;
+  --line-5: #dedcd6;
+  --line-6: #d6d4ce;
+  --line-7: #d2d0c9;
+  --sel: #e3e0d9;
+  --bar: #cbc8c1;
+  --line-8: #c9c6bf;
+  --line-9: #b7b4ac;
+  --tx-1: #16171a;
+  --tx-0: #0f1013;
+  --tx-2: #1b1c20;
+  --tx-3: #3a3d43;
+  --tx-4: #44474d;
+  --tx-5: #67696e;
+  --tx-6: #67696e;
+  --tx-7: #6d7075;
+  --tx-8: #74777c;
+  --tx-9: #7f8288;
+  --tx-10: #8a8d92;
+  --tx-11: #a6a49e;
+  --accent: #16171a;
+  --accent-2: #000000;
+  --teal: #2c7a6e;
+  --teal-line: #c3ded6;
+  --acc-line: #cfcdc7;
+  --add-bg: #dcefe3;
+  --add-tx: #1d5a3c;
+  --del-bg: #f7ded9;
+  --del-tx: #7a2f28;
+  --mod-bg: #f6ecd0;
+  --mod-tx: #6a5210;
+  --danger: #a33b2c;
+  --icon: #7a7d83;
+  --icon-2: #7a7d83;
+  --paper: #ffffff;
+  --paper-alt: #f7f6f2;
+  --paper-tx: #22242a;
+  --paper-mut: #8a857a;
+  --paper-mut2: #6c6960;
+  --paper-rule: #d8d3c8;
+  --paper-edge: #e4e2dc;
+  --plus: #16171a;
+  --ring: #16171a;
+  --nav-accent: #16171a;
+  --shadow-1: 0 6px 20px rgba(30, 28, 22, 0.1);
+  --shadow-2: 0 14px 34px rgba(30, 28, 22, 0.14);
+}
+
+/*
+ * Tokens expostos ao Tailwind. A paleta padrão do Tailwind é desligada
+ * (--color-*: initial): toda cor de classe vem de um token do Folio.
+ */
+@theme inline {
+  --color-*: initial;
+
+  --color-bg: var(--bg);
+  --color-bg-rail: var(--bg-rail);
+  --color-surf-1: var(--surf-1);
+  --color-surf-2: var(--surf-2);
+  --color-surf-3: var(--surf-3);
+  --color-surf-4: var(--surf-4);
+  --color-pop: var(--pop);
+  --color-hover: var(--hover);
+  --color-hover-2: var(--hover-2);
+  --color-hover-3: var(--hover-3);
+  --color-line-1: var(--line-1);
+  --color-line-2: var(--line-2);
+  --color-line-3: var(--line-3);
+  --color-line-4: var(--line-4);
+  --color-line-5: var(--line-5);
+  --color-line-6: var(--line-6);
+  --color-line-7: var(--line-7);
+  --color-line-8: var(--line-8);
+  --color-line-9: var(--line-9);
+  --color-sel: var(--sel);
+  --color-bar: var(--bar);
+  --color-tx-0: var(--tx-0);
+  --color-tx-1: var(--tx-1);
+  --color-tx-2: var(--tx-2);
+  --color-tx-3: var(--tx-3);
+  --color-tx-4: var(--tx-4);
+  --color-tx-5: var(--tx-5);
+  --color-tx-6: var(--tx-6);
+  --color-tx-7: var(--tx-7);
+  --color-tx-8: var(--tx-8);
+  --color-tx-9: var(--tx-9);
+  --color-tx-10: var(--tx-10);
+  --color-tx-11: var(--tx-11);
+  --color-link: var(--accent);
+  --color-link-hover: var(--accent-2);
+  --color-nav-accent: var(--nav-accent);
+  --color-plus: var(--plus);
+  --color-icon: var(--icon);
+  --color-icon-2: var(--icon-2);
+  --color-teal: var(--teal);
+  --color-teal-line: var(--teal-line);
+  --color-acc-line: var(--acc-line);
+  --color-danger: var(--danger);
+  --color-add-bg: var(--add-bg);
+  --color-add-tx: var(--add-tx);
+  --color-del-bg: var(--del-bg);
+  --color-del-tx: var(--del-tx);
+  --color-mod-bg: var(--mod-bg);
+  --color-mod-tx: var(--mod-tx);
+  --color-paper: var(--paper);
+  --color-paper-alt: var(--paper-alt);
+  --color-paper-tx: var(--paper-tx);
+  --color-paper-mut: var(--paper-mut);
+  --color-paper-mut2: var(--paper-mut2);
+  --color-paper-rule: var(--paper-rule);
+  --color-paper-edge: var(--paper-edge);
+
+  /*
+   * Nomes semânticos do shadcn/ui, apontados para os tokens do Folio. O
+   * "accent" do shadcn é o fundo de hover de itens (--hover-3), não o
+   * --accent do Folio, que é a cor de link (exposta como "link").
+   */
+  --color-background: var(--bg);
+  --color-foreground: var(--tx-2);
+  --color-card: var(--surf-2);
+  --color-card-foreground: var(--tx-1);
+  --color-popover: var(--pop);
+  --color-popover-foreground: var(--tx-1);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--bg);
+  --color-secondary: var(--surf-2);
+  --color-secondary-foreground: var(--tx-1);
+  --color-muted: var(--surf-1);
+  --color-muted-foreground: var(--tx-8);
+  --color-accent: var(--hover-3);
+  --color-accent-foreground: var(--tx-1);
+  --color-destructive: var(--danger);
+  --color-border: var(--line-4);
+  --color-input: var(--line-6);
+  --color-ring: var(--ring);
+
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-serif: Georgia, 'Times New Roman', serif;
+
+  --radius-7: 7px;
+  --radius-8: 8px;
+  --radius-10: 10px;
+  --radius-12: 12px;
+  --radius-14: 14px;
+  --radius-16: 16px;
+  --radius-18: 18px;
+
+  --shadow-page: var(--shadow-1);
+  --shadow-pop: var(--shadow-2);
+
+  --ease-folio: cubic-bezier(0.32, 0.72, 0.34, 1);
+}
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--tx-2);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--accent-2);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bar) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 11px;
+    height: 11px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--bar);
+    border-radius: 14px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+
+  /* Hardcoded no protótipo e igual nos dois temas: Design/specs/10-known-issues.md #3. */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #454545;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}

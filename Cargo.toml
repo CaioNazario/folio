@@ -1,0 +1,18 @@
+[workspace]
+resolver = "3"
+members = ["crates/folio-core", "src-tauri"]
+
+# Versão única do projeto. O release confere que ela bate com a tag e o package.json.
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.90"
+license = "MIT"
+repository = "https://github.com/CaioNazario/folio"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+# Limite em clippy.toml (too-many-lines-threshold). Com -D warnings, quebra o just check.
+too_many_lines = "warn"
