@@ -1,7 +1,8 @@
 //! Validation of names the user types for projects and folders.
 
 /// Why a typed name cannot be used. The UI picks the message per variant.
-#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error, serde::Serialize, ts_rs::TS)]
+#[ts(export)]
 pub enum InvalidName {
     #[error("name is empty")]
     Empty,

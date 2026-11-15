@@ -14,7 +14,8 @@ use super::os_bytes;
 pub struct RelativePath(Vec<u8>);
 
 /// Why a byte string is not a valid [`RelativePath`].
-#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error, serde::Serialize, ts_rs::TS)]
+#[ts(export)]
 pub enum InvalidRelativePath {
     #[error("path is empty")]
     Empty,

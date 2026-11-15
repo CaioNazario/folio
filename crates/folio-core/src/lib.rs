@@ -2,6 +2,7 @@
 //!
 //! This crate does not depend on Tauri and is testable without running the app.
 
+pub mod bridge_error;
 pub mod clock;
 pub mod db;
 pub mod display;
