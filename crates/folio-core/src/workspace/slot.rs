@@ -57,6 +57,9 @@ impl WorkspaceSlot {
                 fresh: false,
             });
         }
+        // Switching closes the open one (database and lock) before opening
+        // the other (spec 03, "Trocar de workspace").
+        *current = None;
         let workspace = Arc::new(Workspace::open(root, services)?);
         *current = Some(workspace.clone());
         Ok(Opened {
@@ -132,5 +135,20 @@ mod tests {
 
         assert!(root.is_dir());
         assert!(Arc::ptr_eq(&created.workspace, &slot.current().unwrap()));
+    }
+
+    #[test]
+    fn switching_root_releases_the_open_workspace_before_opening_the_other() {
+        let env = TestEnv::new();
+        let first = env.dir("Primeiro");
+        let slot = WorkspaceSlot::default();
+        drop(slot.open(&first, &env.services).unwrap());
+
+        let missing = slot.open(&env.home().join("Sumiu"), &env.services);
+
+        assert!(matches!(missing, Err(Error::WorkspaceNotFound(_))));
+        assert!(slot.current().is_none());
+        let reopened = Workspace::open(&first, &env.services).unwrap();
+        assert_eq!(reopened.root(), first);
     }
 }
