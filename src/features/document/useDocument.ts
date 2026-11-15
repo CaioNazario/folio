@@ -1,52 +1,54 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { DocumentRef } from '@/features/sidebar/types'
-import { getTextContent, recordOpened } from './api'
-import { failedContent } from './stageContent'
+import { openDocument, recordOpened } from './api'
+import { failedContent, loadContent, toOpenDocument } from './documentData'
 import type { OpenDocument, StageContent } from './types'
 
-type Loaded = { key: string; content: StageContent }
+type Loaded = { key: string; document: OpenDocument | null; content: StageContent }
 
-function toOpenDocument(ref: DocumentRef): OpenDocument {
-  return { ...ref, derived: false, conversions: [] }
-}
+const SHOWN: StageContent['status'][] = ['text', 'html']
 
-async function loadText(id: string): Promise<StageContent> {
+async function load(id: string): Promise<Omit<Loaded, 'key'>> {
   try {
-    return { status: 'text', ...(await getTextContent(id)) }
+    const document = toOpenDocument(await openDocument(id))
+    return { document, content: await loadContent(document) }
   } catch (error) {
-    return failedContent(error)
+    return { document: null, content: failedContent(error) }
   }
 }
 
-// What the stage shows for `ref`: loading until the content for this exact
-// document and attempt arrives. Only TXT has a content command so far.
-function useStageContent(ref: DocumentRef | null, attempt: number, onShown: (id: string) => void): StageContent {
-  const key = ref ? `${ref.id}:${attempt}` : ''
+// Until open_document answers (or when it fails), the header shows what the
+// sidebar knows.
+function placeholder(ref: DocumentRef): OpenDocument {
+  return { ...ref, format: 'txt', folders: [], derived: false, conversions: [], valid: true, scroll: null }
+}
+
+// The result of loading `ref` for this attempt, or null while it loads.
+// Records the opening once something is shown.
+function useLoaded(ref: DocumentRef | null, key: string, onRecorded: () => void): Loaded | null {
   const [loaded, setLoaded] = useState<Loaded | null>(null)
   useEffect(() => {
-    if (!ref || ref.format !== 'txt') return
+    if (!ref) return
     let current = true
-    void loadText(ref.id).then((content) => {
+    void load(ref.id).then((result) => {
       if (!current) return
-      setLoaded({ key, content })
-      if (content.status === 'text') onShown(ref.id)
+      setLoaded({ key, ...result })
+      if (SHOWN.includes(result.content.status)) recordOpened(ref.id).then(onRecorded).catch(console.error)
     })
     return () => {
       current = false
     }
-  }, [ref, key, onShown])
-  if (ref && ref.format !== 'txt') return { status: 'unsupported' }
-  return loaded?.key === key ? loaded.content : { status: 'loading' }
+  }, [ref, key, onRecorded])
+  return loaded?.key === key ? loaded : null
 }
 
-// The open document and its stage content; records the opening once shown.
+// Opens `ref`: document info, then the stage content. Loading lasts until
+// this exact document and attempt arrive.
 export function useDocument(ref: DocumentRef | null, onRecorded: () => void) {
   const [attempt, setAttempt] = useState(0)
-  const onShown = useCallback(
-    (id: string) => void recordOpened(id).then(onRecorded).catch(console.error),
-    [onRecorded],
-  )
-  const content = useStageContent(ref, attempt, onShown)
+  const key = ref ? `${ref.id}:${attempt}` : ''
+  const fresh = useLoaded(ref, key, onRecorded)
   const retry = useCallback(() => setAttempt((value) => value + 1), [])
-  return { document: ref && toOpenDocument(ref), content, retry }
+  const document = fresh?.document ?? (ref && placeholder(ref))
+  return { document, content: fresh?.content ?? ({ status: 'loading' } as StageContent), retry }
 }

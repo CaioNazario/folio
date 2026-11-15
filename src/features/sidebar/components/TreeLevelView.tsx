@@ -45,7 +45,7 @@ export function TreeLevelView(props: TreeLevelProps) {
           document={document}
           selected={document.id === selectedId}
           pinned={pinnedKeys.has(pinKey({ kind: 'document', id: document.id }))}
-          onOpen={() => onOpenDocument(document)}
+          onOpen={() => onOpenDocument({ id: document.id, name: document.name })}
           onTogglePin={() => onTogglePin({ kind: 'document', id: document.id })}
         />
       ))}

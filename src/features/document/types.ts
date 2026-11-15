@@ -1,18 +1,23 @@
-// View models the document view renders. The feature's api.ts maps the ts-rs
-// bindings into them once the reader commands exist.
+import type { Format } from '@/lib/bindings/Format'
 
-export type DocumentFormat = 'pdf' | 'docx' | 'md' | 'txt'
+// View models the document view renders, mapped from the ts-rs bindings in
+// documentData.ts.
+
+export type DocumentFormat = Format
 
 export type OpenDocument = {
   id: string
   name: string
   format: DocumentFormat
-  /** Project or folder shown in the breadcrumb; null at the workspace root. */
-  folder: string | null
+  /** Project and folders for the breadcrumb, outermost first; empty at the root. */
+  folders: string[]
   /** Created by a conversion (badge "derivado"). */
   derived: boolean
   /** Formats this document can be converted to; empty when invalid. */
   conversions: DocumentFormat[]
+  valid: boolean
+  /** Fraction of the scroll where the reader stopped (MD and TXT). */
+  scroll: number | null
 }
 
 export type StageContent =
@@ -22,7 +27,7 @@ export type StageContent =
   | { status: 'invalid' }
   | { status: 'notFound' }
   | { status: 'failed' }
-  /** The view for this format is not built yet (PDF and DOCX wait for spikes S2 and S4; MD for its command). */
+  /** The view for this format is not built yet (PDF and DOCX wait for spikes S2 and S4). */
   | { status: 'unsupported' }
 
 export type DocumentActions = {
@@ -34,5 +39,5 @@ export type DocumentActions = {
   onTrash: () => void
   onRetry: () => void
   /** A link clicked inside the document; the core decides what it is. */
-  onLink: (target: string) => void
+  onLink: (href: string) => void
 }

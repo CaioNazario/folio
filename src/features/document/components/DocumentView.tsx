@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { DocumentActions, OpenDocument, StageContent } from '../types'
 import type { ReaderState } from '../useReaderState'
 import { useReaderShortcuts } from '../useReaderShortcuts'
+import { useScrollPosition } from '../useScrollPosition'
 import { DocumentHeader, type OpenMenu } from './DocumentHeader'
 import { Stage } from './Stage'
 
@@ -24,10 +25,20 @@ export function DocumentView({ document, content, reader, actions }: DocumentVie
     },
   }
   useReaderShortcuts(withMenusClosed, openMenu !== null)
+  const shown = content.status === 'text' || content.status === 'html'
+  const onScrollFraction = useScrollPosition(shown ? document.id : null)
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <DocumentHeader document={document} actions={actions} openMenu={openMenu} onOpenMenu={setOpenMenu} />
-      <Stage content={content} format={document.format} reader={withMenusClosed} actions={actions} />
+      <Stage
+        key={`${document.id}:${content.status}`}
+        content={content}
+        format={document.format}
+        initialScroll={document.scroll}
+        onScrollFraction={onScrollFraction}
+        reader={withMenusClosed}
+        actions={actions}
+      />
     </div>
   )
 }

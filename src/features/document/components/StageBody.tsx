@@ -13,11 +13,13 @@ type StageBodyProps = {
   content: StageContent
   format: DocumentFormat
   zoom: number
+  initialScroll: number | null
+  onScrollFraction: (fraction: number) => void
   actions: Pick<DocumentActions, 'onRetry' | 'onShowInFolder' | 'onLink'>
 }
 
 // What the reading area shows for each stage state.
-export function StageBody({ content, format, zoom, actions }: StageBodyProps) {
+export function StageBody({ content, format, zoom, initialScroll, onScrollFraction, actions }: StageBodyProps) {
   const { t } = useTranslation()
   const showLoading = useDelayedFlag(content.status === 'loading', LOADING_DELAY_MS)
   const showInFolder = <Button onClick={actions.onShowInFolder}>{t('document.showInFolder')}</Button>
@@ -40,7 +42,7 @@ export function StageBody({ content, format, zoom, actions }: StageBodyProps) {
   const body = content.status === 'text' ? content.text : content.html
   if (body.trim() === '') return <StageMessage>{t('document.stage.empty')}</StageMessage>
   return (
-    <Page zoom={zoom}>
+    <Page zoom={zoom} initialScroll={initialScroll} onScrollFraction={onScrollFraction}>
       {content.status === 'text' ? <TextDisplay text={body} /> : <MarkdownDisplay html={body} onLink={actions.onLink} />}
     </Page>
   )

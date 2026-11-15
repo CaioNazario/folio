@@ -61,6 +61,14 @@ export const en = {
     copyFile: 'Copy file',
     properties: 'Properties',
     trash: 'Move to trash',
+    linkUnsupported: 'This link points to a file Folio does not open',
+    image: {
+      remote: 'Remote image not loaded:',
+      missing: 'Image not found:',
+      outside: 'Image outside the workspace:',
+      unsupported: 'Unsupported image format:',
+      tooLarge: 'Image too large:',
+    },
     stage: {
       label: 'Reader',
       preview: 'Preview',

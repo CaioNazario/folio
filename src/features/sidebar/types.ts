@@ -1,11 +1,10 @@
-import type { DocumentFormat } from '@/features/document/types'
 import type { RelativePath } from '@/lib/bindings/RelativePath'
 
 // View models the sidebar renders, mapped from the ts-rs bindings in
 // sidebarData.ts. Directories have no stable id: they are keyed by path
 // (specs/03-workspace.md, "Ícones").
 
-export type DocumentRef = { id: string; name: string; format: DocumentFormat; folder: string | null }
+export type DocumentRef = { id: string; name: string }
 
 export type FolderRef = { path: RelativePath; name: string }
 

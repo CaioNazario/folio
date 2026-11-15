@@ -20,6 +20,25 @@ export const FACULDADE_CONTENTS: DirContents = {
   documents: [doc('d-v3', 'Trabalho v3.txt', 'txt'), doc('d-ref', 'Referências.md', 'md')],
 }
 
+const ALL_DOCUMENTS = [...ROOT.documents, ...FACULDADE_CONTENTS.documents, doc('d-pdf', 'Artigo.pdf', 'pdf')]
+
+export const MARKDOWN =
+  '<h1>Referências</h1><p><a href="https://example.org">site</a> <a href="Leia-me.txt">leia</a> <a href="x.xlsx">planilha</a></p>' +
+  '<span data-folio-image="remote">diagrama <a href="https://img.example/d.png">https://img.example/d.png</a></span>'
+
+function openedView(id: string) {
+  const document = ALL_DOCUMENTS.find((item) => item.id === id)
+  if (!document) throw { kind: 'DocumentNotFound', id }
+  const folders = FACULDADE_CONTENTS.documents.includes(document) ? ['Faculdade'] : []
+  return { document, folders, derived: false, conversionTargets: ['pdf'], position: null }
+}
+
+const LINKS: Record<string, object> = {
+  'https://example.org': { kind: 'External', url: 'https://example.org' },
+  'Leia-me.txt': { kind: 'Document', id: 'd-readme' },
+  'x.xlsx': { kind: 'Unsupported' },
+}
+
 export function workspaceCommands(overrides: Record<string, (args: unknown) => unknown> = {}) {
   return {
     open_last_workspace: () => true,
@@ -29,8 +48,11 @@ export function workspaceCommands(overrides: Record<string, (args: unknown) => u
       { id: 'd-v3', name: 'Trabalho v3.txt', project: 'Faculdade', size: 42 * 1024, openedAt: Date.now() - 2 * DAY },
     ],
     get_workspace_summary: () => ({ location: '~/Documentos/Folio', totals: { documents: 1284, size: 3.2 * 1024 ** 3 }, userName: 'Caio' }),
+    open_document: (args: unknown) => openedView((args as { id: string }).id),
     get_text_content: () => ({ text: 'Conteúdo do trabalho', truncated: false }),
+    get_markdown_content: () => ({ html: MARKDOWN, truncated: false }),
     toggle_favorite_document: () => true,
+    resolve_link: (args: unknown) => LINKS[(args as { href: string }).href] ?? { kind: 'Ignored' },
     ...overrides,
   }
 }

@@ -30,8 +30,12 @@ export function DocumentHeader({ document, actions, openMenu, onOpenMenu }: Docu
     <header className="flex h-14 shrink-0 items-center gap-[14px] border-b border-line-3 px-[18px]">
       <div className="min-w-0">
         <nav aria-label={t('document.breadcrumb')} className="flex gap-[7px] truncate font-mono text-[10.5px] text-tx-6">
-          {document.folder && <span>{document.folder}</span>}
-          {document.folder && <span aria-hidden="true">/</span>}
+          {document.folders.map((folder, index) => (
+            <span key={`${index}:${folder}`} className="flex gap-[7px]">
+              {folder}
+              <span aria-hidden="true">/</span>
+            </span>
+          ))}
           <span className="truncate text-tx-4">{document.name}</span>
         </nav>
         <div className="mt-0.5 flex min-w-0 items-center gap-[9px]">

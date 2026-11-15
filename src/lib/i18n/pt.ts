@@ -62,6 +62,14 @@ export const pt = {
     copyFile: 'Copiar arquivo',
     properties: 'Propriedades',
     trash: 'Mover para lixeira',
+    linkUnsupported: 'Este link aponta para um arquivo que o Folio não abre',
+    image: {
+      remote: 'Imagem remota não carregada:',
+      missing: 'Imagem não encontrada:',
+      outside: 'Imagem fora do workspace:',
+      unsupported: 'Formato de imagem não suportado:',
+      tooLarge: 'Imagem grande demais:',
+    },
     stage: {
       label: 'Leitor',
       preview: 'Preview',

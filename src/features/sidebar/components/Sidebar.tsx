@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Logo } from '@/components/ui/logo'
-import { formatFromName as formatOf } from '../sidebarData'
 import type { SidebarActions, SidebarData, TreeView } from '../types'
 import { FavoritesSection } from './FavoritesSection'
 import { ProjectsSection } from './ProjectsSection'
@@ -16,10 +15,7 @@ export function Sidebar({ data, tree, actions, selectedId, now }: SidebarProps) 
   const { t } = useTranslation()
   const pinnedKeys = useMemo(() => new Set(data.favorites.map((item) => item.key)), [data.favorites])
   const shared = { pinnedKeys, onOpenDocument: actions.onOpenDocument, onTogglePin: actions.onTogglePin }
-  const openFavorite = (id: string, name: string) => {
-    const known = data.recents.find((item) => item.id === id)
-    actions.onOpenDocument(known ?? { id, name, format: formatOf(name), folder: null })
-  }
+  const openFavorite = (id: string, name: string) => actions.onOpenDocument({ id, name })
   return (
     <aside
       aria-label={t('shell.sidebar')}

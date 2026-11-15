@@ -10,9 +10,11 @@ const DOC: OpenDocument = {
   id: 'd1',
   name: 'Fichamento.md',
   format: 'md',
-  folder: 'Faculdade',
+  folders: ['Faculdade'],
   derived: false,
   conversions: ['pdf', 'txt'],
+  valid: true,
+  scroll: null,
 }
 
 const TEXT: StageContent = { status: 'text', text: 'Primeiro parágrafo', truncated: false }

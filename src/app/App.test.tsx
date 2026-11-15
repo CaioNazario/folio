@@ -1,12 +1,12 @@
 import { emit } from '@tauri-apps/api/event'
-import { act, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { expect, test } from 'vitest'
 import { DEFAULT_PREFERENCES } from '@/features/preferences/api'
 import { pt } from '@/lib/i18n/pt'
 import { mockCommands } from '@/test-utils'
 import { App } from './App'
-import { workspaceCommands } from './fixtures'
+import { ROOT, workspaceCommands } from './fixtures'
 
 async function renderApp(overrides: Parameters<typeof workspaceCommands>[0] = {}) {
   const calls = mockCommands(workspaceCommands(overrides))
@@ -71,12 +71,64 @@ test('a document gone from disk shows the not found state', async () => {
   expect(await screen.findByText(pt.errors.DocumentNotFound)).toBeInTheDocument()
 })
 
-test('a format without a view yet says so', async () => {
-  const { user } = await renderApp()
+async function openReferences(user: ReturnType<typeof userEvent.setup>) {
   await user.click(within(projects()).getByRole('button', { name: 'Faculdade' }))
   await user.click(await screen.findByRole('button', { name: 'Referências.md' }))
+  return screen.findByRole('heading', { name: 'Referências', level: 1 })
+}
 
-  expect(screen.getByText('A exibição de MD ainda não está disponível')).toBeInTheDocument()
+test('a markdown document shows its html with the folder in the breadcrumb', async () => {
+  const { user } = await renderApp()
+  await openReferences(user)
+
+  expect(screen.getByRole('navigation', { name: pt.document.breadcrumb })).toHaveTextContent('Faculdade/Referências.md')
+})
+
+test('an image the core could not show gets a label in the active language', async () => {
+  const { user } = await renderApp()
+  await openReferences(user)
+
+  expect(screen.getByText(/diagrama/)).toHaveAttribute('data-label', pt.document.image.remote)
+})
+
+test('an external link opens in the system browser', async () => {
+  const { calls, user } = await renderApp()
+  await openReferences(user)
+  await user.click(screen.getByRole('link', { name: 'site' }))
+
+  await waitFor(() => expect(calls).toContainEqual(expect.objectContaining({ cmd: 'plugin:opener|open_url' })))
+})
+
+test('a link to another document opens it', async () => {
+  const { user } = await renderApp()
+  await openReferences(user)
+  await user.click(screen.getByRole('link', { name: 'leia' }))
+
+  expect(await screen.findByText('Conteúdo do trabalho')).toBeInTheDocument()
+})
+
+test('a link to a file Folio does not open shows a toast', async () => {
+  const { user } = await renderApp()
+  await openReferences(user)
+  await user.click(screen.getByRole('link', { name: 'planilha' }))
+
+  expect(await screen.findByText(pt.document.linkUnsupported)).toBeInTheDocument()
+})
+
+test('a format without a view yet says so', async () => {
+  const { user } = await renderApp({ list_dir: () => ({ folders: [], documents: [{ ...ROOT.documents[0], id: 'd-pdf', name: 'Artigo.pdf', format: 'pdf' }] }) })
+  await user.click(within(projects()).getByRole('button', { name: 'Artigo.pdf' }))
+
+  expect(await screen.findByText('A exibição de PDF ainda não está disponível')).toBeInTheDocument()
+})
+
+test('saves the scroll position when another document opens', async () => {
+  const { calls, user } = await renderApp()
+  await user.click(within(projects()).getByRole('button', { name: 'Leia-me.txt' }))
+  fireEvent.scroll(await screen.findByRole('article'))
+  await openReferences(user)
+
+  expect(calls).toContainEqual({ cmd: 'save_position', args: { id: 'd-readme', position: { kind: 'Scroll', fraction: 0 } } })
 })
 
 test('reloads the sidebar when a scan finishes', async () => {

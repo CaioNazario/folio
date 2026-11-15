@@ -13,7 +13,7 @@ function useFolderContents() {
   const load = useCallback(
     (folder: FolderRef) =>
       listDir(folder.path)
-        .then((contents) => setChildren((map) => new Map(map).set(pathKey(folder.path), toTreeLevel(contents, folder.name))))
+        .then((contents) => setChildren((map) => new Map(map).set(pathKey(folder.path), toTreeLevel(contents))))
         .catch(report),
     [report],
   )
@@ -45,7 +45,7 @@ export function useTree() {
   const { children, load } = useFolderContents()
   const { openKeys, toggle, reloadOpen } = useOpenFolders(load)
   const reload = useCallback(() => {
-    listDir(null).then((contents) => setRoot(toTreeLevel(contents, null))).catch(report)
+    listDir(null).then((contents) => setRoot(toTreeLevel(contents))).catch(report)
     reloadOpen()
   }, [reloadOpen, report])
   return { root, children, openKeys, toggle, reload }

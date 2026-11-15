@@ -1,0 +1,30 @@
+import type { DocumentView } from '@/lib/bindings/DocumentView'
+import { isBridgeError } from '@/lib/i18n/errors'
+import { getMarkdownContent, getTextContent } from './api'
+import type { OpenDocument, StageContent } from './types'
+
+export function toOpenDocument({ document, folders, derived, conversionTargets, position }: DocumentView): OpenDocument {
+  const { id, name, format, valid } = document
+  const scroll = position?.kind === 'Scroll' ? position.fraction : null
+  return { id, name, format, folders, derived, conversions: conversionTargets, valid, scroll }
+}
+
+// Which stage state a failed load shows (specs/07-reader.md, "Estados do palco").
+export function failedContent(error: unknown): StageContent {
+  if (!isBridgeError(error)) return { status: 'failed' }
+  if (error.kind === 'DocumentNotFound') return { status: 'notFound' }
+  if (error.kind === 'InvalidDocument') return { status: 'invalid' }
+  return { status: 'failed' }
+}
+
+// The stage content for an opened document, by format.
+export async function loadContent(document: OpenDocument): Promise<StageContent> {
+  if (!document.valid) return { status: 'invalid' }
+  try {
+    if (document.format === 'txt') return { status: 'text', ...(await getTextContent(document.id)) }
+    if (document.format === 'md') return { status: 'html', ...(await getMarkdownContent(document.id)) }
+    return { status: 'unsupported' }
+  } catch (error) {
+    return failedContent(error)
+  }
+}

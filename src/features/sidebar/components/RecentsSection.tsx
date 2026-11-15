@@ -25,7 +25,7 @@ export function RecentsSection({ recents, pinnedKeys, now, onOpenDocument, onTog
         <NavRow
           key={item.id}
           label={item.name}
-          onClick={() => onOpenDocument(item)}
+          onClick={() => onOpenDocument({ id: item.id, name: item.name })}
           trailing={
             <>
               <PinButton
