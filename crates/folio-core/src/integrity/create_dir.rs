@@ -4,7 +4,7 @@ use std::fs;
 use std::io;
 use std::path::Path;
 
-use super::{Error, Result};
+use crate::{Error, Result};
 
 /// Creates the directory `path`, failing if anything already has that name.
 pub fn create_dir_no_replace(path: &Path) -> Result<()> {

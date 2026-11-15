@@ -5,7 +5,7 @@ use std::io;
 use std::path::{Path, PathBuf};
 
 use super::publish::{copy_to_hidden_temp, publish_and_keep};
-use super::{Error, Result};
+use crate::{Error, Result};
 
 /// Moves `from` into `dest_dir` by copying: copy into a hidden temp next to
 /// the destination, check the copy's hash, publish without overwriting

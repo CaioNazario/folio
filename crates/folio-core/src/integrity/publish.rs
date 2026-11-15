@@ -9,7 +9,8 @@ use std::path::{Path, PathBuf};
 use tempfile::{Builder, NamedTempFile};
 
 use super::move_with_suffix::place_with_suffix;
-use super::{Error, Result, rename_no_replace};
+use super::rename_no_replace;
+use crate::{Error, Result};
 
 /// Writes a new file through a temp in `tmp_dir`, then publishes it as
 /// `dest_dir/name`, adding ` (n)` on collision. Returns the final path.

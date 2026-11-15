@@ -2,7 +2,7 @@
 
 use std::path::Path;
 
-use super::{Error, Result};
+use crate::{Error, Result};
 
 /// A place deleted items go to, from which the user can restore them.
 pub trait Trash {

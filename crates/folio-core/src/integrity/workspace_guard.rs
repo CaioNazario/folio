@@ -5,7 +5,7 @@ use std::fs::{self, File, OpenOptions, TryLockError};
 use std::io;
 use std::path::{Path, PathBuf};
 
-use super::{Error, Result};
+use crate::{Error, Result};
 
 /// Held for as long as a window has the workspace open; dropping it releases
 /// the lock.
@@ -63,7 +63,7 @@ mod tests {
     use std::fs;
 
     use super::*;
-    use crate::integrity::Error;
+    use crate::Error;
     use crate::integrity::test_support::write_file;
 
     fn folio_dir() -> (tempfile::TempDir, PathBuf) {

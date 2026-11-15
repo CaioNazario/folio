@@ -1,7 +1,7 @@
 use std::io;
 use std::path::{Path, PathBuf};
 
-/// Failures defined by spec 01, kept distinct so the UI can explain the cause.
+/// Failures the core reports, kept distinct so the UI can explain the cause.
 ///
 /// The messages are for logs only: the UI picks its own text per variant.
 #[derive(Debug, thiserror::Error)]

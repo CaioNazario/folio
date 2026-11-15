@@ -5,7 +5,7 @@ use std::path::Path;
 use rustix::fs::{CWD, RenameFlags, renameat_with};
 use rustix::io::Errno;
 
-use super::{Error, Result};
+use crate::{Error, Result};
 
 /// Renames `from` to `to`, failing atomically if `to` already exists.
 pub fn rename_no_replace(from: &Path, to: &Path) -> Result<()> {

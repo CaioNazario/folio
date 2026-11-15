@@ -4,7 +4,8 @@ use std::ffi::OsStr;
 use std::io;
 use std::path::{Path, PathBuf};
 
-use super::{Error, Result, move_by_copy, rename_no_replace, with_suffix};
+use super::{move_by_copy, rename_no_replace, with_suffix};
+use crate::{Error, Result};
 
 /// Moves `from` into `dest_dir` and returns the final path.
 ///
