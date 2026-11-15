@@ -97,6 +97,8 @@ Clicar num link dentro do documento (MD, DOCX ou PDF) nunca navega o webview. O 
 
 O caminho relativo é resolvido a partir do diretório do documento e precisa continuar dentro do workspace (nunca em `.folio/`); os escapes `%` são decodificados, e o fragmento e a query depois do arquivo (`Notas.md#secao`) são ignorados. O documento de destino precisa estar no índice e no disco. A resposta é um `LinkTarget` com tag `kind`: `External`, `Document`, `Unsupported`, `Anchor` ou `Ignored`.
 
+**Âncoras no MD:** cada título do HTML sai com `id="folio-h-<âncora>"`, gerado do texto do título pelo comrak (minúsculas, espaços viram `-`, pontuação sai; um título repetido ganha `-1`, `-2`...), sem link de âncora ao lado. O prefixo impede que um título tome um id do próprio app. O `Anchor` traz o fragmento com os escapes `%` decodificados e sem o prefixo; o frontend rola até o elemento `folio-h-` + fragmento.
+
 ### Imagens no Markdown
 
 O HTML de um `.md` nunca carrega imagem por conta própria. Depois do `ammonia`, o core reescreve cada `<img>`:

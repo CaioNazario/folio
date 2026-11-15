@@ -6,9 +6,11 @@ use std::io::{self, Read};
 use serde::Serialize;
 use ts_rs::TS;
 
-use comrak::{Arena, format_html, parse_document};
+use comrak::options::Plugins;
+use comrak::{Arena, format_html_with_plugins, parse_document};
 
 use super::display_text;
+use super::headings::HeadingIds;
 use super::images::{MARKER_SCHEME, mark_images, replace_markers};
 use crate::readers::markdown_options;
 
@@ -66,15 +68,24 @@ pub fn render_markdown(markdown: &str, resolve: &mut dyn FnMut(&str) -> ImageOut
     let images = mark_images(root);
     let mut html = String::new();
     // Writing to a `String` cannot fail.
-    _ = format_html(root, &options, &mut html);
+    let headings = HeadingIds::default();
+    let mut plugins = Plugins::default();
+    plugins.render.heading_adapter = Some(&headings);
+    _ = format_html_with_plugins(root, &options, &mut html, &plugins);
     let outcomes: Vec<ImageOutcome> = images.iter().map(|image| resolve(&image.url)).collect();
     replace_markers(sanitize(&html), &images, &outcomes)
 }
 
-/// Ammonia's defaults, keeping the image markers in `src`.
+const HEADINGS: [&str; 6] = ["h1", "h2", "h3", "h4", "h5", "h6"];
+
+/// Ammonia's defaults, keeping the image markers in `src` and the ids of
+/// headings.
 fn sanitize(html: &str) -> String {
     let mut builder = ammonia::Builder::default();
     builder.add_url_schemes([MARKER_SCHEME]);
+    for heading in HEADINGS {
+        builder.add_tag_attributes(heading, ["id"]);
+    }
     builder.clean(html).to_string()
 }
 
@@ -107,9 +118,31 @@ mod tests {
     fn md_html_renders_markdown() {
         let html = render("# Título\n\nUm **forte** e [link](https://exemplo.org).\n");
 
-        assert!(html.contains("<h1>Título</h1>"), "{html}");
+        assert!(html.contains(r#"<h1 id="folio-h-título">Título"#), "{html}");
         assert!(html.contains("<strong>forte</strong>"), "{html}");
         assert!(html.contains(r#"<a href="https://exemplo.org""#), "{html}");
+    }
+
+    #[test]
+    fn md_html_gives_headings_an_id_from_their_text() {
+        let html = render("# Introdução\n\nTexto\n");
+
+        assert!(html.contains(r#"<h1 id="folio-h-introdução">"#), "{html}");
+    }
+
+    #[test]
+    fn md_html_numbers_repeated_heading_ids() {
+        let html = render("## Notas\n\n## Notas\n");
+
+        assert!(html.contains(r#"<h2 id="folio-h-notas">"#), "{html}");
+        assert!(html.contains(r#"<h2 id="folio-h-notas-1">"#), "{html}");
+    }
+
+    #[test]
+    fn md_html_headings_have_no_anchor_link() {
+        let html = render("# Título\n");
+
+        assert_eq!(html.trim(), r#"<h1 id="folio-h-título">Título</h1>"#);
     }
 
     #[test]

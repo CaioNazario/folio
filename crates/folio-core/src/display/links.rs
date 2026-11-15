@@ -1,6 +1,7 @@
 //! What a link clicked inside a document does: the UI asks, the core decides
 //! (spec 07, "Links").
 
+use percent_encoding::percent_decode_str;
 use serde::Serialize;
 use ts_rs::TS;
 use uuid::Uuid;
@@ -30,9 +31,7 @@ impl Workspace {
     /// What `href`, clicked inside the document `id`, leads to.
     pub fn resolve_link(&self, id: Uuid, href: &str) -> Result<LinkTarget> {
         if let Some(fragment) = href.strip_prefix('#') {
-            return Ok(LinkTarget::Anchor {
-                fragment: fragment.to_string(),
-            });
+            return Ok(anchor(fragment));
         }
         if let Some(scheme) = href_scheme(href) {
             return Ok(external(&scheme, href));
@@ -49,6 +48,14 @@ impl Workspace {
             return Ok(LinkTarget::Unsupported);
         };
         Ok(LinkTarget::Document { id: found.id })
+    }
+}
+
+/// A link to a heading of the same document, decoded to match its id.
+fn anchor(fragment: &str) -> LinkTarget {
+    let fragment = percent_decode_str(fragment).decode_utf8_lossy();
+    LinkTarget::Anchor {
+        fragment: fragment.into_owned(),
     }
 }
 
@@ -180,6 +187,24 @@ mod tests {
             target,
             LinkTarget::Anchor {
                 fragment: "conclusao".to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn anchor_link_returns_percent_decoded_fragment() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let doc = indexed(&workspace, "Notas/Doc.md");
+
+        let target = workspace
+            .resolve_link(doc, "#introdu%C3%A7%C3%A3o")
+            .unwrap();
+
+        assert_eq!(
+            target,
+            LinkTarget::Anchor {
+                fragment: "introdução".to_string()
             }
         );
     }
