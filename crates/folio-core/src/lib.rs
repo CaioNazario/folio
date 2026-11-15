@@ -8,7 +8,9 @@ mod error;
 pub mod ids;
 pub mod integrity;
 pub mod paths;
+pub mod services;
 #[cfg(test)]
 mod testing;
+pub mod workspace;
 
 pub use error::{Error, Result};

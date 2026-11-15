@@ -123,7 +123,7 @@ O local do estado do workspace fica atrás de uma trait no core, para que a dife
 - **`.folio/` no workspace** (Linux e Windows): o banco em `<workspace>/.folio/folio.db`, o temporário em `.folio/tmp/`, o lock em `.folio/lock`.
 - **Storage interno** (futuro, Android com pasta externa via SAF): o banco no storage interno do app, indexado pelo id do workspace, porque o SQLite precisa de um caminho de arquivo real. Especificado com a versão Android.
 
-Os testes do domínio usam uma implementação em memória.
+Na 0.1.0 a única implementação é a de `.folio/` (`FolioDirStore`), testada em diretório temporário; as operações só de banco são testadas com SQLite em memória.
 
 ## Critérios de aceite
 

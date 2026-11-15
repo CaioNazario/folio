@@ -1,5 +1,6 @@
 //! A path relative to the workspace root, valid by construction.
 
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ToSql, ToSqlOutput, ValueRef};
@@ -43,6 +44,52 @@ impl RelativePath {
             .strip_prefix(root)
             .map_err(|_| InvalidRelativePath::OutsideRoot)?;
         Self::from_bytes(os_bytes::as_bytes(relative.as_os_str()))
+    }
+
+    /// The path of the entry `name` inside this directory.
+    pub fn join(&self, name: &OsStr) -> Result<Self, InvalidRelativePath> {
+        let mut bytes = self.0.clone();
+        bytes.push(b'/');
+        bytes.extend_from_slice(os_bytes::as_bytes(name));
+        Self::from_bytes(bytes)
+    }
+
+    /// The last component: the entry's own name.
+    pub fn file_name(&self) -> &OsStr {
+        let start = self
+            .0
+            .iter()
+            .rposition(|&b| b == b'/')
+            .map_or(0, |slash| slash + 1);
+        os_bytes::from_bytes(&self.0[start..])
+    }
+
+    /// The directory containing this entry; `None` at the workspace root.
+    pub fn parent(&self) -> Option<Self> {
+        let slash = self.0.iter().rposition(|&b| b == b'/')?;
+        Some(Self(self.0[..slash].to_vec()))
+    }
+
+    /// True for `dir` itself or any path inside it.
+    pub fn is_within(&self, dir: &Self) -> bool {
+        self == dir
+            || self
+                .0
+                .strip_prefix(dir.0.as_slice())
+                .is_some_and(|rest| rest.starts_with(b"/"))
+    }
+
+    /// This path moved from under `from` to under `to`, or `None` when it is
+    /// not `from` nor inside it.
+    pub fn rebase(&self, from: &Self, to: &Self) -> Option<Self> {
+        if self == from {
+            return Some(to.clone());
+        }
+        let rest = self.0.strip_prefix(from.0.as_slice())?.strip_prefix(b"/")?;
+        let mut bytes = to.0.clone();
+        bytes.push(b'/');
+        bytes.extend_from_slice(rest);
+        Some(Self(bytes))
     }
 
     /// The stored bytes, `/`-separated.

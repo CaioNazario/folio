@@ -904,6 +904,7 @@ name = "folio-core"
 version = "0.0.0"
 dependencies = [
  "blake3",
+ "log",
  "rusqlite",
  "rustix",
  "serde",

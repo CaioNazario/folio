@@ -8,7 +8,7 @@ mod publish;
 mod rename;
 mod suffix;
 #[cfg(test)]
-mod test_support;
+pub(crate) mod test_support;
 mod trash;
 mod workspace_guard;
 

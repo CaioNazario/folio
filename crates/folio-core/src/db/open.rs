@@ -1,7 +1,7 @@
 //! Opening a Folio database: pragmas, identity, integrity and recovery.
 
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use rusqlite::{Connection, ErrorCode};
 
@@ -14,6 +14,8 @@ pub const FOLIO_APPLICATION_ID: i32 = 0x464F_4C49;
 /// A database ready to use.
 pub struct OpenedDatabase {
     pub conn: Connection,
+    /// The database file, for error messages.
+    pub path: PathBuf,
     /// The previous file was unusable and was kept as `folio.db.corrupt`; the
     /// user must be told that favorites, icons and relations may be lost.
     pub recovered: bool,
@@ -33,7 +35,11 @@ pub fn open_database(path: &Path, migrations: &[&str]) -> Result<OpenedDatabase>
         }
     };
     let conn = bring_up_to_date(path, conn, migrations)?;
-    Ok(OpenedDatabase { conn, recovered })
+    Ok(OpenedDatabase {
+        conn,
+        path: path.to_path_buf(),
+        recovered,
+    })
 }
 
 /// A database from a newer Folio is left untouched: it is not corruption.
@@ -132,8 +138,6 @@ fn apply_pragmas(conn: &Connection) -> rusqlite::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::PathBuf;
-
     use super::*;
 
     fn pragma_i64(conn: &Connection, name: &str) -> i64 {

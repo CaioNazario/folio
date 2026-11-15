@@ -16,6 +16,20 @@ pub enum Error {
     CopyMismatch(PathBuf),
     #[error("workspace is already open in another window")]
     WorkspaceInUse,
+    #[error("workspace not found: {0}")]
+    WorkspaceNotFound(PathBuf),
+    #[error("{0} cannot be a workspace: it is the system root or the home")]
+    ForbiddenRoot(PathBuf),
+    #[error("directory is inside the workspace {ancestor}")]
+    NestedWorkspace { ancestor: PathBuf },
+    #[error("cannot read and write {0}")]
+    PermissionDenied(PathBuf),
+    #[error("cannot move a directory into itself or a descendant")]
+    MoveIntoItself,
+    #[error("invalid name: {0}")]
+    InvalidName(#[from] crate::workspace::InvalidName),
+    #[error("invalid workspace path: {0}")]
+    InvalidPath(#[from] crate::paths::InvalidRelativePath),
     #[error("database was opened by a newer Folio: {0}")]
     NewerDatabase(PathBuf),
     #[error("database error on {path}: {source}")]

@@ -60,14 +60,15 @@ Abre o último workspace aberto (`opened_at` mais novo no banco global, spec 02)
 
 ### Passos da abertura
 
-1. **Valida o diretório:** existe, é diretório, dá para ler e escrever.
-2. **Recusa raiz perigosa:** a raiz do sistema (`/`) e a própria home não podem ser workspace ("Escolha uma pasta dentro da sua home"). O escaneamento delas indexaria o sistema inteiro.
-3. **Recusa workspace aninhado:** procura `.folio/` nos ancestrais (ver abaixo).
-4. **Pega o lock** de `.folio/lock` (spec 01). Se outra instância já estiver com ele, não abre.
-5. **Cria `.folio/` e `.folio/tmp/`** se não existirem.
-6. **Abre o banco** (spec 02) e **esvazia `.folio/tmp/`** (spec 01).
-7. **Registra no banco global:** insere o workspace ou atualiza `opened_at`.
-8. **Escaneia** (spec 05).
+1. **Confere que existe e é diretório.**
+2. **Recusa raiz perigosa:** a raiz do sistema (`/`) e a própria home não podem ser workspace ("Escolha uma pasta dentro da sua home"). O escaneamento delas indexaria o sistema inteiro. Vem antes da checagem de permissão: a `/` nunca é gravável, mas o motivo de recusá-la é este.
+3. **Confere que dá para ler e escrever** no diretório.
+4. **Recusa workspace aninhado:** procura `.folio/` nos ancestrais (ver abaixo).
+5. **Cria `.folio/`** se não existir. Vem antes do lock, que mora dentro dele.
+6. **Pega o lock** de `.folio/lock` (spec 01). Se outra instância já estiver com ele, não abre. Só depois do lock o Folio cria ou **esvazia `.folio/tmp/`** (spec 01).
+7. **Abre o banco** (spec 02) e lê ou cria a identidade do workspace (tabela `meta`).
+8. **Registra no banco global:** insere o workspace ou atualiza `opened_at`.
+9. **Escaneia** (spec 05).
 
 ### Workspace dentro de workspace
 

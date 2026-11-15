@@ -8,6 +8,7 @@ use rusqlite::{Connection, OptionalExtension, Row};
 use serde_json::Value;
 use uuid::Uuid;
 
+use super::columns::uuid_column;
 use super::open_database;
 use crate::clock::Clock;
 use crate::ids::IdGenerator;
@@ -89,6 +90,14 @@ impl GlobalDb {
         query().map_err(|e| self.db_error(e))
     }
 
+    /// Removes a workspace from the known list. Nothing on disk is touched.
+    pub fn forget_workspace(&self, id: Uuid) -> Result<()> {
+        self.conn()
+            .execute("DELETE FROM workspaces WHERE id = ?1", [id.to_string()])
+            .map(drop)
+            .map_err(|e| self.db_error(e))
+    }
+
     /// The workspace the app opens on start: the most recently opened one.
     pub fn last_opened_workspace(&self) -> Result<Option<KnownWorkspace>> {
         Ok(self.recent_workspaces()?.into_iter().next())
@@ -141,13 +150,6 @@ fn json_column(row: &Row<'_>) -> rusqlite::Result<Value> {
     let text: String = row.get(0)?;
     serde_json::from_str(&text)
         .map_err(|e| rusqlite::Error::FromSqlConversionFailure(0, Type::Text, Box::new(e)))
-}
-
-/// Ids are stored as hyphenated text (spec 02).
-fn uuid_column(row: &Row<'_>, index: usize) -> rusqlite::Result<Uuid> {
-    let text: String = row.get(index)?;
-    Uuid::parse_str(&text)
-        .map_err(|e| rusqlite::Error::FromSqlConversionFailure(index, Type::Text, Box::new(e)))
 }
 
 #[cfg(test)]
