@@ -6,6 +6,12 @@ O Folio 0.1.0 é um leitor e gerenciador local de documentos: os documentos vive
 
 > **Princípio central:** o filesystem guarda os documentos. O SQLite guarda o que o Folio entende sobre eles. Nada que o usuário possa perder mora só no banco.
 
+## Specs
+
+- **Frontend:** `Design/specs/`. Comece por `Design/specs/00-visao-geral.md` (mapa, glossário, ordem de implementação, divergências com a 0.1.0).
+- **Backend:** `specs/`. Comece por `specs/00-visao-geral.md`. As specs de backend ainda não foram escritas: o mapa diz de qual seção deste arquivo sai cada uma.
+- Uma spec é escrita ou atualizada antes da feature que ela cobre. Mudou comportamento, atualize a spec no mesmo commit.
+
 ## Visão geral técnica
 
 | Campo | Valor |
@@ -343,23 +349,7 @@ A Entrada mostra os documentos da pasta Downloads do sistema sem transformá-la 
 
 ## Design e interface
 
-**A fonte da verdade do design é o diretório `Design/`.** Toda tela, componente e estilo do Folio segue o que está lá.
-
-| Arquivo | Conteúdo |
-| --- | --- |
-| `Design/README.md` | Visão geral do handoff e índice das specs |
-| `Design/specs/01-tokens.md` | Cores (dark e light), tipografia, raios, sombras e motion |
-| `Design/specs/02-layout.md` | Shell da janela: sidebar e área principal |
-| `Design/specs/03-sidebar.md` | Logo, ações, busca, favoritos, projetos, recentes, rodapé e seletor de tema |
-| `Design/specs/04-home.md` | Tela "Documentos" |
-| `Design/specs/05-document-view.md` | Cabeçalho do documento, menus Converter e Mais, palco e página |
-| `Design/specs/06-components.md` | Botões, linhas, card, dropdown, toast e botão de pin |
-| `Design/specs/07-state-interactions.md` | Estado da UI, navegação, menus e fluxo de conversão |
-| `Design/specs/08-data.md` | Tipos e dados mock do protótipo |
-| `Design/specs/09-assets.md` | Ícones Lucide, logo (SVG) e fontes |
-| `Design/specs/10-known-issues.md` | Bugs, lacunas e decisões pendentes do protótipo |
-| `Design/Folio v5.dc.html` | Protótipo hi-fi de referência. Abrir com `support.js` na mesma pasta, via servidor local (ex.: `npx serve Design`) |
-| `Design/support.js` | Runtime do protótipo; só serve para abri-lo, não é portado |
+**A fonte da verdade do design é o diretório `Design/`.** Toda tela, componente e estilo do Folio segue o que está lá. Comece por `Design/specs/00-visao-geral.md`.
 
 **Regras:**
 

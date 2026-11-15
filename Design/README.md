@@ -12,6 +12,7 @@ Para abrir o protótipo: coloque `Folio v5.dc.html` e `support.js` na mesma past
 **Alta fidelidade (hi-fi).** Cores, tipografia, espaçamentos, raios e transições são finais. Recriar pixel a pixel.
 
 ## Índice das specs
+0. [Visão geral](specs/00-visao-geral.md): mapa, glossário, ordem de implementação e divergências com a 0.1.0
 1. [Tokens](specs/01-tokens.md): cores (dark/light), tipografia, raios, sombras, motion
 2. [Shell / layout](specs/02-layout.md): estrutura da janela
 3. [Sidebar](specs/03-sidebar.md): logo, ações, favoritos, projetos, recentes, rodapé e seletor de tema
