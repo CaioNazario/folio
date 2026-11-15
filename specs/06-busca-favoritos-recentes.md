@@ -59,7 +59,7 @@ Documentos, pastas e projetos podem ser favoritados.
 |---|---|
 | `id` | UUID, PK |
 | `document_id` | FK para `documents` (`ON DELETE CASCADE`), para favorito de documento |
-| `path` | `CaminhoRelativo` do diretório, para favorito de pasta ou projeto |
+| `path` | `RelativePath` do diretório, para favorito de pasta ou projeto |
 | `added_at` | ms UTC |
 
 Exatamente um entre `document_id` e `path` é preenchido (`CHECK`). Cada documento ou diretório aparece no máximo uma vez (índices únicos parciais).

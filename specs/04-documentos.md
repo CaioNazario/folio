@@ -45,7 +45,7 @@ Um documento protegido por senha é **válido**: ver "Documentos protegidos por 
 
 ## Id estável
 
-- Gerado quando o documento entra no índice pela primeira vez: UUID v7, pelo `GeradorId` (spec 02).
+- Gerado quando o documento entra no índice pela primeira vez: UUID v7, pelo `IdGenerator` (spec 02).
 - **Sobrevive a renomear e mover pelo Folio:** a operação atualiza só o caminho.
 - Mover ou renomear **por fora** do Folio é tratado pela indexação (spec 05), que tenta reconectar o arquivo ao id pelo hash.
 - A interface só conhece o id. Todo command sobre um documento recebe o id, e o core resolve o caminho.
@@ -57,7 +57,7 @@ Um documento protegido por senha é **válido**: ver "Documentos protegidos por 
 | Coluna | Tipo | Origem |
 |---|---|---|
 | `id` | UUID, PK | Folio |
-| `path` | `CaminhoRelativo`, único | Disco |
+| `path` | `RelativePath`, único | Disco |
 | `format` | `pdf`, `docx`, `md`, `txt` | Extensão |
 | `valid` | booleano | Assinatura |
 | `protected` | booleano | Assinatura (DOCX) ou dicionário `/Encrypt` com senha de abertura (PDF) |

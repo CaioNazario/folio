@@ -16,6 +16,14 @@ pub enum Error {
     CopyMismatch(PathBuf),
     #[error("workspace is already open in another window")]
     WorkspaceInUse,
+    #[error("database was opened by a newer Folio: {0}")]
+    NewerDatabase(PathBuf),
+    #[error("database error on {path}: {source}")]
+    Database {
+        path: PathBuf,
+        #[source]
+        source: rusqlite::Error,
+    },
     #[error("I/O error on {path}: {source}")]
     Io {
         path: PathBuf,
@@ -30,6 +38,14 @@ impl Error {
         Self::Io {
             path: path.to_path_buf(),
             source: source.into(),
+        }
+    }
+
+    /// Wraps a SQLite error with the database file it happened on.
+    pub fn database(path: &Path, source: rusqlite::Error) -> Self {
+        Self::Database {
+            path: path.to_path_buf(),
+            source,
         }
     }
 

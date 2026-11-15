@@ -10,7 +10,7 @@ Resolver antes de implementar a parte que cada spike bloqueia. O resultado vai p
 
 ### S7 · Workspace em pasta sincronizada
 
-**Bloqueia:** a abertura do banco do workspace (abaixo).
+**Bloqueia:** nada. Adiado (ver "Resultado").
 
 **Pergunta:** o que acontece quando o workspace está numa pasta sincronizada (Dropbox, Google Drive, Syncthing, Nextcloud), onde o SQLite pode corromper? Detectar e avisar, mover o banco para fora, ou bloquear?
 
@@ -20,7 +20,9 @@ Resolver antes de implementar a parte que cada spike bloqueia. O resultado vai p
 2. Se o `quick_check` da abertura detecta o problema (spec 01) e a recuperação funciona
 3. Se dá para detectar a pasta sincronizada (marcadores como `.stfolder`, `.sync`, caminhos conhecidos)
 
-**Resultado:** pendente.
+**Resultado:** adiado, sem data. Decisão provisória: o banco do workspace fica em `<workspace>/.folio/folio.db`, como descrito abaixo. Uma corrupção causada pelo sincronizador é coberta pela recuperação da spec 01 (`quick_check` falha, o banco vira `folio.db.corrupt` e o workspace é reindexado): no pior caso perdem-se favoritos, ícones, recentes e relações, nunca documentos. Se o spike mostrar que o banco precisa sair do workspace, a mudança fica isolada na implementação do `WorkspaceStore`.
+
+O `WorkspaceStore` e a tabela `meta` são implementados no início da spec 03, junto com a abertura do workspace, que define o formato da trait.
 
 ## Os dois bancos
 
@@ -70,7 +72,7 @@ Os dois bancos abrem do mesmo jeito:
 
 | Tabela | Colunas | Observações |
 |---|---|---|
-| `workspaces` | `id` (UUID), `location` (`Localizacao`), `added_at`, `opened_at` | `location` única. Os recentes são os de `opened_at` mais novo. O último aberto é o que abre ao iniciar o app |
+| `workspaces` | `id` (UUID), `location` (`Location`), `added_at`, `opened_at` | `location` única. Os recentes são os de `opened_at` mais novo. O último aberto é o que abre ao iniciar o app |
 | `preferences` | `key` (texto, PK), `value` (JSON) | Ex.: `inbox.location`, `theme`, `language`. Chave desconhecida é ignorada, não é erro |
 
 **Banco do workspace (cada uma definida pela spec dona):**
@@ -86,13 +88,13 @@ Não há tabela de hierarquia de pastas: a hierarquia vem do disco.
 
 **Convenções de todas as tabelas:**
 
-- Ids são UUID v7 em texto, gerados por um `GeradorId` injetado (seed fixa nos testes).
+- Ids são UUID v7 em texto, gerados por um `IdGenerator` injetado (ids previsíveis nos testes).
 - Datas são `INTEGER` em milissegundos UTC desde a época Unix, vindas do `Clock` injetado.
 - Nomes de tabelas e colunas em inglês, em `snake_case`.
 
 ## Caminhos
 
-### No banco do workspace: `CaminhoRelativo`
+### No banco do workspace: `RelativePath`
 
 Todo caminho no banco do workspace é relativo à raiz (`Faculdade/TCC/Trabalho.pdf`), num tipo próprio do core que só existe validado:
 
@@ -108,9 +110,9 @@ Todo caminho no banco do workspace é relativo à raiz (`Faculdade/TCC/Trabalho.
 - **Exibição:** o core entrega à interface o nome convertido com `to_string_lossy`: os bytes inválidos aparecem como `�`. O nome exibido nunca é usado para achar o arquivo: a interface fala com o core pelo id do documento (spec 04), e o core usa os bytes guardados.
 - **Nome novo** (renomear, criar pasta, sufixo de colisão) vem sempre de texto digitado ou gerado, portanto é UTF-8.
 
-### No banco global: `Localizacao`
+### No banco global: `Location`
 
-A referência absoluta a um diretório (workspace ou Downloads) é um tipo que aceita caminho (desktop) ou URI persistida (Android, SAF), nunca uma coluna de texto que assume `/home/...`. Na 0.1.0 só a variante de caminho é implementada, guardada em bytes como o `CaminhoRelativo`; a de URI chega com a versão Android.
+A referência absoluta a um diretório (workspace ou Downloads) é um tipo que aceita caminho (desktop) ou URI persistida (Android, SAF), nunca uma coluna de texto que assume `/home/...`. Na 0.1.0 só a variante de caminho é implementada, guardada em bytes como o `RelativePath`; a de URI chega com a versão Android.
 
 Caminhos absolutos só existem no banco global.
 
@@ -129,7 +131,7 @@ Os testes do domínio usam uma implementação em memória.
 - [ ] Um `folio.db` que não é do Folio não é sobrescrito: vira `folio.db.corrupt`.
 - [ ] Migrações aplicam em ordem, cada uma numa transação; uma migração que falha deixa o banco na versão anterior.
 - [ ] Banco de versão mais nova não é alterado e o workspace não abre, com a mensagem de atualizar o app.
-- [ ] `CaminhoRelativo` rejeita caminho absoluto, vazio, com `..`, com `.` e dentro de `.folio/`, e guarda sempre com `/`.
+- [ ] `RelativePath` rejeita caminho absoluto, vazio, com `..`, com `.` e dentro de `.folio/`, e guarda sempre com `/`.
 - [ ] Nenhuma coluna do banco do workspace guarda caminho absoluto.
 - [ ] Um documento com nome que não é UTF-8 é indexado, aparece na interface com `�` no lugar dos bytes inválidos e abre, renomeia, move e vai para a lixeira como os outros.
 - [ ] O banco global fica em `~/.local/share/folio/` no Linux (ou `$XDG_DATA_HOME/folio/`).

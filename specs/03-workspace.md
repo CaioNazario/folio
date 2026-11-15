@@ -109,7 +109,7 @@ Todas seguem a spec 01: operação real no disco, sem sobrescrita, disco antes d
 ## Ícones
 
 - Um projeto ou pasta pode ter um ícone, escolhido numa lista fechada de ícones Lucide definida pelo frontend. O core guarda o nome do ícone como texto e não o valida; nome desconhecido é exibido como a pasta padrão.
-- Tabela `icons`: `path` (`CaminhoRelativo` do diretório, chave primária) e `icon` (texto). Migração desta spec.
+- Tabela `icons`: `path` (`RelativePath` do diretório, chave primária) e `icon` (texto). Migração desta spec.
 
 **Diretórios não têm id estável.** Só documentos têm (spec 04). Tudo que o banco liga a um diretório (ícone, favorito na spec 06) usa o caminho:
 
