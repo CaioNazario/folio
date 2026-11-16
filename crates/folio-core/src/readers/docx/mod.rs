@@ -6,16 +6,19 @@ mod context;
 mod images;
 mod inlines;
 mod lists;
+mod metadata;
 mod numbering;
 mod package;
 mod rels;
 mod styles;
 mod tables;
 #[cfg(test)]
-mod test_docx;
+pub(crate) mod test_docx;
 mod xml;
 
 use context::Context;
+use metadata::metadata_of;
+pub use metadata::read_docx_metadata;
 use package::Package;
 
 use super::ReadError;
@@ -31,8 +34,8 @@ pub fn read_docx(bytes: &[u8]) -> Result<DocumentModel, ReadError> {
         .child("body")
         .map(|body| body::blocks_of(body, &context));
     Ok(DocumentModel {
+        metadata: metadata_of(&mut package, &document)?,
         blocks: blocks.unwrap_or_default(),
-        ..DocumentModel::default()
     })
 }
 

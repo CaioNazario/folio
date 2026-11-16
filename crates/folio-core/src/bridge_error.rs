@@ -55,6 +55,10 @@ pub enum BridgeError {
     InvalidDocument {
         id: String,
     },
+    /// The reader could not build the document; the reason goes to the log.
+    ReadFailed {
+        id: String,
+    },
     InvalidPosition,
     MoveIntoItself,
     InvalidName {
@@ -114,6 +118,7 @@ fn with_other_data(error: &Error) -> BridgeError {
         },
         Error::DocumentNotFound(id) => BridgeError::DocumentNotFound { id: id.to_string() },
         Error::InvalidDocument(id) => BridgeError::InvalidDocument { id: id.to_string() },
+        Error::ReadFailed(id) => BridgeError::ReadFailed { id: id.to_string() },
         Error::InvalidName(reason) => BridgeError::InvalidName {
             reason: reason.clone(),
         },
@@ -231,6 +236,16 @@ mod tests {
                 json!({ "kind": "DocumentNotFound", "id": id }),
                 json!({ "kind": "InvalidDocument", "id": id }),
             ]
+        );
+    }
+
+    #[test]
+    fn bridge_error_of_read_failed_carries_document_id() {
+        let id = uuid::Uuid::from_u128(7);
+
+        assert_eq!(
+            bridged(Error::ReadFailed(id)),
+            json!({ "kind": "ReadFailed", "id": "00000000-0000-0000-0000-000000000007" })
         );
     }
 

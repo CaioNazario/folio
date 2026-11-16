@@ -131,6 +131,7 @@ export const en = {
     RelativeSymlink: 'The link {{path}} points to a relative path and cannot change folders',
     DocumentNotFound: 'This document is no longer on disk',
     InvalidDocument: 'This file is not a valid document',
+    ReadFailed: 'This document could not be read',
     InvalidPosition: 'The reading position does not match this document',
     MoveIntoItself: 'A folder cannot be moved into itself',
     InvalidName: {

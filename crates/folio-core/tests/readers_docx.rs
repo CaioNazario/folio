@@ -7,8 +7,8 @@
 use std::fs;
 use std::path::Path;
 
-use folio_core::model::{Block, Inline};
-use folio_core::readers::read_docx;
+use folio_core::model::{Block, Inline, Metadata};
+use folio_core::readers::{read_docx, read_docx_metadata};
 
 fn fixture(name: &str) -> Vec<u8> {
     let path = Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -93,4 +93,26 @@ fn docx_fixture_reads_into_expected_model() {
         para("Depois da quebra."),
     ];
     assert_eq!(model.blocks, expected);
+}
+
+#[test]
+fn docx_fixture_metadata_comes_from_core_properties() {
+    let metadata = read_docx_metadata(&fixture("relatorio.docx")).unwrap();
+
+    let mut extra = serde_json::Map::new();
+    extra.insert("comments".to_string(), "Notas do semestre".into());
+    extra.insert("revision".to_string(), "3".into());
+    let expected = Metadata {
+        title: Some("Relatório de leitura".to_string()),
+        author: Some("Ana Souza".to_string()),
+        subject: Some("Leitura".to_string()),
+        keywords: vec!["rust".to_string(), "leitura".to_string()],
+        // 2026-11-15T10:00:00Z and 2026-11-16T12:30:00Z.
+        created_at: Some(1_794_736_800_000),
+        modified_at: Some(1_794_832_200_000),
+        // One explicit page break.
+        pages: Some(2),
+        extra,
+    };
+    assert_eq!(metadata, expected);
 }

@@ -80,7 +80,8 @@ fn push_emphasized(flow: &mut Vec<Flow>, pending: &mut Vec<Inline>, props: Optio
     flow.extend(emphasized.into_iter().map(Flow::Inline));
 }
 
-fn is_page_break(element: &Element) -> bool {
+/// Whether `element` is a `w:br` that starts a new page.
+pub fn is_page_break(element: &Element) -> bool {
     element.name == "br" && element.attribute("type") == Some("page")
 }
 

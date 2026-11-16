@@ -217,7 +217,7 @@ Os leitores também extraem os metadados que vão para o cache `document_metadat
 | Formato | De onde |
 |---|---|
 | PDF | Dicionário Info e versão do cabeçalho; páginas exatas |
-| DOCX | `docProps/core.xml` (título, autor, assunto, palavras-chave, comentários, revisão, datas); páginas aproximadas, como na exibição |
+| DOCX | `docProps/core.xml` (título, autor, assunto, palavras-chave, comentários, revisão, datas); páginas aproximadas, como na exibição: uma, mais uma por quebra de página explícita. As palavras-chave são separadas por vírgula ou ponto e vírgula; as datas vêm em W3CDTF; comentários (`dc:description`) e revisão vão para `extra` como `comments` e `revision`. Propriedade vazia é ignorada, e um DOCX sem `core.xml` só tem as páginas |
 | MD | Front matter: `title`, `author`, `tags` (ou `keywords`; lista ou um texto só), `date`; os demais campos vão para `extra`, convertidos de YAML para JSON. `date` vira a data de criação interna: instante RFC 3339 ou `AAAA-MM-DD` (meia-noite UTC); uma data ilegível fica em `extra` como texto. Front matter com YAML inválido continua fora do corpo e não gera metadados |
 | TXT | Nenhum: só o filesystem |
 

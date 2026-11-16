@@ -96,3 +96,17 @@ pub fn rels(relationships: &[(&str, &str, &str)]) -> String {
         each.collect::<String>()
     )
 }
+
+/// A `docProps/core.xml` part holding the `properties`, as Word writes
+/// them (`dc:title`, `cp:keywords`, `dcterms:created`...).
+pub fn core(properties: &str) -> String {
+    format!(
+        concat!(
+            "<cp:coreProperties ",
+            r#"xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" "#,
+            r#"xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" "#,
+            r#"xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">{}</cp:coreProperties>"#,
+        ),
+        properties
+    )
+}

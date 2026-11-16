@@ -132,6 +132,7 @@ export const pt = {
     RelativeSymlink: 'O link {{path}} aponta para um caminho relativo e não pode mudar de pasta',
     DocumentNotFound: 'Este documento não está mais no disco',
     InvalidDocument: 'Este arquivo não é um documento válido',
+    ReadFailed: 'Não foi possível ler este documento',
     InvalidPosition: 'A posição de leitura não corresponde a este documento',
     MoveIntoItself: 'Não é possível mover uma pasta para dentro dela mesma',
     InvalidName: {

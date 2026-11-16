@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::documents::file_facts::FileFacts;
 use crate::documents::{Document, Format};
 use crate::model::Metadata;
-use crate::readers::read_md;
+use crate::readers::{ReadError, read_docx_metadata, read_md};
 use crate::workspace::Workspace;
 use crate::{Error, Result};
 
@@ -26,8 +26,8 @@ impl Workspace {
         if doc.protected {
             return Ok(None);
         }
-        // Only Markdown has a metadata reader so far; TXT never has any.
-        if doc.format != Format::Md {
+        // TXT never has metadata; PDF has no reader yet.
+        if matches!(doc.format, Format::Txt | Format::Pdf) {
             return Ok(Some(Metadata::default()));
         }
         self.cached_metadata(&doc).map(Some)
@@ -43,9 +43,20 @@ impl Workspace {
             return Ok(cached);
         }
         let bytes = fs::read(&full).map_err(|e| Error::io(&full, e))?;
-        let metadata = read_md(&bytes).metadata;
+        let metadata = extract(doc.format, &bytes).map_err(|error| {
+            log::warn!("cannot read metadata of {}: {error}", doc.id);
+            Error::ReadFailed(doc.id)
+        })?;
         store::save(&self.conn(), doc.id, &facts, &metadata).map_err(|e| self.db_error(e))?;
         Ok(metadata)
+    }
+}
+
+/// The metadata of a file in `format`, read from its `bytes`.
+fn extract(format: Format, bytes: &[u8]) -> std::result::Result<Metadata, ReadError> {
+    match format {
+        Format::Docx => read_docx_metadata(bytes),
+        _ => Ok(read_md(bytes).metadata),
     }
 }
 
@@ -53,6 +64,7 @@ impl Workspace {
 mod tests {
     use super::*;
     use crate::documents::test_docs::write_doc;
+    use crate::readers::test_docx::{core, docx_with, zip_of};
     use crate::workspace::test_env::TestEnv;
 
     fn indexed(workspace: &Workspace, path: &str, content: &[u8]) -> Uuid {
@@ -116,6 +128,36 @@ mod tests {
 
         assert_eq!(metadata.title.as_deref(), Some("Nova tese"));
         assert_eq!(cached_title(&workspace, doc).as_deref(), Some("Nova tese"));
+    }
+
+    #[test]
+    fn docx_metadata_is_extracted_and_cached_on_first_request() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let core = core("<dc:title>Contrato</dc:title><dc:creator>Ana</dc:creator>");
+        let docx = docx_with("", &[("docProps/core.xml", core.as_bytes())]);
+        let doc = indexed(&workspace, "Contrato.docx", &docx);
+
+        let metadata = workspace.document_metadata(doc).unwrap().unwrap();
+
+        assert_eq!(
+            (metadata.title.as_deref(), metadata.author.as_deref()),
+            (Some("Contrato"), Some("Ana"))
+        );
+        assert_eq!(cached_title(&workspace, doc).as_deref(), Some("Contrato"));
+    }
+
+    #[test]
+    fn docx_with_broken_content_fails_with_read_failed() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        // A ZIP with `word/document.xml` passes the signature check.
+        let broken = zip_of(&[("word/document.xml", b"<w:document><w:body>".as_slice())]);
+        let doc = indexed(&workspace, "Quebrado.docx", &broken);
+
+        let result = workspace.document_metadata(doc);
+
+        assert!(matches!(result, Err(Error::ReadFailed(id)) if id == doc));
     }
 
     #[test]

@@ -32,6 +32,8 @@ pub enum Error {
     DocumentNotFound(uuid::Uuid),
     #[error("document does not match its format: {0}")]
     InvalidDocument(uuid::Uuid),
+    #[error("the reader could not build document {0}")]
+    ReadFailed(uuid::Uuid),
     #[error("reading position does not fit the document format")]
     InvalidPosition,
     #[error("cannot move a directory into itself or a descendant")]
