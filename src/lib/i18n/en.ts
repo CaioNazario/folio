@@ -132,6 +132,8 @@ export const en = {
     DocumentNotFound: 'This document is no longer on disk',
     InvalidDocument: 'This file is not a valid document',
     ReadFailed: 'This document could not be read',
+    PasswordRequired: 'This document is protected by a password',
+    WrongPassword: 'Wrong password',
     InvalidPosition: 'The reading position does not match this document',
     MoveIntoItself: 'A folder cannot be moved into itself',
     InvalidName: {

@@ -43,10 +43,7 @@ impl Workspace {
             return Ok(cached);
         }
         let bytes = fs::read(&full).map_err(|e| Error::io(&full, e))?;
-        let metadata = extract(doc.format, &bytes).map_err(|error| {
-            log::warn!("cannot read metadata of {}: {error}", doc.id);
-            Error::ReadFailed(doc.id)
-        })?;
+        let metadata = extract(doc.format, &bytes).map_err(|e| Error::read(doc.id, e))?;
         store::save(&self.conn(), doc.id, &facts, &metadata).map_err(|e| self.db_error(e))?;
         Ok(metadata)
     }

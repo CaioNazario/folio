@@ -52,7 +52,11 @@ mod tests {
         let rels = rels(&[("rId7", "image", "media/image1.png")]);
         let parts = [(RELS, rels.as_bytes()), ("word/media/image1.png", PNG)];
 
-        let model = read_docx(&docx_with(&picture("rId7", "Gráfico de vendas"), &parts)).unwrap();
+        let model = read_docx(
+            &docx_with(&picture("rId7", "Gráfico de vendas"), &parts),
+            None,
+        )
+        .unwrap();
 
         let image = Block::Image {
             bytes: PNG.to_vec(),
@@ -74,7 +78,7 @@ mod tests {
             r#"<w:p><w:r><w:t>Antes</w:t></w:r>{drawing}<w:r><w:br w:type="page"/><w:t>Depois</w:t></w:r></w:p>"#
         );
 
-        let model = read_docx(&docx_with(&body, &parts)).unwrap();
+        let model = read_docx(&docx_with(&body, &parts), None).unwrap();
 
         let image = Block::Image {
             bytes: PNG.to_vec(),

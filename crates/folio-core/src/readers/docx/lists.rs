@@ -110,7 +110,7 @@ mod tests {
     fn blocks(body: &str) -> Vec<Block> {
         let numbering = numbering();
         let parts = [("word/numbering.xml", numbering.as_bytes())];
-        read_docx(&docx_with(body, &parts)).unwrap().blocks
+        read_docx(&docx_with(body, &parts), None).unwrap().blocks
     }
 
     fn item(text: &str) -> Vec<Block> {

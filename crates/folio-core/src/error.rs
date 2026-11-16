@@ -1,6 +1,8 @@
 use std::io;
 use std::path::{Path, PathBuf};
 
+use crate::readers::ReadError;
+
 /// Failures the core reports, kept distinct so the UI can explain the cause.
 ///
 /// The messages are for logs only: the UI picks its own text per variant.
@@ -34,6 +36,10 @@ pub enum Error {
     InvalidDocument(uuid::Uuid),
     #[error("the reader could not build document {0}")]
     ReadFailed(uuid::Uuid),
+    #[error("document {0} is protected by password")]
+    PasswordRequired(uuid::Uuid),
+    #[error("wrong password for document {0}")]
+    WrongPassword(uuid::Uuid),
     #[error("reading position does not fit the document format")]
     InvalidPosition,
     #[error("cannot move a directory into itself or a descendant")]
@@ -72,6 +78,19 @@ impl Error {
         Self::Database {
             path: path.to_path_buf(),
             source,
+        }
+    }
+
+    /// A reader failure on the document `id`. The technical reason only
+    /// goes to the log.
+    pub fn read(id: uuid::Uuid, error: ReadError) -> Self {
+        match error {
+            ReadError::PasswordRequired => Self::PasswordRequired(id),
+            ReadError::WrongPassword => Self::WrongPassword(id),
+            ReadError::Failed(_) => {
+                log::warn!("cannot read document {id}: {error}");
+                Self::ReadFailed(id)
+            }
         }
     }
 

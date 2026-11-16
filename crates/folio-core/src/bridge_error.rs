@@ -59,6 +59,13 @@ pub enum BridgeError {
     ReadFailed {
         id: String,
     },
+    /// The document is protected; the UI asks for its password.
+    PasswordRequired {
+        id: String,
+    },
+    WrongPassword {
+        id: String,
+    },
     InvalidPosition,
     MoveIntoItself,
     InvalidName {
@@ -83,7 +90,9 @@ pub enum BridgeError {
 
 impl From<&Error> for BridgeError {
     fn from(error: &Error) -> Self {
-        path_only(error).unwrap_or_else(|| with_other_data(error))
+        path_only(error)
+            .or_else(|| document_only(error))
+            .unwrap_or_else(|| with_other_data(error))
     }
 }
 
@@ -110,15 +119,25 @@ fn path_only(error: &Error) -> Option<BridgeError> {
     Some(bridged)
 }
 
+/// The errors that carry nothing but a document id.
+fn document_only(error: &Error) -> Option<BridgeError> {
+    let bridged = match error {
+        Error::DocumentNotFound(id) => BridgeError::DocumentNotFound { id: id.to_string() },
+        Error::InvalidDocument(id) => BridgeError::InvalidDocument { id: id.to_string() },
+        Error::ReadFailed(id) => BridgeError::ReadFailed { id: id.to_string() },
+        Error::PasswordRequired(id) => BridgeError::PasswordRequired { id: id.to_string() },
+        Error::WrongPassword(id) => BridgeError::WrongPassword { id: id.to_string() },
+        _ => return None,
+    };
+    Some(bridged)
+}
+
 fn with_other_data(error: &Error) -> BridgeError {
     match error {
         Error::AlreadyExists(path) => BridgeError::AlreadyExists {
             path: text(path),
             name: file_name(path),
         },
-        Error::DocumentNotFound(id) => BridgeError::DocumentNotFound { id: id.to_string() },
-        Error::InvalidDocument(id) => BridgeError::InvalidDocument { id: id.to_string() },
-        Error::ReadFailed(id) => BridgeError::ReadFailed { id: id.to_string() },
         Error::InvalidName(reason) => BridgeError::InvalidName {
             reason: reason.clone(),
         },
@@ -129,7 +148,7 @@ fn with_other_data(error: &Error) -> BridgeError {
         Error::WorkspaceInUse => BridgeError::WorkspaceInUse,
         Error::InvalidPosition => BridgeError::InvalidPosition,
         Error::MoveIntoItself => BridgeError::MoveIntoItself,
-        _ => unreachable!("path-only errors are bridged by `path_only`"),
+        _ => unreachable!("other errors are bridged by `path_only` or `document_only`"),
     }
 }
 
@@ -246,6 +265,22 @@ mod tests {
         assert_eq!(
             bridged(Error::ReadFailed(id)),
             json!({ "kind": "ReadFailed", "id": "00000000-0000-0000-0000-000000000007" })
+        );
+    }
+
+    #[test]
+    fn bridge_error_of_password_errors_carries_document_id() {
+        let id = uuid::Uuid::from_u128(7);
+
+        let bridged = [Error::PasswordRequired(id), Error::WrongPassword(id)].map(bridged);
+
+        let id = "00000000-0000-0000-0000-000000000007";
+        assert_eq!(
+            bridged,
+            [
+                json!({ "kind": "PasswordRequired", "id": id }),
+                json!({ "kind": "WrongPassword", "id": id }),
+            ]
         );
     }
 

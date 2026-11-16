@@ -1,6 +1,7 @@
 //! What the core hands the Reader to show each format (spec 07,
 //! "Exibição"). The webview renders; the core only prepares the content.
 
+mod bytes;
 mod headings;
 mod image_files;
 mod images;

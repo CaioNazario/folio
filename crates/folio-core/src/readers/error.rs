@@ -7,4 +7,10 @@ pub enum ReadError {
     /// Broken ZIP or XML, or a required part missing.
     #[error("cannot read the document: {0}")]
     Failed(String),
+    /// The document is protected and no password was given.
+    #[error("the document is protected by password")]
+    PasswordRequired,
+    /// The password given does not open the document.
+    #[error("wrong password")]
+    WrongPassword,
 }

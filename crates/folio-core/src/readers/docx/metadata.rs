@@ -185,7 +185,7 @@ mod tests {
         let core = core("<dc:title>Tese</dc:title>");
         let bytes = docx_with("", &[("docProps/core.xml", core.as_bytes())]);
 
-        let model = super::super::read_docx(&bytes).unwrap();
+        let model = super::super::read_docx(&bytes, None).unwrap();
 
         assert_eq!(model.metadata, read_docx_metadata(&bytes).unwrap());
     }

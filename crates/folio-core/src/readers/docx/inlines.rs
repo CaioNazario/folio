@@ -146,7 +146,7 @@ mod tests {
 
     /// The inlines of a document whose single paragraph holds `runs`.
     fn inlines(runs: &str) -> Vec<Inline> {
-        let model = read_docx(&docx(&format!("<w:p>{runs}</w:p>"))).unwrap();
+        let model = read_docx(&docx(&format!("<w:p>{runs}</w:p>")), None).unwrap();
         match model.blocks.as_slice() {
             [Block::Paragraph(content)] => content.clone(),
             other => panic!("expected one paragraph, got {other:?}"),
@@ -214,7 +214,7 @@ mod tests {
             "<w:hyperlink r:id=\"rId9\"><w:r><w:t>o site</w:t></w:r></w:hyperlink></w:p>",
         );
 
-        let model = read_docx(&docx_with(body, &[(RELS, rels.as_bytes())])).unwrap();
+        let model = read_docx(&docx_with(body, &[(RELS, rels.as_bytes())]), None).unwrap();
 
         let link = Inline::Link {
             target: "https://exemplo.com/a?b=1&c=2".to_string(),

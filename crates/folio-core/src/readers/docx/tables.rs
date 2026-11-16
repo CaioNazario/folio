@@ -65,7 +65,7 @@ mod tests {
             cell(&["R$ 5", "à vista"]),
         );
 
-        let model = read_docx(&docx(&body)).unwrap();
+        let model = read_docx(&docx(&body), None).unwrap();
 
         let rows = vec![
             vec![vec![text("Item")], vec![text("Preço")]],

@@ -9,6 +9,7 @@ mod lists;
 mod metadata;
 mod numbering;
 mod package;
+mod protection;
 mod rels;
 mod styles;
 mod tables;
@@ -20,13 +21,15 @@ use context::Context;
 use metadata::metadata_of;
 pub use metadata::read_docx_metadata;
 use package::Package;
+pub use protection::package_bytes;
 
 use super::ReadError;
 use crate::model::DocumentModel;
 
-/// The document model of a DOCX file.
-pub fn read_docx(bytes: &[u8]) -> Result<DocumentModel, ReadError> {
-    let mut package = Package::open(bytes)?;
+/// The document model of a DOCX file; `password` opens a protected one.
+pub fn read_docx(bytes: &[u8], password: Option<&str>) -> Result<DocumentModel, ReadError> {
+    let bytes = package_bytes(bytes, password)?;
+    let mut package = Package::open(&bytes)?;
     let document = package.xml("word/document.xml")?;
     let context = Context::of(&mut package)?;
     // A document without a body is empty, not broken.
@@ -46,7 +49,7 @@ mod tests {
     use crate::model::{Block, Inline};
 
     fn blocks(body: &str) -> Vec<Block> {
-        read_docx(&docx(body)).unwrap().blocks
+        read_docx(&docx(body), None).unwrap().blocks
     }
 
     fn para(text: &str) -> Block {
@@ -88,8 +91,11 @@ mod tests {
         ));
         let body = styled("Ttulo1", "Um") + &styled("Ttulo3", "Três");
 
-        let model =
-            read_docx(&docx_with(&body, &[("word/styles.xml", styles.as_bytes())])).unwrap();
+        let model = read_docx(
+            &docx_with(&body, &[("word/styles.xml", styles.as_bytes())]),
+            None,
+        )
+        .unwrap();
 
         assert_eq!(model.blocks, [heading(1, "Um"), heading(3, "Três")]);
     }
@@ -131,8 +137,11 @@ mod tests {
             + &styled("CitaoIntensa", "eis a questão")
             + &styled("Normal", "Fim.");
 
-        let model =
-            read_docx(&docx_with(&body, &[("word/styles.xml", styles.as_bytes())])).unwrap();
+        let model = read_docx(
+            &docx_with(&body, &[("word/styles.xml", styles.as_bytes())]),
+            None,
+        )
+        .unwrap();
 
         let quote = Block::Quote(vec![para("Ser ou não ser"), para("eis a questão")]);
         assert_eq!(model.blocks, [quote, para("Fim.")]);
@@ -142,13 +151,14 @@ mod tests {
     fn read_docx_of_document_without_body_has_no_blocks() {
         let document = format!("<w:document {NAMESPACES}/>");
 
-        let model = read_docx(&zip_of(&[("word/document.xml", document.as_bytes())])).unwrap();
+        let model =
+            read_docx(&zip_of(&[("word/document.xml", document.as_bytes())]), None).unwrap();
 
         assert_eq!(model.blocks, []);
     }
 
     fn failure(bytes: &[u8]) -> ReadError {
-        read_docx(bytes).unwrap_err()
+        read_docx(bytes, None).unwrap_err()
     }
 
     #[test]

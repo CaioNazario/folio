@@ -208,7 +208,7 @@ Inline: Texto | Negrito [Inline] | Italico [Inline] | CodigoInline | Link { dest
 
 O leitor de PDF é a peça de maior risco do Reader e da conversão: um PDF guarda posição na página, não estrutura. Um PDF digitalizado (só imagem) produz um documento vazio; OCR está fora da 0.1.0.
 
-**Senha:** os leitores de PDF e DOCX recebem uma senha opcional. Sem ela, um documento protegido falha com `PasswordRequired`; com a errada, `WrongPassword` (spec 04). O leitor de DOCX decifra com `office-crypto`, em memória.
+**Senha:** os leitores de PDF e DOCX recebem uma senha opcional. Sem ela, um documento protegido falha com `PasswordRequired`; com a errada, `WrongPassword` (spec 04). O leitor de DOCX decifra com `office-crypto`, em memória; a senha é ignorada num DOCX sem proteção. O `office-crypto` não confere a senha: com a errada, o resultado não é um ZIP, e isso vira `WrongPassword`. Um contêiner cifrado malformado é `ReadFailed`, inclusive quando o `office-crypto` entra em pânico com ele (o pânico é contido). Os bytes que o palco recebe (`document_bytes`) seguem a mesma regra: DOCX protegido sai decifrado; PDF sai como está, porque quem pede a senha é o pdf.js.
 
 ### Metadados
 

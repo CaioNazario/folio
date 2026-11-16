@@ -31,7 +31,7 @@ impl Workspace {
 
     /// The document `id` and its file, open for reading, as long as it is
     /// valid and still on disk.
-    fn open_valid(&self, id: Uuid) -> Result<(Document, File, PathBuf)> {
+    pub(super) fn open_valid(&self, id: Uuid) -> Result<(Document, File, PathBuf)> {
         let doc = self.document(id)?;
         if !doc.valid {
             return Err(Error::InvalidDocument(id));

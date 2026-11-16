@@ -133,6 +133,8 @@ export const pt = {
     DocumentNotFound: 'Este documento não está mais no disco',
     InvalidDocument: 'Este arquivo não é um documento válido',
     ReadFailed: 'Não foi possível ler este documento',
+    PasswordRequired: 'Este documento é protegido por senha',
+    WrongPassword: 'Senha incorreta',
     InvalidPosition: 'A posição de leitura não corresponde a este documento',
     MoveIntoItself: 'Não é possível mover uma pasta para dentro dela mesma',
     InvalidName: {

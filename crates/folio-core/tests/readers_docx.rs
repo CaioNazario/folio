@@ -78,7 +78,7 @@ fn image() -> Block {
 
 #[test]
 fn docx_fixture_reads_into_expected_model() {
-    let model = read_docx(&fixture("relatorio.docx")).unwrap();
+    let model = read_docx(&fixture("relatorio.docx"), None).unwrap();
 
     let expected = [
         heading(1, "Relatório"),
