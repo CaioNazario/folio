@@ -2,10 +2,12 @@
 //! "Leitores"). They work on bytes and never touch the disk.
 
 mod decode;
+mod image;
 mod md;
 mod txt;
 
 pub use decode::{decode_text, decode_text_start};
+pub use image::image_mime;
 pub(crate) use md::options as markdown_options;
 pub use md::read_md;
 pub use txt::read_txt;
