@@ -88,8 +88,8 @@ O protótipo mostra coisas que a 0.1.0 não entrega (ver "Fora do escopo da 0.1.
 ## Critérios de aceite globais
 
 - [ ] Cada tela bate com o protótipo nos temas escuro e claro, a 1440×900.
-- [ ] Nenhuma cor fora dos tokens: nada de hex em componente nem cor da paleta padrão do Tailwind.
-- [ ] Trocar o tema muda a interface inteira sem recarregar, e a escolha persiste entre aberturas.
-- [ ] Menus fecham com clique fora e com Esc (`10-known-issues.md` #12).
+- [x] Nenhuma cor fora dos tokens: nada de hex em componente nem cor da paleta padrão do Tailwind.
+- [x] Trocar o tema muda a interface inteira sem recarregar, e a escolha persiste entre aberturas.
+- [x] Menus fecham com clique fora e com Esc (`10-known-issues.md` #12).
 - [ ] Validado no app (`npm run tauri dev`, WebKitGTK), não só no navegador.
-- [ ] `just check` verde.
+- [x] `just check` verde.

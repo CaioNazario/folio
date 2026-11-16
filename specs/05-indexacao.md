@@ -141,14 +141,14 @@ Os 30 dias cobrem os casos em que o arquivo some e volta: lixeira restaurada, di
 
 ## Critérios de aceite
 
-- [ ] Abrir um workspace com documentos que não estão no índice indexa todos, em segundo plano, sem travar a interface.
-- [ ] Apagar o `folio.db` e reabrir reindexa o workspace inteiro a partir do disco.
-- [ ] Reconciliar duas vezes seguidas não muda nada na segunda.
-- [ ] Um documento editado por fora tem `size`, `modified_at` e validade atualizados, e hash e metadados marcados como velhos.
-- [ ] Renomear ou mover por fora com `mv` preserva o id, os favoritos e as relações.
-- [ ] Mover por fora entre filesystems preserva o id pelo hash.
-- [ ] Dois ausentes com o mesmo hash não são reconectados a um arquivo novo.
-- [ ] Excluir pelo Folio e restaurar da lixeira em até 30 dias devolve o mesmo id, com favorito e relações.
-- [ ] Um ausente há mais de 30 dias sai do índice na abertura do workspace.
-- [ ] Ausentes não aparecem na árvore, na busca, nos favoritos, nos recentes nem nas contagens.
-- [ ] O escaneamento não entra em diretórios ocultos, links simbólicos para diretório nem workspaces aninhados.
+- [x] Abrir um workspace com documentos que não estão no índice indexa todos, em segundo plano, sem travar a interface.
+- [x] Apagar o `folio.db` e reabrir reindexa o workspace inteiro a partir do disco.
+- [x] Reconciliar duas vezes seguidas não muda nada na segunda.
+- [x] Um documento editado por fora tem `size`, `modified_at` e validade atualizados, e hash e metadados marcados como velhos.
+- [x] Renomear ou mover por fora com `mv` preserva o id, os favoritos e as relações.
+- [x] Mover por fora entre filesystems preserva o id pelo hash.
+- [x] Dois ausentes com o mesmo hash não são reconectados a um arquivo novo.
+- [x] Excluir pelo Folio e restaurar da lixeira em até 30 dias devolve o mesmo id, com favorito e relações.
+- [x] Um ausente há mais de 30 dias sai do índice na abertura do workspace.
+- [x] Ausentes não aparecem na árvore, na busca, nos favoritos, nos recentes nem nas contagens.
+- [x] O escaneamento não entra em diretórios ocultos, links simbólicos para diretório nem workspaces aninhados.

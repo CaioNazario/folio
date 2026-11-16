@@ -132,15 +132,15 @@ Mais os da spec 01 (`AlreadyExists`, `WorkspaceInUse`...).
 
 ## Critérios de aceite
 
-- [ ] Na primeira execução, o diálogo vem com `Folio/` dentro do `XDG_DOCUMENTS_DIR` pré-selecionado (`~/Documentos/Folio` num sistema em português), e `~/Documents/Folio` sem a variável.
-- [ ] Abrir um diretório sem `.folio/` cria `.folio/`, `.folio/tmp/` e o banco; abrir de novo reaproveita os três.
-- [ ] Todo diretório de primeiro nível é um projeto, inclusive vazio; `.folio/`, ocultos e links simbólicos para diretório não aparecem.
-- [ ] Diretório dentro de um workspace não abre e o erro aponta o ancestral.
-- [ ] Workspace contido em outro aparece como pasta bloqueada e seu `.folio/` não é lido nem alterado.
-- [ ] `/` e a home são recusados como workspace.
-- [ ] Workspace que sumiu mostra o aviso e continua na lista de recentes.
-- [ ] Criar, renomear e mover nunca sobrescrevem; nome inválido é recusado com o motivo.
-- [ ] Mover um diretório para dentro de si mesmo é recusado.
-- [ ] Renomear ou mover pelo Folio preserva o ícone e atualiza o caminho de todos os documentos dentro, numa transação.
-- [ ] Excluir manda o diretório inteiro para a lixeira.
-- [ ] Trocar de workspace solta o lock do anterior.
+- [x] Na primeira execução, o diálogo vem com `Folio/` dentro do `XDG_DOCUMENTS_DIR` pré-selecionado (`~/Documentos/Folio` num sistema em português), e `~/Documents/Folio` sem a variável.
+- [x] Abrir um diretório sem `.folio/` cria `.folio/`, `.folio/tmp/` e o banco; abrir de novo reaproveita os três.
+- [x] Todo diretório de primeiro nível é um projeto, inclusive vazio; `.folio/`, ocultos e links simbólicos para diretório não aparecem.
+- [x] Diretório dentro de um workspace não abre e o erro aponta o ancestral.
+- [x] Workspace contido em outro aparece como pasta bloqueada e seu `.folio/` não é lido nem alterado.
+- [x] `/` e a home são recusados como workspace.
+- [x] Workspace que sumiu mostra o aviso e continua na lista de recentes.
+- [x] Criar, renomear e mover nunca sobrescrevem; nome inválido é recusado com o motivo.
+- [x] Mover um diretório para dentro de si mesmo é recusado.
+- [x] Renomear ou mover pelo Folio preserva o ícone e atualiza o caminho de todos os documentos dentro, numa transação.
+- [x] Excluir manda o diretório inteiro para a lixeira.
+- [x] Trocar de workspace solta o lock do anterior.

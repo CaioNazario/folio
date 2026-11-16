@@ -117,9 +117,9 @@ Não implementar:
 
 ## Critérios de aceite globais
 
-- [ ] Teste do banco: apagar o `folio.db` não perde nenhum documento, e a reindexação reconstrói o índice a partir do disco.
-- [ ] Nenhuma operação sobrescreve em silêncio nem apaga permanentemente: colisão gera sufixo ou erro (spec 01), exclusão vai para a lixeira.
-- [ ] No banco do workspace, todo caminho é relativo à raiz do workspace.
-- [ ] O `folio-core` não depende do Tauri e nenhuma engine depende de binário do sistema.
+- [x] Teste do banco: apagar o `folio.db` não perde nenhum documento, e a reindexação reconstrói o índice a partir do disco.
+- [x] Nenhuma operação sobrescreve em silêncio nem apaga permanentemente: colisão gera sufixo ou erro (spec 01), exclusão vai para a lixeira.
+- [x] No banco do workspace, todo caminho é relativo à raiz do workspace.
+- [x] O `folio-core` não depende do Tauri e nenhuma engine depende de binário do sistema.
 - [ ] Toda lógica do `folio-core` nasce por TDD (ver `AGENTS.md`).
-- [ ] `just check` verde.
+- [x] `just check` verde.

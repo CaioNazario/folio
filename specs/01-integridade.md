@@ -109,11 +109,11 @@ As garantias são testadas com diretórios temporários (`tempfile`) e sem estad
 
 ## Critérios de aceite
 
-- [ ] Rename, move, criação e publicação nunca sobrescrevem: com o destino ocupado, falham ou geram sufixo, conforme a tabela de colisão.
-- [ ] Uma operação que falha no meio não deixa arquivo final parcial; o original e o destino ficam como estavam.
-- [ ] Mover entre filesystems só remove a origem depois de a cópia ter o mesmo hash e estar publicada.
-- [ ] Exclusão manda para a lixeira do sistema; com a lixeira indisponível, falha sem apagar nada.
-- [ ] Falha ao atualizar o índice depois de uma operação de arquivo não desfaz a operação, e o próximo escaneamento corrige o índice.
-- [ ] Banco corrompido é preservado como `folio.db.corrupt`, recriado e reindexado, sem perder documento.
-- [ ] Abrir o workspace esvazia `.folio/tmp/`; uma segunda janela no mesmo workspace não abre e não apaga temporários da primeira.
-- [ ] Nenhum código do `folio-core` abre arquivo do usuário com permissão de escrita, fora a publicação de arquivo novo.
+- [x] Rename, move, criação e publicação nunca sobrescrevem: com o destino ocupado, falham ou geram sufixo, conforme a tabela de colisão.
+- [x] Uma operação que falha no meio não deixa arquivo final parcial; o original e o destino ficam como estavam.
+- [x] Mover entre filesystems só remove a origem depois de a cópia ter o mesmo hash e estar publicada.
+- [x] Exclusão manda para a lixeira do sistema; com a lixeira indisponível, falha sem apagar nada.
+- [x] Falha ao atualizar o índice depois de uma operação de arquivo não desfaz a operação, e o próximo escaneamento corrige o índice.
+- [x] Banco corrompido é preservado como `folio.db.corrupt`, recriado e reindexado, sem perder documento.
+- [x] Abrir o workspace esvazia `.folio/tmp/`; uma segunda janela no mesmo workspace não abre e não apaga temporários da primeira.
+- [x] Nenhum código do `folio-core` abre arquivo do usuário com permissão de escrita, fora a publicação de arquivo novo.

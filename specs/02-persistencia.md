@@ -128,12 +128,12 @@ Na 0.1.0 a única implementação é a de `.folio/` (`FolioDirStore`), testada e
 
 ## Critérios de aceite
 
-- [ ] Os dois bancos abrem em WAL, com `foreign_keys` ligado e `application_id` do Folio.
-- [ ] Um `folio.db` que não é do Folio não é sobrescrito: vira `folio.db.corrupt`.
-- [ ] Migrações aplicam em ordem, cada uma numa transação; uma migração que falha deixa o banco na versão anterior.
-- [ ] Banco de versão mais nova não é alterado e o workspace não abre, com a mensagem de atualizar o app.
-- [ ] `RelativePath` rejeita caminho absoluto, vazio, com `..`, com `.` e dentro de `.folio/`, e guarda sempre com `/`.
-- [ ] Nenhuma coluna do banco do workspace guarda caminho absoluto.
+- [x] Os dois bancos abrem em WAL, com `foreign_keys` ligado e `application_id` do Folio.
+- [x] Um `folio.db` que não é do Folio não é sobrescrito: vira `folio.db.corrupt`.
+- [x] Migrações aplicam em ordem, cada uma numa transação; uma migração que falha deixa o banco na versão anterior.
+- [x] Banco de versão mais nova não é alterado e o workspace não abre, com a mensagem de atualizar o app.
+- [x] `RelativePath` rejeita caminho absoluto, vazio, com `..`, com `.` e dentro de `.folio/`, e guarda sempre com `/`.
+- [x] Nenhuma coluna do banco do workspace guarda caminho absoluto.
 - [ ] Um documento com nome que não é UTF-8 é indexado, aparece na interface com `�` no lugar dos bytes inválidos e abre, renomeia, move e vai para a lixeira como os outros.
-- [ ] O banco global fica em `~/.local/share/folio/` no Linux (ou `$XDG_DATA_HOME/folio/`).
-- [ ] Apagar os dois bancos não perde nenhum documento.
+- [x] O banco global fica em `~/.local/share/folio/` no Linux (ou `$XDG_DATA_HOME/folio/`).
+- [x] Apagar os dois bancos não perde nenhum documento.

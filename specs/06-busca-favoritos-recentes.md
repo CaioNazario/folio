@@ -108,15 +108,15 @@ O Reader guarda onde o usuário parou e, ao reabrir, volta para lá:
 
 ## Critérios de aceite
 
-- [ ] "relatorio" encontra "Relatório Q1.pdf"; "RELATÓRIO" também.
-- [ ] "trab v3" encontra "Trabalho v3.docx"; "v3 trab" também.
-- [ ] Um nome que começa com o texto vem antes de um que só o contém.
-- [ ] Os filtros de formato, projeto e pasta funcionam sozinhos, combinados e com texto vazio; o de pasta inclui subpastas.
-- [ ] Renomear um documento pelo Folio faz a busca encontrá-lo pelo nome novo e não pelo antigo.
-- [ ] Busca em 50.000 documentos responde em menos de 50 ms.
-- [ ] Favoritos aparecem na ordem de inserção; favoritar de novo não duplica.
-- [ ] Favorito de documento sobrevive a renomear e mover, pelo Folio e por fora com reconexão.
-- [ ] Favorito de pasta acompanha o renomear pelo Folio e some quando a pasta é renomeada por fora.
-- [ ] Abrir um documento o coloca no topo dos recentes, sem duplicar; a lista não passa de 100.
+- [x] "relatorio" encontra "Relatório Q1.pdf"; "RELATÓRIO" também.
+- [x] "trab v3" encontra "Trabalho v3.docx"; "v3 trab" também.
+- [x] Um nome que começa com o texto vem antes de um que só o contém.
+- [x] Os filtros de formato, projeto e pasta funcionam sozinhos, combinados e com texto vazio; o de pasta inclui subpastas.
+- [x] Renomear um documento pelo Folio faz a busca encontrá-lo pelo nome novo e não pelo antigo.
+- [x] Busca em 50.000 documentos responde em menos de 50 ms.
+- [x] Favoritos aparecem na ordem de inserção; favoritar de novo não duplica.
+- [x] Favorito de documento sobrevive a renomear e mover, pelo Folio e por fora com reconexão.
+- [x] Favorito de pasta acompanha o renomear pelo Folio e some quando a pasta é renomeada por fora.
+- [x] Abrir um documento o coloca no topo dos recentes, sem duplicar; a lista não passa de 100.
 - [ ] Reabrir um PDF volta à página em que o usuário parou.
-- [ ] Documentos ausentes não aparecem na busca, nos favoritos nem nos recentes.
+- [x] Documentos ausentes não aparecem na busca, nos favoritos nem nos recentes.
