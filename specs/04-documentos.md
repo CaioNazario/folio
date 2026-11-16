@@ -176,7 +176,7 @@ Documentos inválidos entram nas contagens: eles aparecem na interface.
 - [x] Um `.pdf` com conteúdo HTML aparece como documento inválido, com aviso, e não abre.
 - [x] Um `.md` com byte nulo no início aparece como documento inválido.
 - [ ] Um DOCX e um PDF protegidos por senha aparecem como válidos, abrem com a senha certa e recusam a errada.
-- [ ] A senha e o conteúdo decifrado nunca são gravados em disco nem no banco, e documento protegido não tem metadados extraídos no índice.
+- [x] A senha e o conteúdo decifrado nunca são gravados em disco nem no banco, e documento protegido não tem metadados extraídos no índice.
 - [ ] Converter um documento protegido avisa que o derivado não terá senha.
 - [x] Arquivos de outras extensões, ocultos e locks do Word não aparecem.
 - [ ] Um link simbólico para arquivo aparece como documento; renomear, mover e enviar para a lixeira agem no link e o arquivo real fica intacto; link quebrado aparece como inválido.
