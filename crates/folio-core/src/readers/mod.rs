@@ -2,11 +2,15 @@
 //! "Leitores"). They work on bytes and never touch the disk.
 
 mod decode;
+mod docx;
+mod error;
 mod image;
 mod md;
 mod txt;
 
 pub use decode::{decode_text, decode_text_start};
+pub use docx::read_docx;
+pub use error::ReadError;
 pub use image::image_mime;
 pub(crate) use md::options as markdown_options;
 pub use md::read_md;
