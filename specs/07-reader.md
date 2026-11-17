@@ -235,7 +235,7 @@ Os leitores também extraem os metadados que vão para o cache `document_metadat
 
 | Formato | De onde |
 |---|---|
-| PDF | Dicionário Info e versão do cabeçalho; páginas exatas |
+| PDF | Dicionário Info (título, autor, assunto, palavras-chave, datas, criador, produtor) e versão do cabeçalho; páginas exatas. Os textos são decodificados como UTF-16BE quando começam pela marca de ordem, senão como PDFDocEncoding; as palavras-chave são separadas por vírgula ou ponto e vírgula; as datas (`D:AAAAMMDDHHmmSS` com fuso) viram ms UTC; o criador, o produtor e a versão (`1.4`, `2.0`) vão para `extra` como `creator`, `producer` e `version`. Propriedade em branco é ignorada |
 | DOCX | `docProps/core.xml` (título, autor, assunto, palavras-chave, comentários, revisão, datas); páginas aproximadas, como na exibição: uma, mais uma por quebra de página explícita. As palavras-chave são separadas por vírgula ou ponto e vírgula; as datas vêm em W3CDTF; comentários (`dc:description`) e revisão vão para `extra` como `comments` e `revision`. Propriedade vazia é ignorada, e um DOCX sem `core.xml` só tem as páginas |
 | MD | Front matter: `title`, `author`, `tags` (ou `keywords`; lista ou um texto só), `date`; os demais campos vão para `extra`, convertidos de YAML para JSON. `date` vira a data de criação interna: instante RFC 3339 ou `AAAA-MM-DD` (meia-noite UTC); uma data ilegível fica em `extra` como texto. Front matter com YAML inválido continua fora do corpo e não gera metadados |
 | TXT | Nenhum: só o filesystem |
@@ -264,7 +264,7 @@ Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no we
 - [x] Cada leitor tem testes com arquivos de exemplo e produz o modelo esperado: TXT, MD e DOCX com arquivos em `crates/folio-core/tests/fixtures/`; PDF com documentos gerados no próprio teste (`tests/readers_pdf.rs`, pelo `krilla` com as fontes do `typst-assets`, e PDFs escritos à mão nos testes do leitor), sem PDF versionado.
 - [ ] PDF digitalizado abre na exibição e produz documento vazio no leitor, sem erro.
 - [ ] PDF e DOCX protegidos por senha abrem com a senha certa; o DOCX é decifrado em memória.
-- [ ] Os metadados de PDF, DOCX e MD do corpus de fixtures chegam ao cache conforme a tabela de metadados.
+- [x] Os metadados de PDF, DOCX e MD dos arquivos de exemplo (gerados no teste, no PDF) chegam ao cache conforme a tabela de metadados.
 - [ ] O documento reabre na posição em que o usuário parou.
 - [ ] Um link `https:` abre no navegador do sistema; um link relativo para outro documento do workspace abre no Folio; nenhum link navega o webview.
 - [x] Imagem relativa dentro do workspace aparece no MD; imagem remota não é baixada e vira espaço reservado.

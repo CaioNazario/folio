@@ -9,14 +9,18 @@ mod headings;
 mod inlines;
 mod lines;
 mod lists;
+mod metadata;
 mod open;
 #[cfg(test)]
 mod test_crypt;
 #[cfg(test)]
 pub(crate) mod test_pdf;
+mod text_string;
+
+pub use metadata::read_pdf_metadata;
 
 use super::ReadError;
-use crate::model::{DocumentModel, Metadata};
+use crate::model::DocumentModel;
 
 /// The document model of a PDF file; `password` opens a protected one.
 pub fn read_pdf(bytes: &[u8], password: Option<&str>) -> Result<DocumentModel, ReadError> {
@@ -26,7 +30,7 @@ pub fn read_pdf(bytes: &[u8], password: Option<&str>) -> Result<DocumentModel, R
         .map(lines::lines_of)
         .collect();
     Ok(DocumentModel {
-        metadata: Metadata::default(),
+        metadata: metadata::metadata_of(&pdf),
         blocks: blocks::blocks_of(pages),
     })
 }
@@ -34,7 +38,7 @@ pub fn read_pdf(bytes: &[u8], password: Option<&str>) -> Result<DocumentModel, R
 #[cfg(test)]
 mod tests {
     use super::test_pdf::{
-        pdf, pdf_with_form, pdf_with_image, pdf_with_latex_fonts, pdf_with_password,
+        pdf, pdf_with_form, pdf_with_image, pdf_with_info, pdf_with_latex_fonts, pdf_with_password,
         pdf_without_unicode, text,
     };
     use super::*;
@@ -326,5 +330,14 @@ mod tests {
                 Inline::Italic(vec![Inline::Text("uma coleção.".to_string())]),
             ])]
         );
+    }
+
+    #[test]
+    fn read_pdf_carries_metadata() {
+        let pages = [vec![text("Corpo.", 72.0, 700.0)]];
+
+        let model = read_pdf(&pdf_with_info(&pages, "/Title (Ata)"), None).unwrap();
+
+        assert_eq!(model.metadata.title.as_deref(), Some("Ata"));
     }
 }

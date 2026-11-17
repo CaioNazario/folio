@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::documents::file_facts::FileFacts;
 use crate::documents::{Document, Format};
 use crate::model::Metadata;
-use crate::readers::{ReadError, read_docx_metadata, read_md};
+use crate::readers::{ReadError, read_docx_metadata, read_md, read_pdf_metadata};
 use crate::workspace::Workspace;
 use crate::{Error, Result};
 
@@ -26,8 +26,8 @@ impl Workspace {
         if doc.protected {
             return Ok(None);
         }
-        // TXT never has metadata; PDF has no reader yet.
-        if matches!(doc.format, Format::Txt | Format::Pdf) {
+        // TXT never has metadata.
+        if doc.format == Format::Txt {
             return Ok(Some(Metadata::default()));
         }
         self.cached_metadata(&doc).map(Some)
@@ -53,6 +53,7 @@ impl Workspace {
 fn extract(format: Format, bytes: &[u8]) -> std::result::Result<Metadata, ReadError> {
     match format {
         Format::Docx => read_docx_metadata(bytes),
+        Format::Pdf => read_pdf_metadata(bytes),
         _ => Ok(read_md(bytes).metadata),
     }
 }
@@ -62,6 +63,7 @@ mod tests {
     use super::*;
     use crate::documents::test_docs::write_doc;
     use crate::readers::test_docx::{core, docx_with, zip_of};
+    use crate::readers::test_pdf::{pdf_with_info, text};
     use crate::workspace::test_env::TestEnv;
 
     fn indexed(workspace: &Workspace, path: &str, content: &[u8]) -> Uuid {
@@ -142,6 +144,23 @@ mod tests {
             (Some("Contrato"), Some("Ana"))
         );
         assert_eq!(cached_title(&workspace, doc).as_deref(), Some("Contrato"));
+    }
+
+    #[test]
+    fn pdf_metadata_is_extracted_and_cached_on_first_request() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let pages = [vec![text("Corpo.", 72.0, 700.0)]];
+        let pdf = pdf_with_info(&pages, "/Title (Ata) /Author (Ana)");
+        let doc = indexed(&workspace, "Ata.pdf", &pdf);
+
+        let metadata = workspace.document_metadata(doc).unwrap().unwrap();
+
+        assert_eq!(
+            (metadata.title.as_deref(), metadata.pages),
+            (Some("Ata"), Some(1))
+        );
+        assert_eq!(cached_title(&workspace, doc).as_deref(), Some("Ata"));
     }
 
     #[test]

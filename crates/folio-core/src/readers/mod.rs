@@ -17,5 +17,7 @@ pub use error::ReadError;
 pub use image::image_mime;
 pub(crate) use md::options as markdown_options;
 pub use md::read_md;
-pub use pdf::read_pdf;
+#[cfg(test)]
+pub(crate) use pdf::test_pdf;
+pub use pdf::{read_pdf, read_pdf_metadata};
 pub use txt::read_txt;
