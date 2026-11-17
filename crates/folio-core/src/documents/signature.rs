@@ -1,10 +1,11 @@
 //! The extension decides the format; the signature confirms it (spec 04).
 
 use std::fs::File;
-use std::io::Read;
+use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 
 use super::Format;
+use crate::readers::pdf_needs_password;
 
 /// What the content says about a file with a document extension.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -20,7 +21,7 @@ pub struct Signature {
 /// `format`. A file that cannot be read is invalid.
 pub fn check_signature(format: Format, path: &Path) -> Signature {
     match format {
-        Format::Pdf => unprotected(has_pdf_header(path)),
+        Format::Pdf => pdf_signature(path),
         Format::Docx => docx_signature(path),
         Format::Md => unprotected(has_no_nul_at_start(path)),
         Format::Txt => unprotected(is_utf16(path) || has_no_nul_at_start(path)),
@@ -51,6 +52,26 @@ fn is_encrypted_office(path: &Path) -> bool {
     cfb::open(path).is_ok_and(|compound| {
         compound.is_stream("EncryptionInfo") && compound.is_stream("EncryptedPackage")
     })
+}
+
+/// A PDF is protected when it does not open without a password. Only a
+/// PDF that names `/Encrypt` where the trailer can be (its start, when
+/// linearized, or its end) is read whole and opened.
+fn pdf_signature(path: &Path) -> Signature {
+    let valid = has_pdf_header(path);
+    let protected = valid
+        && names_encrypt(path)
+        && std::fs::read(path).is_ok_and(|bytes| pdf_needs_password(&bytes));
+    Signature { valid, protected }
+}
+
+/// How much of each end of a PDF is searched for `/Encrypt`.
+const TRAILER_PROBE_LEN: u64 = 64 * 1024;
+
+fn names_encrypt(path: &Path) -> bool {
+    let has =
+        |bytes: Option<Vec<u8>>| bytes.is_some_and(|b| b.windows(8).any(|w| w == b"/Encrypt"));
+    has(read_prefix(path, TRAILER_PROBE_LEN)) || has(read_suffix(path, TRAILER_PROBE_LEN))
 }
 
 /// PDF readers accept the header anywhere in the first 1024 bytes.
@@ -87,6 +108,16 @@ fn read_prefix(path: &Path, len: u64) -> Option<Vec<u8>> {
         .read_to_end(&mut start)
         .ok()?;
     Some(start)
+}
+
+/// Up to `len` bytes from the end of `path`; `None` if it cannot be read.
+fn read_suffix(path: &Path, len: u64) -> Option<Vec<u8>> {
+    let mut file = File::open(path).ok()?;
+    let size = file.metadata().ok()?.len();
+    file.seek(SeekFrom::Start(size.saturating_sub(len))).ok()?;
+    let mut end = Vec::new();
+    file.read_to_end(&mut end).ok()?;
+    Some(end)
 }
 
 #[cfg(test)]
@@ -130,6 +161,33 @@ mod tests {
         let content = [vec![b' '; 1020], b"%PDF-1.7\n".to_vec()].concat();
 
         assert_eq!(check(Format::Pdf, &content), INVALID);
+    }
+
+    fn pdf_with_password(user: &str) -> Vec<u8> {
+        let pages = [vec![crate::readers::test_pdf::text(
+            "Sigiloso.",
+            72.0,
+            700.0,
+        )]];
+        crate::readers::test_pdf::pdf_with_password(&pages, user, "dono")
+    }
+
+    #[test]
+    fn check_signature_marks_pdf_with_user_password_as_protected() {
+        let signature = check(Format::Pdf, &pdf_with_password("folio"));
+
+        assert_eq!(
+            signature,
+            Signature {
+                valid: true,
+                protected: true,
+            }
+        );
+    }
+
+    #[test]
+    fn check_signature_keeps_owner_only_pdf_unprotected() {
+        assert_eq!(check(Format::Pdf, &pdf_with_password("")), VALID);
     }
 
     /// A ZIP with the given entry names, each with a little content.

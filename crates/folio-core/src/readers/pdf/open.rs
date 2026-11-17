@@ -18,6 +18,12 @@ pub fn open(bytes: &[u8], password: Option<&str>) -> Result<Pdf, ReadError> {
     }
 }
 
+/// Whether the PDF in `bytes` needs a password to open: the empty one
+/// does not open it.
+pub fn needs_password(bytes: &[u8]) -> bool {
+    matches!(load(bytes, ""), Err(NEEDS_PASSWORD))
+}
+
 fn load(bytes: &[u8], password: &str) -> Result<Pdf, LoadPdfError> {
     Pdf::new_with_password(bytes.to_vec(), password)
 }

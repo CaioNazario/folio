@@ -19,5 +19,5 @@ pub(crate) use md::options as markdown_options;
 pub use md::read_md;
 #[cfg(test)]
 pub(crate) use pdf::test_pdf;
-pub use pdf::{read_pdf, read_pdf_metadata};
+pub use pdf::{needs_password as pdf_needs_password, read_pdf, read_pdf_metadata};
 pub use txt::read_txt;

@@ -18,6 +18,7 @@ pub(crate) mod test_pdf;
 mod text_string;
 
 pub use metadata::read_pdf_metadata;
+pub use open::needs_password;
 
 use super::ReadError;
 use crate::model::DocumentModel;

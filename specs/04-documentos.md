@@ -60,7 +60,7 @@ Um documento protegido por senha é **válido**: ver "Documentos protegidos por 
 | `path` | `RelativePath`, único | Disco |
 | `format` | `pdf`, `docx`, `md`, `txt` | Extensão |
 | `valid` | booleano | Assinatura |
-| `protected` | booleano | Assinatura (DOCX) ou dicionário `/Encrypt` com senha de abertura (PDF). O do PDF depende do leitor da spec 07; até ele existir, PDFs ficam como não protegidos |
+| `protected` | booleano | Assinatura (DOCX) ou senha de abertura (PDF): o PDF não abre com a senha vazia. Para não ler PDFs inteiros no escaneamento, só é aberto o PDF que cita `/Encrypt` nos primeiros ou nos últimos 64 KiB, onde fica o trailer |
 | `size` | bytes | Filesystem |
 | `modified_at` | ms UTC | Filesystem (mtime) |
 | `created_at` | ms UTC, opcional | Filesystem (birth time, via `statx`; nem todo filesystem tem) |
@@ -131,7 +131,7 @@ PDF e DOCX podem ter senha de abertura. O Folio os exibe e converte, pedindo a s
 
 | Formato | Como é reconhecido | Como abre |
 |---|---|---|
-| PDF | Assinatura `%PDF-` normal; o leitor encontra o `/Encrypt` com senha de abertura | O pdf.js pede a senha pelo callback `onPassword`; o leitor do core (spec 07) recebe a mesma senha |
+| PDF | Assinatura `%PDF-` normal; não abre com a senha vazia (ver `protected`) | O pdf.js pede a senha pelo callback `onPassword`; o leitor do core (spec 07) recebe a mesma senha |
 | DOCX | Contêiner criptografado do Office no lugar do ZIP | O core decifra com o crate `office-crypto` (MIT, Rust puro) e entrega ao `docx-preview` e ao leitor os bytes do DOCX decifrado |
 
 - **A senha nunca é guardada:** nem no banco, nem em arquivo. Ela vive só na memória enquanto o documento está aberto; fechou, reabrir pede de novo.
