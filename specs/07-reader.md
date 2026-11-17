@@ -28,7 +28,26 @@ Resolver antes de implementar a parte que cada spike bloqueia. O resultado vai p
 
 **Decisão:** o hayro, se cumprir 1, 2 e 3; senão, o PDFium.
 
-**Resultado:** pendente.
+**Resultado:** o hayro cumpre 1, 2 e 3; o leitor de PDF usa `hayro-interpret` 0.9 e `hayro-font` 0.5 (2026-11-16).
+
+O corpus foi gerado, não colhido: 11 PDFs feitos com LibreOffice (contrato, relatório com tabelas, artigo em duas colunas, slides do Impress, o `relatorio.docx` das fixtures exportado, um manual de 301 páginas), Ghostscript (fontes Type1 como as do LaTeX), à mão (as 14 fontes padrão sem embutir; fonte Type3 sem mapa Unicode), ImageMagick (página digitalizada) e qpdf (senha). O programa do spike ficou fora do repositório, porque depende da `libpdfium` baixada. As duas bibliotecas foram comparadas no Linux x86_64, com a `libpdfium` 160.0.8165 do `bblanchon/pdfium-binaries`:
+
+| Critério | hayro | PDFium |
+|---|---|---|
+| 1. Texto e ordem (palavras e ordem contra o `pdftotext`, página a página) | 100% nos 9 PDFs com texto | 100% |
+| 2. Posição e tamanho | Por glifo: a matriz dá origem e tamanho; a largura de avanço dá o fim | Por caractere (`origin`, `loose_bounds`, `scaled_font_size`) |
+| 2. Fonte e peso | Por casamento: cada glifo traz a identidade do programa da fonte, e o leitor a casa com as fontes dos recursos da página, carregadas pelo `FontCache` público; o dicionário dá `BaseFont`, `FontWeight`, `Flags` e `ItalicAngle`. Certo em todas as fontes do corpus, inclusive Type1 e padrão | `font_weight` errado: Liberation Serif Bold sai 400, Times-Bold 555 e Times-Roman 580, fonte padrão 0; não marca itálico em Type1 |
+| 3. Metadados | Info inteiro e versão do cabeçalho; os textos vêm em bytes (o leitor decodifica UTF-16BE com BOM e PDFDocEncoding), as datas já estruturadas | Info como texto, datas como texto `D:...` |
+| 4. Tempo (manual de 301 páginas, 1,37 milhão de caracteres) | 0,6 a 0,8 s | 1,4 a 2,3 s; procura fontes do sistema para as fontes padrão |
+| 5. Tamanho e empacotamento | +4,5 MB no binário (LTO, com as fontes padrão e CMaps embutidas); Rust puro, compila para Android pelo cargo | `libpdfium.so` de 8,3 MB (Linux x86_64) e 6,8 MB (Android arm64), uma por plataforma, carregada em tempo de execução |
+
+Os dois casos em que nenhuma biblioteca extrai texto são os esperados: a página digitalizada não tem caracteres, e a fonte Type3 sem mapa Unicode não tem texto recuperável (o hayro devolve "sem Unicode"; o PDFium devolve o código do caractere como se fosse a letra).
+
+Senha, nas duas bibliotecas: RC4 de 40 e 128 bits e AES de 128 e 256 bits abrem com a senha certa; sem ela ou com a errada, o hayro dá `PasswordProtected`, sem distinguir os dois casos. Um PDF com só senha de dono abre sem senha, mas recusa uma senha errada.
+
+Robustez: 84 PDFs do corpus truncados ou com bytes trocados ao acaso. Nenhum pânico nem travamento; o hayro leu 62 e o PDFium 51.
+
+Riscos que o corpus gerado não cobre e que os testes do leitor devem cobrir com PDFs reais: PDF do Word e do pdflatex (fonte Type1 com `FontFile`), texto em CJK, e fontes declaradas nos recursos de um Form XObject em vez dos da página (o casamento precisa descer nos recursos dos XObjects).
 
 ### S2 · pdf.js no WebKitGTK e no WebView do Android
 
@@ -204,11 +223,11 @@ Inline: Texto | Negrito [Inline] | Italico [Inline] | CodigoInline | Link { dest
 | TXT | — | Decodificar com `encoding_rs`: pela marca de início (BOM) quando existe (UTF-8, UTF-16 LE ou BE), senão UTF-8, com fallback para Windows-1252. Separar parágrafos por linha em branco (ou só com espaços); uma quebra simples vira quebra de linha dentro do parágrafo, e `\r\n` conta como `\n` | Parágrafos |
 | MD | `comrak` (árvore do Markdown, com tabelas, tachado, listas de tarefas e front matter com delimitador `---`) + `saphyr` (YAML 1.2 em Rust puro, sem `unsafe`; o `serde_yaml` está descontinuado) | Traduzir a árvore do comrak para o modelo. Tachado vira texto comum, item de tarefa vira item de lista, quebra suave vira espaço. Tags HTML inline são descartadas e o texto entre elas fica; um bloco HTML inteiro é descartado. Até os leitores resolverem arquivos de imagem, uma imagem vira o seu texto alternativo | Tudo do modelo |
 | DOCX | `zip` + `quick-xml` | Ler `document.xml`, `styles.xml`, `numbering.xml`, as relações de `document.xml` e `docProps/core.xml` e traduzir. O estilo vale pelo nome (`w:name`), não pelo id, que o Word traduz (`Ttulo1`): "heading N" vira título, "Quote" e "Intense Quote" viram citação (parágrafos seguidos numa só). Numeração vira lista, ordenada a menos que o formato do nível seja `bullet` ou `none`, aninhada pelo nível (`w:ilvl`). Negrito e itálico (desligados por `w:val` `0`, `false` ou `off`) viram ênfase, e runs vizinhos com a mesma ênfase se juntam. `w:hyperlink` vira link para o alvo da relação ou para `#âncora`. `w:br` de página vira quebra de página; o resto de `w:br`, quebra de linha. Imagem embutida (PNG, JPEG, GIF, WebP ou SVG, pela assinatura) vira bloco de imagem no ponto em que aparece, com o `descr` como texto alternativo; imagem vinculada ou de outro tipo (EMF, WMF) é ignorada. Célula de tabela junta os parágrafos com quebra de linha. Parágrafo vazio é descartado; documento sem `w:body` é vazio | Tudo do modelo, menos código e separador, que não têm equivalente no DOCX |
-| PDF | A definir no spike S1 (`pdfium-render` ou `hayro`), acima | **A dedução da estrutura:** juntar caracteres em linhas, linhas em parágrafos, reconhecer títulos (tamanho e peso da fonte) e listas (marcadores e recuo) | Títulos, parágrafos, listas, ênfase. Tabelas e imagens não são reconhecidas: tabela vira parágrafos, imagem é ignorada |
+| PDF | `hayro-interpret` (interpreta a página e entrega cada glifo com Unicode e posição) + `hayro-font` (fonte de cada glifo, pelo casamento descrito no S1) | Ler o texto de cada glifo pelo casamento com o dicionário da fonte (nome, peso e itálico) e decodificar os textos do Info. **A dedução da estrutura:** juntar caracteres em linhas, linhas em parágrafos, reconhecer títulos (tamanho e peso da fonte) e listas (marcadores e recuo) | Títulos, parágrafos, listas, ênfase. Tabelas e imagens não são reconhecidas: tabela vira parágrafos, imagem é ignorada |
 
 O leitor de PDF é a peça de maior risco do Reader e da conversão: um PDF guarda posição na página, não estrutura. Um PDF digitalizado (só imagem) produz um documento vazio; OCR está fora da 0.1.0.
 
-**Senha:** os leitores de PDF e DOCX recebem uma senha opcional. Sem ela, um documento protegido falha com `PasswordRequired`; com a errada, `WrongPassword` (spec 04). O leitor de DOCX decifra com `office-crypto`, em memória; a senha é ignorada num DOCX sem proteção. O `office-crypto` não confere a senha: com a errada, o resultado não é um ZIP, e isso vira `WrongPassword`. Um contêiner cifrado malformado é `ReadFailed`, inclusive quando o `office-crypto` entra em pânico com ele (o pânico é contido). Os bytes que o palco recebe (`document_bytes`) seguem a mesma regra: DOCX protegido sai decifrado; PDF sai como está, porque quem pede a senha é o pdf.js.
+**Senha:** os leitores de PDF e DOCX recebem uma senha opcional. Sem ela, um documento protegido falha com `PasswordRequired`; com a errada, `WrongPassword` (spec 04). O leitor de DOCX decifra com `office-crypto`, em memória; a senha é ignorada num DOCX sem proteção. O `office-crypto` não confere a senha: com a errada, o resultado não é um ZIP, e isso vira `WrongPassword`. Um contêiner cifrado malformado é `ReadFailed`, inclusive quando o `office-crypto` entra em pânico com ele (o pânico é contido). O leitor de PDF tenta primeiro a senha vazia, que abre um PDF sem senha de usuário (só com senha de dono), e a senha recebida é ignorada nesse caso; senão, `PasswordProtected` do hayro vira `PasswordRequired` sem senha e `WrongPassword` com ela. Os bytes que o palco recebe (`document_bytes`) seguem a mesma regra: DOCX protegido sai decifrado; PDF sai como está, porque quem pede a senha é o pdf.js.
 
 ### Metadados
 
@@ -233,7 +252,7 @@ Além dos da spec 04 (`DocumentNotFound`, `InvalidDocument`, `PasswordRequired`,
 
 ## Restrição de plataforma
 
-Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no webview, igual no Linux e no Android. Se o spike S1 escolher o PDFium, a biblioteca `libpdfium` vai embarcada no app, uma por plataforma; nunca a do sistema.
+Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no webview, igual no Linux e no Android. O leitor de PDF é Rust puro (hayro, spike S1), com as 14 fontes padrão embutidas: não procura fontes do sistema.
 
 ## Critérios de aceite
 
