@@ -8,6 +8,7 @@ use jiff::tz::{Offset, TimeZone};
 use serde_json::{Map, Value};
 
 use super::super::ReadError;
+use super::super::keywords::split_keywords;
 use super::open::open;
 use super::text_string;
 use crate::model::Metadata;
@@ -24,7 +25,7 @@ pub fn metadata_of(pdf: &Pdf) -> Metadata {
         title: text(&info.title),
         author: text(&info.author),
         subject: text(&info.subject),
-        keywords: keywords(text(&info.keywords)),
+        keywords: split_keywords(text(&info.keywords)),
         created_at: info.creation_date.as_ref().and_then(millis),
         modified_at: info.modification_date.as_ref().and_then(millis),
         pages: u32::try_from(pdf.pages().len()).ok(),
@@ -85,16 +86,6 @@ fn millis(date: &DateTime) -> Option<i64> {
     .ok()?;
     let zone = TimeZone::fixed(Offset::from_seconds(offset).ok()?);
     Some(civil.to_zoned(zone).ok()?.timestamp().as_millisecond())
-}
-
-/// The keywords, separated by commas or semicolons.
-fn keywords(text: Option<String>) -> Vec<String> {
-    let text = text.unwrap_or_default();
-    let words = text.split([',', ';']).map(str::trim);
-    words
-        .filter(|word| !word.is_empty())
-        .map(str::to_string)
-        .collect()
 }
 
 #[cfg(test)]

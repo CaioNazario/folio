@@ -5,6 +5,7 @@ mod decode;
 mod docx;
 mod error;
 mod image;
+mod keywords;
 mod md;
 mod pdf;
 mod txt;

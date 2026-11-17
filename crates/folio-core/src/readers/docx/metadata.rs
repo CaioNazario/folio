@@ -9,6 +9,7 @@ use super::package::Package;
 use super::xml::Element;
 use crate::model::Metadata;
 use crate::readers::ReadError;
+use crate::readers::keywords::split_keywords;
 
 /// The metadata of a DOCX file, without building its document model.
 pub fn read_docx_metadata(bytes: &[u8]) -> Result<Metadata, ReadError> {
@@ -45,7 +46,7 @@ fn core_metadata(core: &Element) -> Metadata {
         title: property("title"),
         author: property("creator"),
         subject: property("subject"),
-        keywords: keywords(property("keywords")),
+        keywords: split_keywords(property("keywords")),
         created_at: property("created").and_then(|text| millis(&text)),
         modified_at: property("modified").and_then(|text| millis(&text)),
         extra: extra(core),
@@ -58,16 +59,6 @@ fn property(core: &Element, name: &str) -> Option<String> {
     let text = core.child(name)?.text();
     let text = text.trim();
     (!text.is_empty()).then(|| text.to_string())
-}
-
-/// The keywords Word separates with commas or semicolons.
-fn keywords(text: Option<String>) -> Vec<String> {
-    let text = text.unwrap_or_default();
-    let words = text.split([',', ';']).map(str::trim);
-    words
-        .filter(|word| !word.is_empty())
-        .map(str::to_string)
-        .collect()
 }
 
 /// A W3CDTF instant (`2026-11-15T10:00:00Z`) in ms UTC.
