@@ -33,6 +33,14 @@ fn decrypt(bytes: &[u8], password: &str) -> Result<Vec<u8>, ReadError> {
     Ok(decrypted)
 }
 
+// With `panic = "abort"` the `catch_unwind` below cannot contain the panic,
+// and a broken file would close the app.
+#[cfg(panic = "abort")]
+compile_error!(
+    "folio-core needs `panic = \"unwind\"`: a malformed encrypted DOCX makes \
+     office-crypto panic, and the reader contains that panic with catch_unwind"
+);
+
 /// `office-crypto` panics on some malformed containers instead of
 /// failing: a panic there means a broken file, not a crash of the app.
 fn office_decrypt(bytes: &[u8], password: &str) -> Result<Vec<u8>, ReadError> {
