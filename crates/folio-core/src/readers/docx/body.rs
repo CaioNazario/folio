@@ -4,6 +4,7 @@ use super::context::Context;
 use super::images::image_of;
 use super::inlines::{Flow, flow_of, merge};
 use super::lists::{self, Item, Piece};
+use super::page_breaks;
 use super::styles::StyleKind;
 use super::tables::table_of;
 use super::xml::Element;
@@ -11,10 +12,29 @@ use crate::model::{Block, Inline};
 
 /// The blocks of the `w:body` element.
 pub fn blocks_of(body: &Element, context: &Context) -> Vec<Block> {
-    let pieces = body
-        .elements()
-        .filter_map(|element| piece(element, context));
-    merge_quotes(lists::group(pieces.collect()))
+    let mut pieces = Vec::new();
+    for element in body.elements() {
+        if starts_page(element, context) && ends_with_content(&pieces) {
+            pieces.push(Piece::Blocks(vec![Block::PageBreak]));
+        }
+        pieces.extend(piece(element, context));
+    }
+    merge_quotes(lists::group(pieces))
+}
+
+/// Whether `element` is a paragraph set to start on a new page.
+fn starts_page(element: &Element, context: &Context) -> bool {
+    element.name == "p" && page_breaks::starts_page(element, &context.styles)
+}
+
+/// Whether the last block of `pieces` is content, so that a new page can
+/// start after it: not at the start, and not right after a page break.
+fn ends_with_content(pieces: &[Piece]) -> bool {
+    let last = pieces.iter().rev().find_map(|piece| match piece {
+        Piece::Item(_) => Some(true),
+        Piece::Blocks(blocks) => Some(!matches!(blocks.last()?, Block::PageBreak)),
+    });
+    last.unwrap_or(false)
 }
 
 /// Consecutive quotes as one: each quoted paragraph comes as a quote of

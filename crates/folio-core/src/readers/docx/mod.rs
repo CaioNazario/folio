@@ -9,6 +9,7 @@ mod lists;
 mod metadata;
 mod numbering;
 mod package;
+mod page_breaks;
 mod protection;
 mod rels;
 mod styles;
