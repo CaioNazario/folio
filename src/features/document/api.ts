@@ -1,5 +1,4 @@
 import { invoke } from '@tauri-apps/api/core'
-import { openUrl } from '@tauri-apps/plugin-opener'
 import type { DisplayText } from '@/lib/bindings/DisplayText'
 import type { DocumentView } from '@/lib/bindings/DocumentView'
 import type { LinkTarget } from '@/lib/bindings/LinkTarget'
@@ -28,11 +27,8 @@ export function savePosition(id: string, position: ReadingPosition): Promise<voi
   return invoke('save_position', { id, position })
 }
 
-export function resolveLink(id: string, href: string): Promise<LinkTarget> {
-  return invoke<LinkTarget>('resolve_link', { id, href })
-}
-
-// http, https and mailto, in the system browser or mail app.
-export function openExternal(url: string): Promise<void> {
-  return openUrl(url)
+// The backend resolves the link and opens an External one itself, in the
+// system browser or mail app; the rest is left to the UI.
+export function followLink(id: string, href: string): Promise<LinkTarget> {
+  return invoke<LinkTarget>('follow_link', { id, href })
 }

@@ -55,7 +55,7 @@ export function workspaceCommands(overrides: Record<string, (args: unknown) => u
     get_text_content: () => ({ text: 'Conteúdo do trabalho', truncated: false }),
     get_markdown_content: () => ({ html: MARKDOWN, truncated: false }),
     toggle_favorite_document: () => true,
-    resolve_link: (args: unknown) => LINKS[(args as { href: string }).href] ?? { kind: 'Ignored' },
+    follow_link: (args: unknown) => LINKS[(args as { href: string }).href] ?? { kind: 'Ignored' },
     ...overrides,
   }
 }

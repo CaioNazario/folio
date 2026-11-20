@@ -108,13 +108,13 @@ Clicar num link dentro do documento (MD, DOCX ou PDF) nunca navega o webview. O 
 
 | Link | O que acontece |
 |---|---|
-| `http:`, `https:`, `mailto:` | Abre no navegador ou no app de e-mail do sistema (`open_url` do `plugin-opener`) |
+| `http:`, `https:`, `mailto:` | Abre no navegador ou no app de e-mail do sistema, pelo `open_url` do `plugin-opener` chamado no Rust |
 | Relativo, para um documento do workspace (`[ver](../Notas.md)`) | Abre esse documento no Folio |
 | Relativo, para outro arquivo do workspace ou para fora dele | Nada abre; toast "Este link aponta para um arquivo que o Folio não abre" |
 | `#âncora` | Rola até o ponto, no MD; vai à página de destino, no PDF |
 | Qualquer outro esquema (`file:`, `javascript:`...) | Ignorado |
 
-O caminho relativo é resolvido a partir do diretório do documento e precisa continuar dentro do workspace (nunca em `.folio/`); os escapes `%` são decodificados, e o fragmento e a query depois do arquivo (`Notas.md#secao`) são ignorados. O documento de destino precisa estar no índice e no disco. A resposta é um `LinkTarget` com tag `kind`: `External`, `Document`, `Unsupported`, `Anchor` ou `Ignored`.
+O caminho relativo é resolvido a partir do diretório do documento e precisa continuar dentro do workspace (nunca em `.folio/`); os escapes `%` são decodificados, e o fragmento e a query depois do arquivo (`Notas.md#secao`) são ignorados. O documento de destino precisa estar no índice e no disco. O command é `follow_link`: o core resolve o link, e um `External` é aberto ali mesmo, no Rust, porque o webview não tem acesso ao `plugin-opener` (spec 10). A resposta é um `LinkTarget` com tag `kind`: `External` (já aberto), `Document`, `Unsupported`, `Anchor` ou `Ignored`; o frontend cuida dos outros.
 
 **Âncoras no MD:** cada título do HTML sai com `id="folio-h-<âncora>"`, gerado do texto do título pelo comrak (minúsculas, espaços viram `-`, pontuação sai; um título repetido ganha `-1`, `-2`...), sem link de âncora ao lado. O prefixo impede que um título tome um id do próprio app. O `Anchor` traz o fragmento com os escapes `%` decodificados e sem o prefixo; o frontend rola até o elemento `folio-h-` + fragmento.
 

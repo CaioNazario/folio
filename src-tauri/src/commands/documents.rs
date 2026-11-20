@@ -4,7 +4,8 @@ use folio_core::display::{
     DisplayText, DocumentProperties, DocumentView, LinkTarget, MarkdownContent,
 };
 use folio_core::recents::ReadingPosition;
-use tauri::State;
+use tauri::{AppHandle, State};
+use tauri_plugin_opener::OpenerExt;
 use uuid::Uuid;
 
 use super::{CommandResult, with_workspace};
@@ -46,14 +47,30 @@ pub fn get_markdown_content(
     with_workspace(&state, |workspace| workspace.markdown_content(id))
 }
 
-/// What a link clicked inside the document `id` leads to (spec 07, Links).
+/// Follows a link clicked inside the document `id` (spec 07, Links): the
+/// core says what it leads to, and an external one opens here, in the
+/// system browser or mail app, so the webview never gets the opener. The
+/// target goes back for the UI to handle the rest.
 #[tauri::command]
-pub fn resolve_link(
+pub fn follow_link(
+    app: AppHandle,
     state: State<'_, AppState>,
     id: Uuid,
     href: String,
 ) -> CommandResult<LinkTarget> {
-    with_workspace(&state, |workspace| workspace.resolve_link(id, &href))
+    let target = with_workspace(&state, |workspace| workspace.resolve_link(id, &href))?;
+    if let LinkTarget::External { url } = &target {
+        open_external(&app, url);
+    }
+    Ok(target)
+}
+
+/// Opens `url` with the system's handler; a failure only goes to the log,
+/// like a click that the desktop did not answer.
+fn open_external(app: &AppHandle, url: &str) {
+    if let Err(error) = app.opener().open_url(url, None::<&str>) {
+        log::warn!("cannot open external link: {error}");
+    }
 }
 
 /// Where the user stopped in the document, saved when leaving it (spec 06).

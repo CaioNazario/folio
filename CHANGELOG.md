@@ -7,6 +7,7 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 ### Security
 
 - The app window has a content security policy: documents cannot load anything from the network.
+- Links clicked in a document are opened by the backend; the window itself can no longer open URLs.
 
 ### Fixed
 

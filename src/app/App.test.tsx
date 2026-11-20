@@ -107,12 +107,15 @@ test('an image the core could not show gets a label in the active language', asy
   expect(screen.getByText(/diagrama/)).toHaveAttribute('data-label', pt.document.image.remote)
 })
 
-test('an external link opens in the system browser', async () => {
+test('an external link is opened by the backend, not by the webview', async () => {
   const { calls, user } = await renderApp()
   await openReferences(user)
   await user.click(screen.getByRole('link', { name: 'site' }))
 
-  await waitFor(() => expect(calls).toContainEqual(expect.objectContaining({ cmd: 'plugin:opener|open_url' })))
+  await waitFor(() =>
+    expect(calls).toContainEqual({ cmd: 'follow_link', args: { id: 'd-ref', href: 'https://example.org' } }),
+  )
+  expect(calls).not.toContainEqual(expect.objectContaining({ cmd: expect.stringMatching(/^plugin:opener/) }))
 })
 
 test('a link to another document opens it', async () => {
@@ -216,7 +219,7 @@ test('an anchor to a missing heading does nothing', async () => {
   await openReferences(user)
   await user.click(screen.getByRole('link', { name: 'nada' }))
 
-  await waitFor(() => expect(calls).toContainEqual({ cmd: 'resolve_link', args: { id: 'd-ref', href: '#nada' } }))
+  await waitFor(() => expect(calls).toContainEqual({ cmd: 'follow_link', args: { id: 'd-ref', href: '#nada' } }))
   expect(screen.queryByText(pt.document.linkUnsupported)).not.toBeInTheDocument()
   expect(screen.getByRole('heading', { name: 'Referências', level: 1 })).toBeInTheDocument()
 })
