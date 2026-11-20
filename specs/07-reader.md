@@ -150,10 +150,10 @@ O palco tem um estado para cada situação, todos com os tokens e componentes de
 O menu Mais ganha o item **Propriedades** (`Design/specs/05-document-view.md`), que abre um diálogo com tudo o que o Folio sabe do documento, num único command:
 
 - **Arquivo:** nome, local (caminho relativo), formato, tamanho, criado e modificado.
-- **Documento:** os metadados do formato (spec 04): título, autor, assunto, palavras-chave, datas internas, páginas e os campos de `extra`. Extraídos na hora se o cache estiver velho. Em documento protegido, "Protegido por senha: metadados não extraídos".
+- **Documento:** os metadados do formato (spec 04): título, autor, assunto, palavras-chave, datas internas, páginas e os campos de `extra`. Extraídos na hora se o cache estiver velho. Em documento protegido, "Protegido por senha: metadados não extraídos". Se o conteúdo não pôde ser lido (um PDF truncado, um DOCX com o XML quebrado), "Não foi possível ler os metadados", e o resto do diálogo aparece normalmente.
 - **Conversão:** de qual documento ele veio (formato e data) e quais derivados tem, cada um com o aviso de desatualizado, se houver (spec 04). Clicar num deles abre o documento.
 
-O command é `get_properties` e devolve um `DocumentProperties`: o `Document` (arquivo), o `location` (projeto e pastas), o `metadata` e as ligações de conversão (`convertedFrom`, `derivatives`). `metadata` vem vazio quando nada foi extraído: documento protegido ou inválido; o frontend escolhe a mensagem por `protected` e `valid`.
+O command é `get_properties` e devolve um `DocumentProperties`: o `Document` (arquivo), o `location` (projeto e pastas), o `metadata` e as ligações de conversão (`convertedFrom`, `derivatives`). `metadata` vem vazio quando nada foi extraído: documento protegido, inválido ou com conteúdo ilegível (o leitor falha com `ReadFailed`, que o command não propaga: o motivo vai para o log); o frontend escolhe a mensagem por `protected` e `valid`, e um documento válido e sem proteção sem metadados é o de conteúdo ilegível.
 
 ### Atalhos de teclado
 

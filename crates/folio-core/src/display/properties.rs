@@ -6,10 +6,10 @@ use ts_rs::TS;
 use uuid::Uuid;
 
 use super::view::folder_names;
-use crate::Result;
 use crate::documents::{ConversionLink, Document};
 use crate::model::Metadata;
 use crate::workspace::Workspace;
+use crate::{Error, Result};
 
 /// The Properties dialog of a document, in one command.
 #[derive(Debug, Clone, PartialEq, Serialize, TS)]
@@ -45,13 +45,17 @@ impl Workspace {
         })
     }
 
-    /// The metadata of `document`; none when it is invalid (it cannot be
-    /// read) or protected (spec 04).
+    /// The metadata of `document`; none when it is invalid, protected (spec
+    /// 04) or its content cannot be read (the reason is logged): the rest of
+    /// the Properties still shows.
     fn readable_metadata(&self, document: &Document) -> Result<Option<Metadata>> {
         if !document.valid {
             return Ok(None);
         }
-        self.document_metadata(document.id)
+        match self.document_metadata(document.id) {
+            Err(Error::ReadFailed(_)) => Ok(None),
+            other => other,
+        }
     }
 }
 
@@ -60,6 +64,7 @@ mod tests {
     use super::*;
     use crate::documents::Format;
     use crate::documents::test_docs::{MTIME, write_doc};
+    use crate::readers::test_docx::zip_of;
     use crate::workspace::test_env::TestEnv;
 
     fn indexed(workspace: &Workspace, path: &str, content: &[u8]) -> Uuid {
@@ -164,6 +169,20 @@ mod tests {
         let properties = workspace.document_properties(binary).unwrap();
 
         assert_eq!(properties.document.name, "Imagem.md");
+        assert_eq!(properties.metadata, None);
+    }
+
+    #[test]
+    fn properties_of_document_with_unreadable_content_report_file_facts_without_metadata() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        // A ZIP with `document.xml` passes the signature; its XML is broken.
+        let broken = zip_of(&[("word/document.xml", b"<w:document><w:body".as_slice())]);
+        let doc = indexed(&workspace, "Contrato.docx", &broken);
+
+        let properties = workspace.document_properties(doc).unwrap();
+
+        assert_eq!(properties.document.name, "Contrato.docx");
         assert_eq!(properties.metadata, None);
     }
 }
