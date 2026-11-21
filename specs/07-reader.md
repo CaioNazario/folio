@@ -137,6 +137,17 @@ arquivo ─▶ core ──┤
 - **Falha:** se o pdf.js não consegue abrir o documento, o palco mostra Falha ao exibir, e o erro vai para o console.
 - **Recursos do pdf.js:** o worker é empacotado pelo Vite (`pdf.worker.min.mjs?url`). Os cmaps, as fontes padrão, os perfis ICC e os decodificadores em JavaScript (`*_nowasm_fallback.js`) são copiados do `pdfjs-dist` para `pdfjs/` no build, pelo `vite-plugin-static-copy`, e nunca versionados. O pdf.js roda com `useWasm: false`: os `.wasm` não são copiados (S2).
 
+### DOCX
+
+- **Páginas em rolagem contínua:** o `docx-preview` (`breakPages`, `ignoreLastRenderedPageBreak: false`, sem comentários) monta uma página por trecho entre quebras: as explícitas, as de seção, a "quebra de página antes" e as marcas que o Word grava ao salvar. As páginas sem texto nem imagem são removidas depois da renderização (S4). A página atual é a que ocupa o terço de cima do palco; a toolbar mostra "página N de T".
+- **Zoom, teclas de página e posição:** como no PDF. 100% é a página ocupando a largura do palco, pela largura que o próprio DOCX declara.
+- **Aparência:** as páginas ficam uma abaixo da outra, com o fundo `--paper` e a sombra da página (`Design/specs/05-document-view.md`, 5.5). Dentro do DOCX as imagens não têm `max-width` (o preflight do Tailwind encolheria a zero as flutuantes), e cada página isola o próprio empilhamento.
+- **Imagem ancorada à página ou à margem:** posicionada na página, não no parágrafo, com o alinhamento ao centro e o `behindDoc` respeitados. Vem de um patch no `docx-preview` (`patches/`, aplicado pelo `patch-package` no `postinstall`); ao atualizar o `docx-preview`, refazer o patch ou conferir se ele ainda é preciso.
+- **Imagem que o webview não desenha:** um EMF que só embrulha um bitmap (um registro `EMR_STRETCHDIBITS`, sem outros desenhos) vira BMP. O resto (EMF vetorial, WMF) vira o espaço reservado de imagem `unsupported`, com o texto alternativo, como no MD.
+- **Senha:** o core recusa os bytes com `PasswordRequired`, e o palco mostra o estado Senha. A senha volta no `get_document_bytes`; com a errada, o core responde `WrongPassword` e o erro aparece no campo. A senha vive só no estado do documento aberto: trocar de documento a descarta.
+- **Links:** `#marcador` (sumário, referências cruzadas) rola até o marcador no próprio documento. Os outros vão para o `follow_link`, como no MD.
+- **Falha:** se o `docx-preview` não consegue renderizar, o palco mostra Falha ao exibir, e o erro vai para o console.
+
 ### Arquivos grandes
 
 - **MD e TXT acima de 10 MB:** o core lê só os primeiros 10 MB, corta no fim da última linha completa e avisa que cortou. O palco mostra "Arquivo grande: mostrando os primeiros 10 MB". Um caractere UTF-8 partido pelo corte é descartado, sem fazer o texto cair no Windows-1252; uma linha única maior que o limite é cortada no último caractere inteiro. A conversão e os metadados continuam usando o arquivo inteiro.
@@ -151,7 +162,7 @@ Clicar num link dentro do documento (MD, DOCX ou PDF) nunca navega o webview. O 
 | `http:`, `https:`, `mailto:` | Abre no navegador ou no app de e-mail do sistema, pelo `open_url` do `plugin-opener` chamado no Rust |
 | Relativo, para um documento do workspace (`[ver](../Notas.md)`) | Abre esse documento no Folio |
 | Relativo, para outro arquivo do workspace ou para fora dele | Nada abre; toast "Este link aponta para um arquivo que o Folio não abre" |
-| `#âncora` | Rola até o ponto, no MD; vai à página de destino, no PDF |
+| `#âncora` | Rola até o ponto, no MD; vai à página de destino, no PDF; rola até o marcador, no DOCX |
 | Qualquer outro esquema (`file:`, `javascript:`...) | Ignorado |
 
 O caminho relativo é resolvido a partir do diretório do documento e precisa continuar dentro do workspace (nunca em `.folio/`); os escapes `%` são decodificados, e o fragmento e a query depois do arquivo (`Notas.md#secao`) são ignorados. O documento de destino precisa estar no índice e no disco. O command é `follow_link`: o core resolve o link, e um `External` é aberto ali mesmo, no Rust, porque o webview não tem acesso ao `plugin-opener` (spec 10). A resposta é um `LinkTarget` com tag `kind`: `External` (já aberto), `Document`, `Unsupported`, `Anchor` ou `Ignored`; o frontend cuida dos outros.
@@ -298,12 +309,12 @@ Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no we
 
 - [ ] Os quatro formatos abrem no palco com a aparência de `Design/specs/05-document-view.md`, nos temas escuro e claro.
 - [x] PDF: página atual e total corretos, zoom e navegação entre páginas, texto selecionável.
-- [ ] DOCX: título, parágrafos, listas, tabelas e imagens aparecem com layout reconhecível.
+- [x] DOCX: título, parágrafos, listas, tabelas e imagens aparecem com layout reconhecível.
 - [ ] MD: um `.md` com `<script>` ou `onerror=` não executa nada; o front matter aparece como metadados.
 - [x] TXT em Windows-1252 e em UTF-16 com BOM abre com acentos corretos.
 - [x] Cada leitor tem testes com arquivos de exemplo e produz o modelo esperado: TXT, MD e DOCX com arquivos em `crates/folio-core/tests/fixtures/`; PDF com documentos gerados no próprio teste (`tests/readers_pdf.rs`, pelo `krilla` com as fontes do `typst-assets`, e PDFs escritos à mão nos testes do leitor), sem PDF versionado.
 - [ ] PDF digitalizado abre na exibição e produz documento vazio no leitor, sem erro.
-- [ ] PDF e DOCX protegidos por senha abrem com a senha certa; o DOCX é decifrado em memória.
+- [x] PDF e DOCX protegidos por senha abrem com a senha certa; o DOCX é decifrado em memória.
 - [x] Os metadados de PDF, DOCX e MD dos arquivos de exemplo (gerados no teste, no PDF) chegam ao cache conforme a tabela de metadados.
 - [ ] O documento reabre na posição em que o usuário parou.
 - [ ] Um link `https:` abre no navegador do sistema; um link relativo para outro documento do workspace abre no Folio; nenhum link navega o webview.

@@ -29,6 +29,7 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 - Markdown documents show their images, and clicked links open in the browser or mail app, open the linked document, or warn when Folio cannot open the file.
 - The reader remembers how far each document was scrolled and returns there when it is opened again.
 - PDF documents open in the reader, with continuous pages, the current page and total in the toolbar, zoom, page keys and a password prompt for protected files; they reopen on the page where the reader stopped.
+- Word documents (DOCX) open in the reader, with pages, the current page and total in the toolbar, zoom, page keys and a password prompt for protected files; images anchored to the page and bitmaps saved as EMF show in place, and the document reopens on the page where the reader stopped.
 - Page Down, Page Up, the left and right arrows, Home and End scroll the reader one screen or to either end.
 - Opening a document that is gone from disk refreshes the sidebar.
 - Home screen, shown when no document is open and reached from the logo: quick actions, recent documents to continue reading, and project cards that open the project in the sidebar.

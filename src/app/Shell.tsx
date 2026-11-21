@@ -14,7 +14,7 @@ import { useSidebar } from '@/features/sidebar/useSidebar'
 const noop = () => undefined
 
 // Menu actions arrive with their commands (specs 04, 08 and 10).
-const PENDING_ACTIONS: Omit<DocumentActions, 'onRetry' | 'onLink'> = {
+const PENDING_ACTIONS: Omit<DocumentActions, 'onRetry' | 'onLink' | 'onPassword'> = {
   onConvert: noop,
   onRename: noop,
   onShowInFolder: noop,
@@ -40,7 +40,7 @@ export function Shell() {
   const [openRef, setOpenRef] = useState<DocumentRef | null>(null)
   const { reload, reloadRecents } = sidebar
   const events = useMemo(() => ({ onRecorded: reloadRecents, onNotFound: reload }), [reloadRecents, reload])
-  const { document, content, retry } = useDocument(openRef, events)
+  const { document, content, retry, submitPassword } = useDocument(openRef, events)
   const reader = useReaderState()
   const onLink = useLinkHandler(openRef?.id ?? null, setOpenRef)
   const now = new Date()
@@ -52,7 +52,7 @@ export function Shell() {
       <Sidebar data={sidebar.data} tree={sidebar.tree} actions={actions} selectedId={openRef?.id ?? null} now={now} />
       <main className="relative flex min-w-0 flex-1 flex-col">
         {document ? (
-          <DocumentView document={document} content={content} reader={reader} actions={{ ...PENDING_ACTIONS, onRetry: retry, onLink }} />
+          <DocumentView document={document} content={content} reader={reader} actions={{ ...PENDING_ACTIONS, onRetry: retry, onLink, onPassword: submitPassword }} />
         ) : (
           <Home data={homeData} actions={homeActions} now={now} />
         )}

@@ -15,7 +15,7 @@ type DocumentViewProps = {
   actions: DocumentActions
 }
 
-const SHOWN: StageContent['status'][] = ['text', 'html', 'pdf']
+const SHOWN: StageContent['status'][] = ['text', 'html', 'pdf', 'docx']
 
 // Document view (Design/specs/05-document-view.md): header + stage. Toggling
 // fullscreen closes the menus.

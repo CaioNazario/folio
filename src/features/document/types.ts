@@ -29,11 +29,12 @@ export type StageContent =
   | { status: 'html'; html: string; truncated: boolean }
   /** pdf.js takes these bytes; the display keeps its own copy only in development. */
   | { status: 'pdf'; bytes: ArrayBuffer }
+  | { status: 'docx'; bytes: ArrayBuffer }
+  /** A protected DOCX: the core needs the password; `wrong` after one was rejected. */
+  | { status: 'password'; wrong: boolean }
   | { status: 'invalid' }
   | { status: 'notFound' }
   | { status: 'failed' }
-  /** The view for this format is not built yet (DOCX waits for spike S4). */
-  | { status: 'unsupported' }
 
 export type DocumentActions = {
   onConvert: (format: DocumentFormat) => void
@@ -45,6 +46,8 @@ export type DocumentActions = {
   onRetry: () => void
   /** A link clicked inside the document; the core decides what it is. */
   onLink: (href: string) => void
+  /** The password for a protected DOCX: the bytes are asked again with it. */
+  onPassword: (password: string) => void
 }
 
 // How the stage reads and reports where the reader is (specs/07-reader.md,

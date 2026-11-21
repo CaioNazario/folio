@@ -44,7 +44,7 @@ const DOC: OpenDocument = {
 const PDF: StageContent = { status: 'pdf', bytes: new ArrayBuffer(8) }
 
 function actions(): DocumentActions {
-  const names = ['onConvert', 'onRename', 'onShowInFolder', 'onCopyFile', 'onProperties', 'onTrash', 'onRetry', 'onLink']
+  const names = ['onConvert', 'onRename', 'onShowInFolder', 'onCopyFile', 'onProperties', 'onTrash', 'onRetry', 'onLink', 'onPassword']
   return Object.fromEntries(names.map((name) => [name, vi.fn()])) as unknown as DocumentActions
 }
 

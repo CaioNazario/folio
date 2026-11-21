@@ -5,13 +5,17 @@ import { expect, test, vi } from 'vitest'
 import { DEFAULT_PREFERENCES } from '@/features/preferences/api'
 import { pt } from '@/lib/i18n/pt'
 import { mockCommands } from '@/test-utils'
+import { openDocx as openDocxEngine } from '@/features/document/docx/docxEngine'
 import { openPdf } from '@/features/document/pdf/pdfEngine'
 import { App } from './App'
 import { ROOT, workspaceCommands } from './fixtures'
 
-// pdf.js does not run in jsdom.
+// pdf.js and docx-preview do not run in jsdom.
 vi.mock('@/features/document/pdf/pdfEngine', () => ({
   openPdf: vi.fn(() => ({ turn: vi.fn(), setZoom: vi.fn(), close: vi.fn() })),
+}))
+vi.mock('@/features/document/docx/docxEngine', () => ({
+  openDocx: vi.fn(() => ({ turn: vi.fn(), setZoom: vi.fn(), close: vi.fn() })),
 }))
 
 async function renderApp(overrides: Parameters<typeof workspaceCommands>[0] = {}) {
@@ -140,11 +144,42 @@ test('a link to a file Folio does not open shows a toast', async () => {
   expect(await screen.findByText(pt.document.linkUnsupported)).toBeInTheDocument()
 })
 
-test('a format without a view yet says so', async () => {
-  const { user } = await renderApp({ list_dir: () => ({ folders: [], documents: [{ ...ROOT.documents[0], id: 'd-docx', name: 'Trabalho.docx', format: 'docx' }] }) })
-  await user.click(within(projects()).getByRole('button', { name: 'Trabalho.docx' }))
+const DOCX_ROOT = { folders: [], documents: [{ ...ROOT.documents[0], id: 'd-docx', name: 'Trabalho.docx', format: 'docx' }] }
 
-  expect(await screen.findByText('A exibição de DOCX ainda não está disponível')).toBeInTheDocument()
+async function openDocx(overrides: Parameters<typeof workspaceCommands>[0] = {}) {
+  const app = await renderApp({ list_dir: () => DOCX_ROOT, ...overrides })
+  await app.user.click(within(projects()).getByRole('button', { name: 'Trabalho.docx' }))
+  return app
+}
+
+// The core refuses a protected DOCX without its password, and a wrong one.
+function protectedDocx(args: unknown) {
+  const { id, password } = args as { id: string; password: string | null }
+  throw { kind: password === null ? 'PasswordRequired' : 'WrongPassword', id }
+}
+
+test('loads the docx bytes for a docx document', async () => {
+  const { calls } = await openDocx()
+
+  await waitFor(() => expect(openDocxEngine).toHaveBeenCalled())
+  expect(calls).toContainEqual({ cmd: 'get_document_bytes', args: { id: 'd-docx', password: null } })
+})
+
+test('asks for the password on the stage when the docx is protected', async () => {
+  await openDocx({ get_document_bytes: protectedDocx })
+
+  expect(await screen.findByLabelText(pt.document.password.label)).toBeInTheDocument()
+  expect(screen.getByText(pt.errors.PasswordRequired)).toBeInTheDocument()
+})
+
+test('sends the password with the bytes request and shows the wrong password error', async () => {
+  const { calls, user } = await openDocx({ get_document_bytes: protectedDocx })
+  await user.type(await screen.findByLabelText(pt.document.password.label), 'segredo')
+  await user.click(screen.getByRole('button', { name: pt.document.password.open }))
+
+  await waitFor(() => expect(screen.getByLabelText(pt.document.password.label)).toHaveAttribute('aria-invalid', 'true'))
+  expect(screen.getByText(pt.errors.WrongPassword)).toBeInTheDocument()
+  expect(calls).toContainEqual({ cmd: 'get_document_bytes', args: { id: 'd-docx', password: 'segredo' } })
 })
 
 test('loads the pdf bytes for a pdf document', async () => {

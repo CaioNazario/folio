@@ -106,7 +106,6 @@ export const pt = {
       invalid: 'Este arquivo não é um {{format}} válido',
       failed: 'Não foi possível exibir este documento',
       retry: 'Tentar de novo',
-      unsupported: 'A exibição de {{format}} ainda não está disponível',
       empty: 'Documento vazio',
       truncated: 'Arquivo grande: mostrando os primeiros 10 MB',
     },

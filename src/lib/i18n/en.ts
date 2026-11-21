@@ -105,7 +105,6 @@ export const en = {
       invalid: 'This file is not a valid {{format}}',
       failed: 'This document could not be displayed',
       retry: 'Try again',
-      unsupported: '{{format}} display is not available yet',
       empty: 'Empty document',
       truncated: 'Large file: showing the first 10 MB',
     },

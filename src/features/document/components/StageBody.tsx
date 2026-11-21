@@ -6,12 +6,14 @@ import type { DocumentActions, DocumentFormat, Reading, StageContent } from '../
 import { useDelayedFlag } from '../useDelayedFlag'
 import { MarkdownDisplay } from './MarkdownDisplay'
 import { Page } from './Page'
+import { PasswordPrompt } from './PasswordPrompt'
 import { StageFailed } from './StageFailed'
 import { StageMessage } from './StageMessage'
 import { TextDisplay } from './TextDisplay'
 
-// pdf.js only loads when a PDF opens.
+// pdf.js and docx-preview only load when a document of theirs opens.
 const PdfDisplay = lazy(() => import('./PdfDisplay').then((module) => ({ default: module.PdfDisplay })))
+const DocxDisplay = lazy(() => import('./DocxDisplay').then((module) => ({ default: module.DocxDisplay })))
 
 const LOADING_DELAY_MS = 300
 
@@ -21,7 +23,7 @@ type StageBodyProps = {
   zoom: number
   reading: Reading
   onPages: (pages: Pages) => void
-  actions: Pick<DocumentActions, 'onRetry' | 'onShowInFolder' | 'onLink'>
+  actions: Pick<DocumentActions, 'onRetry' | 'onShowInFolder' | 'onLink' | 'onPassword'>
 }
 
 // What the reading area shows for each stage state.
@@ -34,18 +36,21 @@ export function StageBody({ content, format, zoom, reading, onPages, actions }: 
       return showLoading ? <StageMessage>{t('document.stage.loading')}</StageMessage> : null
     case 'invalid':
       return <StageMessage actions={showInFolder}>{t('document.stage.invalid', { format: format.toUpperCase() })}</StageMessage>
-    case 'unsupported':
-      return <StageMessage actions={showInFolder}>{t('document.stage.unsupported', { format: format.toUpperCase() })}</StageMessage>
+    case 'password':
+      return <PasswordPrompt wrong={content.wrong} onSubmit={actions.onPassword} />
     case 'notFound':
       return <StageMessage>{t('errors.DocumentNotFound')}</StageMessage>
     case 'failed':
       return <StageFailed onRetry={actions.onRetry} showInFolder={showInFolder} />
     case 'pdf':
+    case 'docx': {
+      const Display = content.status === 'pdf' ? PdfDisplay : DocxDisplay
       return (
         <Suspense>
-          <PdfDisplay bytes={content.bytes} zoom={zoom} reading={reading} onPages={onPages} actions={actions} showInFolder={showInFolder} />
+          <Display bytes={content.bytes} zoom={zoom} reading={reading} onPages={onPages} actions={actions} showInFolder={showInFolder} />
         </Suspense>
       )
+    }
   }
   const body = content.status === 'text' ? content.text : content.html
   if (body.trim() === '') return <StageMessage>{t('document.stage.empty')}</StageMessage>
