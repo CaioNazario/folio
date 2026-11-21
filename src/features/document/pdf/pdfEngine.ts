@@ -3,6 +3,7 @@ import 'pdfjs-dist/web/pdf_viewer.css'
 import { EventBus, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer.mjs'
 import type { PageMove } from '../pageScroll'
 import type { OpenPaged, PagedEvents, PagedStart } from '../paged/types'
+import { watchWidth } from '../paged/watchWidth'
 
 // The pdf.js viewer behind the PDF display (specs/07-reader.md, "PDF").
 
@@ -53,18 +54,6 @@ function interceptLinks(container: HTMLElement, onLink: (href: string) => void) 
   }
   container.addEventListener('click', onClick, true)
   return () => container.removeEventListener('click', onClick, true)
-}
-
-// Refits the zoom when the stage width changes (window, fullscreen).
-function watchWidth(container: HTMLElement, refit: () => void) {
-  let width = container.clientWidth
-  const observer = new ResizeObserver(() => {
-    if (container.clientWidth === width) return
-    width = container.clientWidth
-    refit()
-  })
-  observer.observe(container)
-  return () => observer.disconnect()
 }
 
 function loadDocument(bytes: ArrayBuffer, { linkService, viewer }: Viewer, events: PagedEvents) {
