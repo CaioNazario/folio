@@ -12,7 +12,10 @@ type Viewer = { eventBus: EventBus; linkService: PDFLinkService; viewer: PDFView
 function createViewer(container: HTMLDivElement): Viewer {
   const eventBus = new EventBus()
   const linkService = new PDFLinkService({ eventBus })
-  const viewer = new PDFViewer({ container, eventBus, linkService })
+  // Named explicitly: pdf.js would take the container's first child, which
+  // may be an element it left there in an earlier session.
+  const pages = container.querySelector<HTMLDivElement>('.pdfViewer') ?? undefined
+  const viewer = new PDFViewer({ container, viewer: pages, eventBus, linkService })
   linkService.setViewer(viewer)
   return { eventBus, linkService, viewer }
 }
@@ -79,8 +82,12 @@ export const openPdf: OpenPaged = (container, bytes, start, events) => {
     zoom = value
     applyZoom(parts.viewer, zoom)
   }
+  // Emptying the viewer also removes the hidden element pdf.js puts in the
+  // container, so the next session there starts from a clean container.
   const close = () => {
     stops.forEach((stop) => stop())
+    parts.viewer.setDocument(null)
+    parts.linkService.setDocument(null)
     void task.destroy()
   }
   return { turn: (move) => turnPage(parts.viewer, move), setZoom, close }
