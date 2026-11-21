@@ -79,7 +79,24 @@ Riscos que o corpus gerado não cobre e que os testes do leitor devem cobrir com
 
 **Como testar:** corpus de ~10 DOCX reais (trabalho acadêmico com sumário, contrato, documento com tabelas e imagens, documento do Google Docs exportado). Comparar com o LibreOffice: texto, estilos, tabelas, imagens, cabeçalho e rodapé. Verificar o que a opção de quebra de página produz como contagem de páginas.
 
-**Resultado:** pendente.
+**Resultado:** resolvido no Linux, com o `docx-preview` 0.4.1; o Android fica para quando a plataforma entrar no roadmap. O corpus teve 12 DOCX: 9 exportados do Google Docs (os documentos do dia a dia do mantenedor) e 3 públicos salvos pelo Word (dois trabalhos acadêmicos com sumário, da UFU, e um contrato do DNIT). Cada um foi comparado com o PDF que o LibreOffice gera dele.
+
+- **Fidelidade:** texto, estilos, listas, tabelas, sumário, cabeçalho, rodapé e fontes embutidas saem equivalentes ao LibreOffice. Todos abrem em menos de 1 segundo (o maior, de 6,3 MB, em 0,6 s), sem nenhum bloqueio da CSP.
+- **Problemas achados, todos corrigidos no protótipo:**
+  - **Imagem flutuante sumia:** o preflight do Tailwind limita `img` a `max-width: 100%`, e o `docx-preview` põe a imagem flutuante numa caixa de 0×0. Dentro do DOCX, as imagens ficam sem esse limite.
+  - **Imagem ancorada à página ou à margem saía fora do lugar** (capa de página inteira, fundo de cabeçalho): o `docx-preview` a posiciona pelo parágrafo. Um patch no `docx-preview` (`patch-package`) passa a posicioná-la na página, respeita o alinhamento ao centro e põe atrás do texto a que é `behindDoc`; cada página isola o próprio empilhamento.
+  - **EMF não aparece** (formato do Windows que nenhum webview desenha): um EMF que só embrulha um bitmap (um único registro `EMR_STRETCHDIBITS`, caso do brasão do contrato) vira BMP no frontend, lido do `blob:` que o `docx-preview` criou. No WebKitGTK, ler esse `blob:` passa pela CSP atual; no Android, conferir.
+- **Páginas:** o `docx-preview` não diagrama. Ele quebra nas quebras explícitas e, com `ignoreLastRenderedPageBreak: false`, nas marcas que o Word grava ao salvar (`w:lastRenderedPageBreak`). Uma marca logo depois de outra quebra abre uma página vazia; as páginas sem texto nem imagem são removidas depois da renderização.
+
+| DOCX | Word | LibreOffice | `docx-preview` |
+|---|---|---|---|
+| Trabalho acadêmico (Word) | 36 | 37 | 35 |
+| Monografia (Word) | 31 | 31 | 27 |
+| Contrato (Word) | 10 | 10 | 9 |
+| Regulamento (Google Docs, 2 quebras explícitas) | — | 12 | 3 |
+| Especificação técnica (Google Docs, sem quebras) | — | 17 | 1 |
+
+Um DOCX salvo pelo Word chega perto do total; a diferença vem de páginas para as quais o Word não gravou marca (26 marcas para 31 páginas, na monografia) e de marcas dentro de tabela, que o `docx-preview` não procura (uma, no contrato). Um DOCX do Google Docs não tem marcas: sem quebra explícita, o documento é uma página só, longa.
 
 ## Arquitetura
 
@@ -98,7 +115,7 @@ arquivo ─▶ core ──┤
 | Formato | Engine | O core entrega | Páginas |
 |---|---|---|---|
 | PDF | `pdfjs-dist` (pdf.js) | Bytes do arquivo | Exatas, do próprio PDF |
-| DOCX | `docx-preview` | Bytes do arquivo (decifrados em memória, se protegido) | Aproximadas: só as quebras explícitas do documento (o `docx-preview` não diagrama páginas) |
+| DOCX | `docx-preview` | Bytes do arquivo (decifrados em memória, se protegido) | Aproximadas: as quebras explícitas e as marcas de página que o Word grava ao salvar, sem páginas vazias (o `docx-preview` não diagrama páginas; S4) |
 | MD | `comrak` → HTML, sanitizado com `ammonia` | HTML pronto e o front matter separado | Rolagem contínua |
 | TXT | Própria (texto com `white-space: pre-wrap`) | Texto decodificado (ver o leitor de TXT) | Rolagem contínua |
 
@@ -215,7 +232,7 @@ object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'
 - `style-src 'unsafe-inline'`: o `docx-preview` injeta os estilos do documento.
 - `blob:`: imagens e fontes do `docx-preview`. O worker do pdf.js é um arquivo do app (`worker-src 'self'`).
 
-O S2 tirou da lista o `'wasm-unsafe-eval'` e o `blob:` do worker. O S4 confirma o resto; o que ele mostrar desnecessário sai.
+O S2 tirou da lista o `'wasm-unsafe-eval'` e o `blob:` do worker. O S4 rodou com a lista acima sem nenhum bloqueio, e o `docx-preview` usa o resto: estilos em `<style>` (`'unsafe-inline'`), imagens e fontes embutidas em `blob:`.
 
 ## Modelo de documento
 
