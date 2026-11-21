@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, expect, test, vi } from 'vitest'
 import { pt } from '@/lib/i18n/pt'
 import { mockCommands } from '@/test-utils'
-import type { PdfEvents, PdfStart } from '../pdf/pdfEngine'
+import type { PagedEvents, PagedStart } from '../paged/types'
 import type { DocumentActions, OpenDocument, StageContent } from '../types'
 import { useReaderState } from '../useReaderState'
 import { DocumentView } from './DocumentView'
@@ -11,13 +11,13 @@ import { DocumentView } from './DocumentView'
 // pdf.js does not run in jsdom: the engine is replaced, and each test plays
 // what pdf.js would report.
 const engine = vi.hoisted(() => ({
-  events: null as PdfEvents | null,
-  start: null as PdfStart | null,
+  events: null as PagedEvents | null,
+  start: null as PagedStart | null,
   session: { turn: vi.fn(), setZoom: vi.fn(), close: vi.fn() },
 }))
 
 vi.mock('../pdf/pdfEngine', () => ({
-  openPdf: (_container: HTMLElement, _bytes: ArrayBuffer, start: PdfStart, events: PdfEvents) => {
+  openPdf: (_container: HTMLElement, _bytes: ArrayBuffer, start: PagedStart, events: PagedEvents) => {
     engine.start = start
     engine.events = events
     return engine.session
@@ -58,7 +58,7 @@ async function renderPdf(document: OpenDocument = DOC) {
   const acts = actions()
   const utils = render(<View document={document} acts={acts} />)
   await waitFor(() => expect(engine.events).not.toBeNull())
-  const events = engine.events as PdfEvents
+  const events = engine.events as PagedEvents
   return { ...utils, acts, events, user: userEvent.setup({ pointerEventsCheck: 0 }) }
 }
 

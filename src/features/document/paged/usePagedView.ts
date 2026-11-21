@@ -1,17 +1,13 @@
 import { type Dispatch, type RefObject, type SetStateAction, useEffect, useRef, useState } from 'react'
-import type { PageMove } from '../pageScroll'
-import { openPdf, type Pages, type PdfEvents, type PdfSession } from './pdfEngine'
+import type { OpenPaged, Pager, Pages, PagedEvents, PagedSession } from './types'
 
-export type PdfPhase =
+export type PagedPhase =
   | { kind: 'loading' }
   | { kind: 'password'; wrong: boolean; submit: (password: string) => void }
   | { kind: 'ready' }
   | { kind: 'failed' }
 
-/** Turns the pages of the document on the stage (the page keys). */
-export type Pager = (move: PageMove) => void
-
-export type PdfViewOptions = {
+export type PagedViewOptions = {
   zoom: number
   /** Page to open on, where the reader stopped. */
   initialPage: number | null
@@ -20,17 +16,17 @@ export type PdfViewOptions = {
   pagerRef: RefObject<Pager | null>
 }
 
-type SetPhase = Dispatch<SetStateAction<PdfPhase>>
+type SetPhase = Dispatch<SetStateAction<PagedPhase>>
 
-const LOADING: PdfPhase = { kind: 'loading' }
-const READY: PdfPhase = { kind: 'ready' }
-const FAILED: PdfPhase = { kind: 'failed' }
+const LOADING: PagedPhase = { kind: 'loading' }
+const READY: PagedPhase = { kind: 'ready' }
+const FAILED: PagedPhase = { kind: 'failed' }
 
-// StrictMode opens twice in development, and pdf.js takes the buffer it gets.
+// StrictMode opens twice in development, and an engine may take the buffer.
 const ownCopy = (bytes: ArrayBuffer) => (import.meta.env.DEV ? bytes.slice(0) : bytes)
 
-// What pdf.js reports becomes the phase and reaches the stage.
-function sessionEvents(latest: RefObject<PdfViewOptions>, setPhase: SetPhase): PdfEvents {
+// What the engine reports becomes the phase and reaches the stage.
+function sessionEvents(latest: RefObject<PagedViewOptions>, setPhase: SetPhase): PagedEvents {
   return {
     onPassword: (wrong, submit) => setPhase({ kind: 'password', wrong, submit }),
     onPages: (pages) => {
@@ -38,15 +34,15 @@ function sessionEvents(latest: RefObject<PdfViewOptions>, setPhase: SetPhase): P
       latest.current.onPages(pages)
     },
     onFailed: (error) => {
-      console.error('pdf.js could not open the document', error)
+      console.error('the document could not be shown', error)
       setPhase(FAILED)
     },
     onLink: (href) => latest.current.onLink(href),
   }
 }
 
-// A closed session still hears pdf.js abort its loading: drop that.
-function whileActive(events: PdfEvents, active: () => boolean): PdfEvents {
+// A closed session may still report (pdf.js aborting its loading): drop that.
+function whileActive(events: PagedEvents, active: () => boolean): PagedEvents {
   const guard =
     <A extends unknown[]>(handler: (...args: A) => void) =>
     (...args: A) => {
@@ -55,15 +51,15 @@ function whileActive(events: PdfEvents, active: () => boolean): PdfEvents {
   return { onPassword: guard(events.onPassword), onPages: guard(events.onPages), onFailed: guard(events.onFailed), onLink: guard(events.onLink) }
 }
 
-// One pdf.js session per byte buffer, closed when the display goes away.
-function useSession(container: RefObject<HTMLDivElement | null>, bytes: ArrayBuffer, latest: RefObject<PdfViewOptions>, setPhase: SetPhase) {
-  const session = useRef<PdfSession | null>(null)
+// One engine session per byte buffer, closed when the display goes away.
+function useSession(open: OpenPaged, container: RefObject<HTMLDivElement | null>, bytes: ArrayBuffer, latest: RefObject<PagedViewOptions>, setPhase: SetPhase) {
+  const session = useRef<PagedSession | null>(null)
   useEffect(() => {
     const element = container.current
     if (!element) return
     let active = true
     const { zoom, initialPage, pagerRef } = latest.current
-    const opened = openPdf(element, ownCopy(bytes), { page: initialPage, zoom }, whileActive(sessionEvents(latest, setPhase), () => active))
+    const opened = open(element, ownCopy(bytes), { page: initialPage, zoom }, whileActive(sessionEvents(latest, setPhase), () => active))
     session.current = opened
     pagerRef.current = opened.turn
     return () => {
@@ -72,20 +68,20 @@ function useSession(container: RefObject<HTMLDivElement | null>, bytes: ArrayBuf
       session.current = null
       pagerRef.current = null
     }
-  }, [container, bytes, latest, setPhase])
+  }, [open, container, bytes, latest, setPhase])
   return session
 }
 
-// The PDF on the stage: pdf.js session, phase and password answer
-// (specs/07-reader.md, "PDF").
-export function usePdfView(bytes: ArrayBuffer, options: PdfViewOptions) {
+// A paged document on the stage: engine session, phase and password answer
+// (specs/07-reader.md, "Exibição"). `open` must be stable.
+export function usePagedView(open: OpenPaged, bytes: ArrayBuffer, options: PagedViewOptions) {
   const container = useRef<HTMLDivElement>(null)
   const latest = useRef(options)
   useEffect(() => {
     latest.current = options
   })
-  const [phase, setPhase] = useState<PdfPhase>(LOADING)
-  const session = useSession(container, bytes, latest, setPhase)
+  const [phase, setPhase] = useState<PagedPhase>(LOADING)
+  const session = useSession(open, container, bytes, latest, setPhase)
   useEffect(() => session.current?.setZoom(options.zoom), [session, options.zoom])
   const submitPassword = (password: string) => {
     if (phase.kind !== 'password') return

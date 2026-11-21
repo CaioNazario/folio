@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import type { Pages } from '../pdf/pdfEngine'
+import type { Pages } from '../paged/types'
 import type { DocumentActions, DocumentFormat, Reading, StageContent } from '../types'
 import { useDelayedFlag } from '../useDelayedFlag'
 import { MarkdownDisplay } from './MarkdownDisplay'

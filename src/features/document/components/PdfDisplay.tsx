@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import type { Pages } from '../pdf/pdfEngine'
-import { usePdfView } from '../pdf/usePdfView'
+import type { Pages } from '../paged/types'
+import { usePagedView } from '../paged/usePagedView'
+import { openPdf } from '../pdf/pdfEngine'
 import type { DocumentActions, Reading } from '../types'
 import { useDelayedFlag } from '../useDelayedFlag'
 import { PasswordPrompt } from './PasswordPrompt'
@@ -30,7 +31,7 @@ export function PdfDisplay({ bytes, zoom, reading, onPages, actions, showInFolde
   const { t } = useTranslation()
   const initialPage = reading.start?.kind === 'Page' ? reading.start.page : null
   const options = { zoom, initialPage, onPages, onLink: actions.onLink, pagerRef: reading.pagerRef }
-  const { container, phase, submitPassword } = usePdfView(bytes, options)
+  const { container, phase, submitPassword } = usePagedView(openPdf, bytes, options)
   const showLoading = useDelayedFlag(phase.kind === 'loading', LOADING_DELAY_MS)
   return (
     <div className="relative flex-1 self-stretch">

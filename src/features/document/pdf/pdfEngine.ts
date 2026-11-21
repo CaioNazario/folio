@@ -2,28 +2,9 @@ import { PDFJS_OPTIONS, pdfjs } from './pdfjs'
 import 'pdfjs-dist/web/pdf_viewer.css'
 import { EventBus, PDFLinkService, PDFViewer } from 'pdfjs-dist/web/pdf_viewer.mjs'
 import type { PageMove } from '../pageScroll'
+import type { OpenPaged, PagedEvents, PagedStart } from '../paged/types'
 
-// The pdf.js viewer behind the PDF display (specs/07-reader.md, "PDF"). The
-// display only talks to it through openPdf, so tests can replace it.
-
-export type Pages = { current: number; total: number }
-
-export type PdfEvents = {
-  /** pdf.js needs a password; `wrong` after one was rejected. */
-  onPassword: (wrong: boolean, submit: (password: string) => void) => void
-  onPages: (pages: Pages) => void
-  onFailed: (error: unknown) => void
-  /** A link that does not point inside the document. */
-  onLink: (href: string) => void
-}
-
-export type PdfStart = { page: number | null; zoom: number }
-
-export type PdfSession = {
-  turn: (move: PageMove) => void
-  setZoom: (zoom: number) => void
-  close: () => void
-}
+// The pdf.js viewer behind the PDF display (specs/07-reader.md, "PDF").
 
 type Viewer = { eventBus: EventBus; linkService: PDFLinkService; viewer: PDFViewer }
 
@@ -49,7 +30,7 @@ function turnPage(viewer: PDFViewer, move: PageMove) {
 }
 
 // Opens on the saved page, or on the last one if the PDF has fewer now.
-function watchPages({ eventBus, viewer }: Viewer, start: PdfStart, zoom: () => number, events: PdfEvents) {
+function watchPages({ eventBus, viewer }: Viewer, start: PagedStart, zoom: () => number, events: PagedEvents) {
   const report = () => events.onPages({ current: viewer.currentPageNumber, total: viewer.pagesCount })
   eventBus.on('pagesinit', () => {
     applyZoom(viewer, zoom())
@@ -86,7 +67,7 @@ function watchWidth(container: HTMLElement, refit: () => void) {
   return () => observer.disconnect()
 }
 
-function loadDocument(bytes: ArrayBuffer, { linkService, viewer }: Viewer, events: PdfEvents) {
+function loadDocument(bytes: ArrayBuffer, { linkService, viewer }: Viewer, events: PagedEvents) {
   const task = pdfjs.getDocument({ data: new Uint8Array(bytes), ...PDFJS_OPTIONS })
   task.onPassword = (submit: (password: string) => void, reason: number) =>
     events.onPassword(reason === pdfjs.PasswordResponses.INCORRECT_PASSWORD, submit)
@@ -99,7 +80,7 @@ function loadDocument(bytes: ArrayBuffer, { linkService, viewer }: Viewer, event
 
 // Shows `bytes` in `container`, which must be absolutely positioned and hold
 // an empty `.pdfViewer` div. pdf.js takes the buffer: pass a copy to keep it.
-export function openPdf(container: HTMLDivElement, bytes: ArrayBuffer, start: PdfStart, events: PdfEvents): PdfSession {
+export const openPdf: OpenPaged = (container, bytes, start, events) => {
   const parts = createViewer(container)
   let zoom = start.zoom
   watchPages(parts, start, () => zoom, events)

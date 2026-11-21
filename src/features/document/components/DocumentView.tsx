@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { type PageMove, scrollPage } from '../pageScroll'
-import type { Pager } from '../pdf/usePdfView'
+import type { Pager } from '../paged/types'
 import type { DocumentActions, OpenDocument, Reading, StageContent } from '../types'
 import type { ReaderState } from '../useReaderState'
 import { useReaderShortcuts } from '../useReaderShortcuts'

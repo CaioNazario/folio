@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import type { Pages } from '../pdf/pdfEngine'
+import type { Pages } from '../paged/types'
 import type { DocumentActions, DocumentFormat, Reading, StageContent } from '../types'
 import type { ReaderState } from '../useReaderState'
 import { StageBody } from './StageBody'

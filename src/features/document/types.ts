@@ -1,7 +1,7 @@
 import type { RefObject } from 'react'
 import type { Format } from '@/lib/bindings/Format'
 import type { ReadingPosition } from '@/lib/bindings/ReadingPosition'
-import type { Pager } from './pdf/usePdfView'
+import type { Pager } from './paged/types'
 
 // View models the document view renders, mapped from the ts-rs bindings in
 // documentData.ts.
