@@ -13,6 +13,12 @@ export function getTextContent(id: string): Promise<DisplayText> {
   return invoke<DisplayText>('get_text_content', { id })
 }
 
+// Raw bytes over the bridge (specs/07-reader.md, "Exibição"). `password`
+// opens a protected DOCX; pdf.js asks for a PDF's itself.
+export function getDocumentBytes(id: string, password: string | null = null): Promise<ArrayBuffer> {
+  return invoke<ArrayBuffer>('get_document_bytes', { id, password })
+}
+
 export function getMarkdownContent(id: string): Promise<MarkdownContent> {
   return invoke<MarkdownContent>('get_markdown_content', { id })
 }

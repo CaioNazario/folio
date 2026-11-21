@@ -109,6 +109,17 @@ arquivo ─▶ core ──┤
 - **Controles** (aparência em `Design/specs/05-document-view.md`): zoom, página atual e total, navegação entre páginas e tela cheia. Em MD e TXT, que rolam continuamente, a toolbar mostra só o zoom. Zoom de 50% a 300%, em passos de 10%, igual para todos os documentos durante a sessão.
 - **Posição:** o documento abre onde o usuário parou (página no PDF e no DOCX, fração da rolagem no MD e no TXT), e a exibição informa a posição ao sair (spec 06).
 
+### PDF
+
+- **Rolagem contínua:** o `PDFViewer` do pdf.js mostra as páginas uma abaixo da outra e só renderiza as que estão perto da tela. A página atual é a que o pdf.js considera visível; a toolbar mostra "página N de T".
+- **Zoom:** 100% é a página atual ocupando a largura do palco, e o zoom multiplica a partir daí. A largura é recalculada quando o palco muda de tamanho (janela, fullscreen).
+- **Teclas de página:** próxima, anterior, primeira e última página (ver "Atalhos de teclado").
+- **Posição:** a página atual é salva como `Page`. Ao reabrir, o documento vai para ela; se o PDF agora tem menos páginas, vai para a última.
+- **Senha:** o pdf.js pede pelo `onPassword`, e o palco mostra o estado Senha. A senha vai direto para o pdf.js, nunca para o core.
+- **Links:** destinos internos (sumário, referências) o pdf.js resolve sozinho, indo à página. Os outros vão para o `follow_link`, como no MD.
+- **Falha:** se o pdf.js não consegue abrir o documento, o palco mostra Falha ao exibir, e o erro vai para o console.
+- **Recursos do pdf.js:** o worker é empacotado pelo Vite (`pdf.worker.min.mjs?url`). Os cmaps, as fontes padrão, os perfis ICC e os decodificadores em JavaScript (`*_nowasm_fallback.js`) são copiados do `pdfjs-dist` para `pdfjs/` no build, pelo `vite-plugin-static-copy`, e nunca versionados. O pdf.js roda com `useWasm: false`: os `.wasm` não são copiados (S2).
+
 ### Arquivos grandes
 
 - **MD e TXT acima de 10 MB:** o core lê só os primeiros 10 MB, corta no fim da última linha completa e avisa que cortou. O palco mostra "Arquivo grande: mostrando os primeiros 10 MB". Um caractere UTF-8 partido pelo corte é descartado, sem fazer o texto cair no Windows-1252; uma linha única maior que o limite é cortada no último caractere inteiro. A conversão e os metadados continuam usando o arquivo inteiro.
@@ -269,7 +280,7 @@ Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no we
 ## Critérios de aceite
 
 - [ ] Os quatro formatos abrem no palco com a aparência de `Design/specs/05-document-view.md`, nos temas escuro e claro.
-- [ ] PDF: página atual e total corretos, zoom e navegação entre páginas, texto selecionável.
+- [x] PDF: página atual e total corretos, zoom e navegação entre páginas, texto selecionável.
 - [ ] DOCX: título, parágrafos, listas, tabelas e imagens aparecem com layout reconhecível.
 - [ ] MD: um `.md` com `<script>` ou `onerror=` não executa nada; o front matter aparece como metadados.
 - [x] TXT em Windows-1252 e em UTF-16 com BOM abre com acentos corretos.

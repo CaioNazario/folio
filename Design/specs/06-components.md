@@ -9,6 +9,9 @@ Borda 1px `--line-6`, fundo `--surf-2`, fonte herdada. Hover: fundo `--line-3` (
 | Ícone (Mais) | 30×29 | 12 | ícone 15 `--tx-3` |
 | Ícone pequeno (fullscreen) | 26×24, fundo `--pop` | 10 | ícone 13 `--tx-3` |
 
+## Campo de texto
+Mesma família do botão secundário: borda 1px `--line-6`, fundo `--surf-2`, raio 12, `padding: 6px 10px`, 13px `--tx-1`, placeholder `--tx-8`. Foco: borda `--line-9`, sem anel. Com erro: borda `--danger`, e a mensagem abaixo do campo em 12px `--danger`.
+
 ## Linha de navegação (sidebar)
 Raio 12, gap 8, cursor pointer, hover `--hover`. Padding vertical 5px (arquivos e recentes) ou 6px (pastas), horizontal 8px. Nome 13px com ellipsis.
 

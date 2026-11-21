@@ -1,5 +1,5 @@
-import { type RefObject, useEffect } from 'react'
-import { pageMove, scrollPage } from './pageScroll'
+import { useEffect } from 'react'
+import { type PageMove, pageMove } from './pageScroll'
 import type { ReaderState } from './useReaderState'
 
 function inTextField(target: EventTarget | null): boolean {
@@ -16,33 +16,33 @@ function zoomShortcut(event: KeyboardEvent, reader: ReaderState): (() => void) |
   return undefined
 }
 
-type PageRef = RefObject<HTMLElement | null>
+type TurnPage = (move: PageMove) => void
 
-function pageShortcut(event: KeyboardEvent, page: PageRef | null): (() => void) | undefined {
-  const move = page && !hasModifier(event) ? pageMove(event.key) : undefined
-  return move && (() => scrollPage(page?.current ?? null, move))
+function pageShortcut(event: KeyboardEvent, turnPage: TurnPage | null): (() => void) | undefined {
+  const move = turnPage && !hasModifier(event) ? pageMove(event.key) : undefined
+  return move && (() => turnPage?.(move))
 }
 
-// `page` is null while a menu is open: Radix uses Esc and the arrows there.
-function shortcut(event: KeyboardEvent, reader: ReaderState, page: PageRef | null) {
+// `turnPage` is null while a menu is open: Radix uses Esc and the arrows there.
+function shortcut(event: KeyboardEvent, reader: ReaderState, turnPage: TurnPage | null) {
   if (event.key === 'F11') return reader.toggleFullscreen
   if (event.key === 'Escape') return reader.exitFullscreen
   if (event.ctrlKey) return zoomShortcut(event, reader)
-  return pageShortcut(event, page)
+  return pageShortcut(event, turnPage)
 }
 
 // Reader shortcuts (specs/07-reader.md, "Atalhos de teclado"). Ignored inside
 // text fields; an open menu keeps Esc and the page keys for itself.
-export function useReaderShortcuts(reader: ReaderState, menuOpen: boolean, page: PageRef) {
+export function useReaderShortcuts(reader: ReaderState, menuOpen: boolean, turnPage: TurnPage) {
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (inTextField(event.target) || (menuOpen && event.key === 'Escape')) return
-      const action = shortcut(event, reader, menuOpen ? null : page)
+      const action = shortcut(event, reader, menuOpen ? null : turnPage)
       if (!action) return
       event.preventDefault()
       action()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [reader, menuOpen, page])
+  }, [reader, menuOpen, turnPage])
 }

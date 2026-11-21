@@ -5,8 +5,14 @@ import { expect, test, vi } from 'vitest'
 import { DEFAULT_PREFERENCES } from '@/features/preferences/api'
 import { pt } from '@/lib/i18n/pt'
 import { mockCommands } from '@/test-utils'
+import { openPdf } from '@/features/document/pdf/pdfEngine'
 import { App } from './App'
 import { ROOT, workspaceCommands } from './fixtures'
+
+// pdf.js does not run in jsdom.
+vi.mock('@/features/document/pdf/pdfEngine', () => ({
+  openPdf: vi.fn(() => ({ turn: vi.fn(), setZoom: vi.fn(), close: vi.fn() })),
+}))
 
 async function renderApp(overrides: Parameters<typeof workspaceCommands>[0] = {}) {
   const calls = mockCommands(workspaceCommands(overrides))
@@ -135,10 +141,19 @@ test('a link to a file Folio does not open shows a toast', async () => {
 })
 
 test('a format without a view yet says so', async () => {
-  const { user } = await renderApp({ list_dir: () => ({ folders: [], documents: [{ ...ROOT.documents[0], id: 'd-pdf', name: 'Artigo.pdf', format: 'pdf' }] }) })
+  const { user } = await renderApp({ list_dir: () => ({ folders: [], documents: [{ ...ROOT.documents[0], id: 'd-docx', name: 'Trabalho.docx', format: 'docx' }] }) })
+  await user.click(within(projects()).getByRole('button', { name: 'Trabalho.docx' }))
+
+  expect(await screen.findByText('A exibição de DOCX ainda não está disponível')).toBeInTheDocument()
+})
+
+test('loads the pdf bytes for a pdf document', async () => {
+  const { calls, user } = await renderApp({ list_dir: () => ({ folders: [], documents: [{ ...ROOT.documents[0], id: 'd-pdf', name: 'Artigo.pdf', format: 'pdf' }] }) })
   await user.click(within(projects()).getByRole('button', { name: 'Artigo.pdf' }))
 
-  expect(await screen.findByText('A exibição de PDF ainda não está disponível')).toBeInTheDocument()
+  await waitFor(() => expect(openPdf).toHaveBeenCalled())
+  expect(calls).toContainEqual({ cmd: 'get_document_bytes', args: { id: 'd-pdf', password: null } })
+  expect(calls).toContainEqual({ cmd: 'record_opened', args: { id: 'd-pdf' } })
 })
 
 test('saves the scroll position when another document opens', async () => {

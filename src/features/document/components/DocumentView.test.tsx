@@ -14,7 +14,7 @@ const DOC: OpenDocument = {
   derived: false,
   conversions: ['pdf', 'txt'],
   valid: true,
-  scroll: null,
+  position: null,
 }
 
 const TEXT: StageContent = { status: 'text', text: 'Primeiro parágrafo', truncated: false }

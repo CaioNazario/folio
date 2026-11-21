@@ -20,7 +20,7 @@ export const FACULDADE_CONTENTS: DirContents = {
   documents: [doc('d-v3', 'Trabalho v3.txt', 'txt'), doc('d-ref', 'Referências.md', 'md')],
 }
 
-const ALL_DOCUMENTS = [...ROOT.documents, ...FACULDADE_CONTENTS.documents, doc('d-pdf', 'Artigo.pdf', 'pdf')]
+const ALL_DOCUMENTS = [...ROOT.documents, ...FACULDADE_CONTENTS.documents, doc('d-pdf', 'Artigo.pdf', 'pdf'), doc('d-docx', 'Trabalho.docx', 'docx')]
 
 export const MARKDOWN =
   '<h1>Referências</h1><p><a href="https://example.org">site</a> <a href="Leia-me.txt">leia</a> <a href="x.xlsx">planilha</a> <a href="#notas">notas</a> <a href="#nada">nada</a></p>' +
@@ -54,6 +54,7 @@ export function workspaceCommands(overrides: Record<string, (args: unknown) => u
     open_document: (args: unknown) => openedView((args as { id: string }).id),
     get_text_content: () => ({ text: 'Conteúdo do trabalho', truncated: false }),
     get_markdown_content: () => ({ html: MARKDOWN, truncated: false }),
+    get_document_bytes: () => new ArrayBuffer(8),
     toggle_favorite_document: () => true,
     follow_link: (args: unknown) => LINKS[(args as { href: string }).href] ?? { kind: 'Ignored' },
     ...overrides,

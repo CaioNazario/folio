@@ -1,7 +1,8 @@
-import type { RefObject } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/utils'
-import type { DocumentActions, DocumentFormat, StageContent } from '../types'
+import type { Pages } from '../pdf/pdfEngine'
+import type { DocumentActions, DocumentFormat, Reading, StageContent } from '../types'
 import type { ReaderState } from '../useReaderState'
 import { StageBody } from './StageBody'
 import { StageToolbar } from './StageToolbar'
@@ -9,9 +10,7 @@ import { StageToolbar } from './StageToolbar'
 type StageProps = {
   content: StageContent
   format: DocumentFormat
-  initialScroll: number | null
-  onScrollFraction: (fraction: number) => void
-  pageRef: RefObject<HTMLElement | null>
+  reading: Reading
   reader: ReaderState
   actions: DocumentActions
 }
@@ -20,8 +19,13 @@ const MOTION = 'transition-[padding,border-radius] duration-200 ease-in-out'
 
 // Stage (Design/specs/05-document-view.md, 5.4). Fullscreen only drops the
 // padding, border and radius; sidebar and header stay.
-export function Stage({ content, format, initialScroll, onScrollFraction, pageRef, reader, actions }: StageProps) {
+export function Stage({ content, format, reading, reader, actions }: StageProps) {
   const { t } = useTranslation()
+  const [pages, setPages] = useState<Pages | null>(null)
+  const onPages = (value: Pages) => {
+    setPages(value)
+    reading.onPosition({ kind: 'Page', page: value.current })
+  }
   const truncated = (content.status === 'text' || content.status === 'html') && content.truncated
   return (
     <div className={cn('flex min-w-0 flex-1 flex-col overflow-hidden', MOTION, reader.fullscreen ? 'p-0' : 'p-5')}>
@@ -33,7 +37,7 @@ export function Stage({ content, format, initialScroll, onScrollFraction, pageRe
           reader.fullscreen ? 'rounded-none border-none' : 'rounded-16 border border-line-4',
         )}
       >
-        <StageToolbar reader={reader} />
+        <StageToolbar reader={reader} pages={pages} />
         {truncated && (
           <p role="note" className="m-0 border-b border-line-3 px-3 py-1.5 text-[12px] text-tx-8">
             {t('document.stage.truncated')}
@@ -44,9 +48,8 @@ export function Stage({ content, format, initialScroll, onScrollFraction, pageRe
             content={content}
             format={format}
             zoom={reader.zoom}
-            initialScroll={initialScroll}
-            onScrollFraction={onScrollFraction}
-            pageRef={pageRef}
+            reading={reading}
+            onPages={onPages}
             actions={actions}
           />
         </div>

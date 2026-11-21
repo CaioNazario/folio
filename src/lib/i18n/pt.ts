@@ -80,6 +80,10 @@ export const pt = {
     copyFile: 'Copiar arquivo',
     properties: 'Propriedades',
     trash: 'Mover para lixeira',
+    password: {
+      label: 'Senha',
+      open: 'Abrir',
+    },
     linkUnsupported: 'Este link aponta para um arquivo que o Folio não abre',
     image: {
       remote: 'Imagem remota não carregada:',
@@ -93,6 +97,7 @@ export const pt = {
       preview: 'Preview',
       fullscreen: 'Fullscreen',
       status: '{{mode}} · {{zoom}}',
+      statusPaged: '{{mode}} · página {{page}} de {{total}} · {{zoom}}',
       enterFullscreen: 'Fullscreen',
       exitFullscreen: 'Sair do fullscreen',
       zoomIn: 'Mais zoom',

@@ -13,7 +13,7 @@ export type DocumentEvents = {
   onNotFound: () => void
 }
 
-const SHOWN: StageContent['status'][] = ['text', 'html']
+const SHOWN: StageContent['status'][] = ['text', 'html', 'pdf']
 
 async function load(id: string): Promise<Omit<Loaded, 'key'>> {
   try {
@@ -27,7 +27,7 @@ async function load(id: string): Promise<Omit<Loaded, 'key'>> {
 // Until open_document answers (or when it fails), the header shows what the
 // sidebar knows.
 function placeholder(ref: DocumentRef): OpenDocument {
-  return { ...ref, format: 'txt', folders: [], derived: false, conversions: [], valid: true, scroll: null }
+  return { ...ref, format: 'txt', folders: [], derived: false, conversions: [], valid: true, position: null }
 }
 
 // Records the opening once something is shown; reports a missing file.

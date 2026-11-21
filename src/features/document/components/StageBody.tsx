@@ -1,12 +1,17 @@
-import type { RefObject } from 'react'
+import { lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
-import type { DocumentActions, DocumentFormat, StageContent } from '../types'
+import type { Pages } from '../pdf/pdfEngine'
+import type { DocumentActions, DocumentFormat, Reading, StageContent } from '../types'
 import { useDelayedFlag } from '../useDelayedFlag'
 import { MarkdownDisplay } from './MarkdownDisplay'
 import { Page } from './Page'
+import { StageFailed } from './StageFailed'
 import { StageMessage } from './StageMessage'
 import { TextDisplay } from './TextDisplay'
+
+// pdf.js only loads when a PDF opens.
+const PdfDisplay = lazy(() => import('./PdfDisplay').then((module) => ({ default: module.PdfDisplay })))
 
 const LOADING_DELAY_MS = 300
 
@@ -14,14 +19,13 @@ type StageBodyProps = {
   content: StageContent
   format: DocumentFormat
   zoom: number
-  initialScroll: number | null
-  onScrollFraction: (fraction: number) => void
-  pageRef: RefObject<HTMLElement | null>
+  reading: Reading
+  onPages: (pages: Pages) => void
   actions: Pick<DocumentActions, 'onRetry' | 'onShowInFolder' | 'onLink'>
 }
 
 // What the reading area shows for each stage state.
-export function StageBody({ content, format, zoom, initialScroll, onScrollFraction, pageRef, actions }: StageBodyProps) {
+export function StageBody({ content, format, zoom, reading, onPages, actions }: StageBodyProps) {
   const { t } = useTranslation()
   const showLoading = useDelayedFlag(content.status === 'loading', LOADING_DELAY_MS)
   const showInFolder = <Button onClick={actions.onShowInFolder}>{t('document.showInFolder')}</Button>
@@ -35,16 +39,19 @@ export function StageBody({ content, format, zoom, initialScroll, onScrollFracti
     case 'notFound':
       return <StageMessage>{t('errors.DocumentNotFound')}</StageMessage>
     case 'failed':
+      return <StageFailed onRetry={actions.onRetry} showInFolder={showInFolder} />
+    case 'pdf':
       return (
-        <StageMessage actions={<><Button onClick={actions.onRetry}>{t('document.stage.retry')}</Button>{showInFolder}</>}>
-          {t('document.stage.failed')}
-        </StageMessage>
+        <Suspense>
+          <PdfDisplay bytes={content.bytes} zoom={zoom} reading={reading} onPages={onPages} actions={actions} showInFolder={showInFolder} />
+        </Suspense>
       )
   }
   const body = content.status === 'text' ? content.text : content.html
   if (body.trim() === '') return <StageMessage>{t('document.stage.empty')}</StageMessage>
+  const initialScroll = reading.start?.kind === 'Scroll' ? reading.start.fraction : null
   return (
-    <Page zoom={zoom} initialScroll={initialScroll} onScrollFraction={onScrollFraction} pageRef={pageRef}>
+    <Page zoom={zoom} initialScroll={initialScroll} onScrollFraction={(fraction) => reading.onPosition({ kind: 'Scroll', fraction })} pageRef={reading.pageRef}>
       {content.status === 'text' ? <TextDisplay text={body} /> : <MarkdownDisplay html={body} onLink={actions.onLink} />}
     </Page>
   )

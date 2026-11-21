@@ -23,6 +23,7 @@
     "clsx": "^2.1.1",
     "i18next": "^27.1.2",
     "lucide-react": "^1.73.0",
+    "pdfjs-dist": "^6.5.438",
     "radix-ui": "^1.8.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -50,6 +51,7 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.3.8",
+    "vite-plugin-static-copy": "^4.1.1",
     "vitest": "^5.1.0"
   }
 }

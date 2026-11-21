@@ -4,6 +4,7 @@ use folio_core::display::{
     DisplayText, DocumentProperties, DocumentView, LinkTarget, MarkdownContent,
 };
 use folio_core::recents::ReadingPosition;
+use tauri::ipc::Response;
 use tauri::{AppHandle, State};
 use tauri_plugin_opener::OpenerExt;
 use uuid::Uuid;
@@ -81,4 +82,20 @@ pub fn save_position(
     position: ReadingPosition,
 ) -> CommandResult<()> {
     with_workspace(&state, |workspace| workspace.save_position(id, position))
+}
+
+/// The bytes of a PDF or DOCX for the stage, as raw binary over the bridge
+/// (spec 07, "Exibição"): no JSON, no base64. `password` opens a protected
+/// DOCX; a PDF goes as it is, since pdf.js asks for its password. Runs off
+/// the main thread: a large file must not freeze the window.
+#[tauri::command(async)]
+pub fn get_document_bytes(
+    state: State<'_, AppState>,
+    id: Uuid,
+    password: Option<String>,
+) -> CommandResult<Response> {
+    let bytes = with_workspace(&state, |workspace| {
+        workspace.document_bytes(id, password.as_deref())
+    })?;
+    Ok(Response::new(bytes))
 }

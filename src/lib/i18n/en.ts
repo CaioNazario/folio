@@ -79,6 +79,10 @@ export const en = {
     copyFile: 'Copy file',
     properties: 'Properties',
     trash: 'Move to trash',
+    password: {
+      label: 'Password',
+      open: 'Open',
+    },
     linkUnsupported: 'This link points to a file Folio does not open',
     image: {
       remote: 'Remote image not loaded:',
@@ -92,6 +96,7 @@ export const en = {
       preview: 'Preview',
       fullscreen: 'Fullscreen',
       status: '{{mode}} · {{zoom}}',
+      statusPaged: '{{mode}} · page {{page}} of {{total}} · {{zoom}}',
       enterFullscreen: 'Fullscreen',
       exitFullscreen: 'Exit fullscreen',
       zoomIn: 'Zoom in',

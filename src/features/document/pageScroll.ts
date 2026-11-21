@@ -1,5 +1,5 @@
 // Page navigation keys (specs/07-reader.md, "Atalhos de teclado"). MD and
-// TXT scroll; PDF and DOCX will turn pages once their views exist.
+// TXT scroll a screen; PDF turns pages (pdf/usePdfView.ts).
 
 export type PageMove = 'next' | 'previous' | 'first' | 'last'
 

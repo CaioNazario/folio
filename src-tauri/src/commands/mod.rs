@@ -24,6 +24,7 @@ macro_rules! command_list {
             $crate::commands::documents::get_text_content,
             $crate::commands::documents::open_document,
             $crate::commands::documents::get_markdown_content,
+            $crate::commands::documents::get_document_bytes,
             $crate::commands::documents::get_properties,
             $crate::commands::documents::follow_link,
             $crate::commands::documents::save_position,
