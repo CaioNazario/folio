@@ -110,3 +110,15 @@ pub fn core(properties: &str) -> String {
         properties
     )
 }
+
+/// A `docProps/app.xml` part holding the `properties`, as Word writes them
+/// (`Pages`, `Words`...).
+pub fn app(properties: &str) -> String {
+    format!(
+        concat!(
+            r#"<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" "#,
+            r#"xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes">{}</Properties>"#,
+        ),
+        properties
+    )
+}

@@ -1,5 +1,6 @@
 //! The metadata of a DOCX (spec 07, "Metadados"): `docProps/core.xml`, and
-//! the pages counted as the display counts them.
+//! the pages Word saved in `docProps/app.xml` or, without them, counted from
+//! the explicit page breaks.
 
 use jiff::Timestamp;
 use serde_json::{Map, Value};
@@ -21,15 +22,26 @@ pub fn read_docx_metadata(bytes: &[u8]) -> Result<Metadata, ReadError> {
 /// The metadata of an open `package` whose `document.xml` is `document`.
 pub fn metadata_of(package: &mut Package, document: &Element) -> Result<Metadata, ReadError> {
     let core = package.optional_xml("docProps/core.xml")?;
+    let app = package.optional_xml("docProps/app.xml")?;
     let metadata = core.as_ref().map(core_metadata).unwrap_or_default();
+    let pages = app
+        .as_ref()
+        .and_then(saved_pages)
+        .unwrap_or_else(|| pages_of(document));
     Ok(Metadata {
-        pages: Some(pages_of(document)),
+        pages: Some(pages),
         ..metadata
     })
 }
 
-/// Approximate pages, as the display counts them: one, plus one per
-/// explicit page break (`docx-preview` does not lay out pages).
+/// The pages Word counted at its last save (`<Pages>` in `app.xml`);
+/// `None` when missing or not a number.
+fn saved_pages(app: &Element) -> Option<u32> {
+    app.child("Pages")?.text().trim().parse().ok()
+}
+
+/// Approximate pages, without Word's count: one, plus one per explicit
+/// page break (a DOCX from Google Docs has no `app.xml`).
 fn pages_of(document: &Element) -> u32 {
     let breaks = document
         .descendants("br")
@@ -79,7 +91,7 @@ fn extra(core: &Element) -> Map<String, Value> {
 
 #[cfg(test)]
 mod tests {
-    use super::super::test_docx::{core, docx, docx_with};
+    use super::super::test_docx::{app, core, docx, docx_with};
     use super::*;
 
     /// The metadata of an empty document with `core.xml` holding
@@ -157,6 +169,39 @@ mod tests {
         let metadata = read_docx_metadata(&docx(body)).unwrap();
 
         assert_eq!(metadata.pages, Some(3));
+    }
+
+    /// One explicit page break: two pages when counted by breaks.
+    const TWO_PAGES_BY_BREAKS: &str = concat!(
+        "<w:p><w:r><w:t>Capa</w:t><w:br w:type=\"page\"/></w:r></w:p>",
+        "<w:p><w:r><w:t>Fim</w:t></w:r></w:p>",
+    );
+
+    #[test]
+    fn docx_metadata_pages_come_from_app_properties() {
+        let app = app("<Pages>36</Pages><Words>9120</Words>");
+        let bytes = docx_with(TWO_PAGES_BY_BREAKS, &[("docProps/app.xml", app.as_bytes())]);
+
+        let metadata = read_docx_metadata(&bytes).unwrap();
+
+        assert_eq!(metadata.pages, Some(36));
+    }
+
+    #[test]
+    fn docx_metadata_pages_fall_back_to_page_breaks_without_app_properties() {
+        let metadata = read_docx_metadata(&docx(TWO_PAGES_BY_BREAKS)).unwrap();
+
+        assert_eq!(metadata.pages, Some(2));
+    }
+
+    #[test]
+    fn docx_metadata_pages_fall_back_when_app_properties_pages_is_not_a_number() {
+        let app = app("<Pages>dez</Pages>");
+        let bytes = docx_with(TWO_PAGES_BY_BREAKS, &[("docProps/app.xml", app.as_bytes())]);
+
+        let metadata = read_docx_metadata(&bytes).unwrap();
+
+        assert_eq!(metadata.pages, Some(2));
     }
 
     #[test]
