@@ -24,11 +24,11 @@
     "security": {
       "csp": {
         "default-src": "'self'",
-        "script-src": "'self' 'wasm-unsafe-eval'",
+        "script-src": "'self'",
         "style-src": "'self' 'unsafe-inline'",
         "img-src": "'self' data: blob:",
         "font-src": "'self' data: blob:",
-        "worker-src": "'self' blob:",
+        "worker-src": "'self'",
         "connect-src": "'self' ipc: http://ipc.localhost",
         "object-src": "'none'",
         "frame-src": "'none'",
@@ -37,11 +37,11 @@
       },
       "devCsp": {
         "default-src": "'self'",
-        "script-src": "'self' 'wasm-unsafe-eval'",
+        "script-src": "'self'",
         "style-src": "'self' 'unsafe-inline'",
         "img-src": "'self' data: blob:",
         "font-src": "'self' data: blob:",
-        "worker-src": "'self' blob:",
+        "worker-src": "'self'",
         "connect-src": "'self' ipc: http://ipc.localhost ws://localhost:1420 ws://localhost:1421",
         "object-src": "'none'",
         "frame-src": "'none'",

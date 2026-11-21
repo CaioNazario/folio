@@ -57,7 +57,19 @@ Riscos que o corpus gerado não cobre e que os testes do leitor devem cobrir com
 
 **Como testar:** abrir os PDFs do corpus do S1 no app (`npm run tauri dev`), com o worker do pdf.js empacotado pelo Vite. Conferir renderização, seleção de texto, zoom e uso de memória num PDF de 300 páginas. Medir também um PDF de 200 MB entregue pela ponte (`tauri::ipc::Response`): memória e tempo até a primeira página. Se não aguentar, o pdf.js passa a ler por faixas de bytes, servidas por um protocolo próprio do app pelo id do documento (nunca o protocolo de assets, que expõe o filesystem). Confirmar a CSP da seção "Segurança do webview".
 
-**Resultado:** pendente.
+**Resultado:** resolvido no Linux, com o `pdfjs-dist` 6.5 e o `PDFViewer` do próprio pdf.js; o Android fica para quando a plataforma entrar no roadmap. Medido no build de release, com o worker empacotado pelo Vite:
+
+| PDF | Tamanho | Bytes pela ponte | Primeira página |
+|---|---|---|---|
+| Manual de 301 páginas | 0,6 MB | 4 ms | 145 ms |
+| Relatório de 2 páginas | 0,1 MB | 2 ms | 167 ms |
+| Imagens em JPEG 2000, sem WebAssembly | 0,1 MB | 2 ms | 350 ms |
+| Grande, 20 páginas | 190 MB | 3,9 s | 4,7 s |
+
+- Renderização, seleção de texto, zoom e o pedido de senha (`onPassword`) funcionam no WebKitGTK.
+- O PDF de 190 MB pela ponte inteira levou o pico de memória a 764 MB no processo do webview e a 409 MB no do app. É aceitável: a leitura por faixas de bytes não entra agora e volta só se um caso real pedir.
+- **Sem WebAssembly:** a CSP sem `'wasm-unsafe-eval'` bloqueia o WebAssembly, e o pdf.js cai nos decodificadores em JavaScript (`*_nowasm_fallback.js`), servidos junto com os outros recursos dele (cmaps, fontes padrão). Um PDF com imagens em JPEG 2000 renderiza igual.
+- **Worker sem `blob:`:** o worker vem de um arquivo do app (`pdf.worker.min.mjs?url` no Vite), e `worker-src 'self'` basta.
 
 ### S4 · Fidelidade do docx-preview
 
@@ -100,7 +112,7 @@ arquivo ─▶ core ──┤
 ### Arquivos grandes
 
 - **MD e TXT acima de 10 MB:** o core lê só os primeiros 10 MB, corta no fim da última linha completa e avisa que cortou. O palco mostra "Arquivo grande: mostrando os primeiros 10 MB". Um caractere UTF-8 partido pelo corte é descartado, sem fazer o texto cair no Windows-1252; uma linha única maior que o limite é cortada no último caractere inteiro. A conversão e os metadados continuam usando o arquivo inteiro.
-- **PDF e DOCX:** entregues inteiros; o limite prático do PDF sai do S2.
+- **PDF e DOCX:** entregues inteiros, sem limite de tamanho. Um PDF de 190 MB abre em menos de 5 segundos (S2).
 
 ### Links
 
@@ -177,22 +189,22 @@ A CSP do app fica em `app.security.csp` no `tauri.conf.json`:
 
 ```text
 default-src 'self';
-script-src 'self' 'wasm-unsafe-eval';
+script-src 'self';
 style-src 'self' 'unsafe-inline';
 img-src 'self' data: blob:;
 font-src 'self' data: blob:;
-worker-src 'self' blob:;
+worker-src 'self';
 connect-src 'self' ipc: http://ipc.localhost;
 object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'
 ```
 
 - Nenhuma origem de rede: o webview não carrega nada de fora, nem por engano de um documento.
-- `'wasm-unsafe-eval'`: decodificadores de imagem do pdf.js em WebAssembly.
+- Sem `'wasm-unsafe-eval'`: o pdf.js usa os decodificadores em JavaScript (S2).
 - **Em desenvolvimento** (`app.security.devCsp`): a mesma lista, com `ws://localhost:1420` e `ws://localhost:1421` a mais no `connect-src`, para o recarregamento do Vite. O build de release usa só a `csp`.
 - `style-src 'unsafe-inline'`: o `docx-preview` injeta os estilos do documento.
-- `blob:`: worker do pdf.js e imagens e fontes do `docx-preview`.
+- `blob:`: imagens e fontes do `docx-preview`. O worker do pdf.js é um arquivo do app (`worker-src 'self'`).
 
-Os spikes S2 e S4 confirmam a lista; o que eles mostrarem desnecessário sai.
+O S2 tirou da lista o `'wasm-unsafe-eval'` e o `blob:` do worker. O S4 confirma o resto; o que ele mostrar desnecessário sai.
 
 ## Modelo de documento
 

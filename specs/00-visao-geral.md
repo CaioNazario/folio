@@ -86,7 +86,7 @@ Cada spike fica no topo da spec que ele bloqueia e se resolve antes da parte que
 | Spike | Pergunta | Spec |
 |---|---|---|
 | S1 | Leitor de PDF: hayro ou PDFium (resolvido: hayro) | 07 |
-| S2 | pdf.js no WebKitGTK e no WebView do Android | 07 |
+| S2 | pdf.js no WebKitGTK e no WebView do Android (resolvido no Linux; falta o Android) | 07 |
 | S3 | Typst embarcado | 08 |
 | S4 | Fidelidade do docx-preview | 07 |
 | S5 | Reconectar ao id um arquivo movido por fora (resolvido) | 05 |
