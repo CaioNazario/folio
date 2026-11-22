@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { formatDateTime, formatRelativeTime, formatSize } from './format'
+import { formatDateTime, formatFullDateTime, formatRelativeTime, formatSize } from './format'
 
 const NOW = new Date(2026, 2, 20, 12, 0)
 const ago = (seconds: number) => new Date(NOW.getTime() - seconds * 1000)
@@ -37,5 +37,14 @@ describe('formatDateTime', () => {
 
     expect(formatDateTime(date, 'pt-BR')).toBe('18 mar, 21:30')
     expect(formatDateTime(date, 'en')).toBe('Mar 18, 21:30')
+  })
+})
+
+describe('formatFullDateTime', () => {
+  test('formats a full date with the year', () => {
+    const date = new Date(2026, 2, 18, 21, 30)
+
+    expect(formatFullDateTime(date, 'pt-BR')).toBe('18 de mar. de 2026, 21:30')
+    expect(formatFullDateTime(date, 'en')).toBe('Mar 18, 2026, 21:30')
   })
 })

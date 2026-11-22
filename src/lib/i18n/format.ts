@@ -67,3 +67,10 @@ export function formatDateTime(date: Date, language: ActiveLanguage): string {
   const parts = Object.fromEntries(formatter.formatToParts(date).map((part) => [part.type, part.value]))
   return `${parts.day} ${parts.month.replace('.', '')}, ${parts.hour}:${parts.minute}`
 }
+
+const FULL_DATE_TIME_OPTIONS: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short', hourCycle: 'h23' }
+
+// "18 de mar. de 2026, 21:30": with the year, for Properties.
+export function formatFullDateTime(date: Date, language: ActiveLanguage): string {
+  return new Intl.DateTimeFormat(language, FULL_DATE_TIME_OPTIONS).format(date)
+}

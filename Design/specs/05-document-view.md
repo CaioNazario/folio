@@ -82,3 +82,29 @@ A página se ajusta ao palco e toda a tipografia escala com a largura (container
 
 ### Encaixe na página (fitPage)
 O fluxo de texto (`flex:1; min-height:0; overflow:hidden`) **nunca corta um bloco no meio**: depois de cada render e de cada resize, qualquer bloco cuja base passe da altura do container é escondido (`display:none`). Recalcular em resize da janela, troca de documento, troca de tema e entrada/saída do fullscreen. Na implementação, um ResizeObserver no container é melhor que o resize da janela.
+
+## 5.6 Diálogo Propriedades
+Aberto pelo item Propriedades do menu Mais (`specs/07-reader.md`, "Propriedades"), no componente Diálogo (`06-components.md`). Título "Propriedades".
+
+- **Abertura:** o diálogo só aparece quando os dados chegam. Se o command falhar, nada abre e um toast diz "Não foi possível carregar as propriedades"
+- **Blocos:** Arquivo, Documento e Conversão, nessa ordem, cada um com o rótulo de seção (tom da home, `--tx-9`) e 18px entre eles
+- **Linhas:** grid com o rótulo à esquerda (coluna de 112px, 12px `--tx-8`) e o valor à direita (13px `--tx-1`, quebra de linha em palavras longas), gap vertical 6px. Datas, tamanho e páginas em Mono 11. Uma linha sem valor não aparece
+- **Datas:** completas, com ano: "18 de mar. de 2026, 21:30"
+
+| Bloco | Conteúdo |
+|---|---|
+| Arquivo | Nome, Local (projeto / pasta / pasta; "Raiz do workspace" fora de pastas), Formato (nome do formato, como no dropdown Converter), Tamanho, Criado (some se o filesystem não tem a data), Modificado |
+| Documento | Título, Autor, Assunto, Palavras-chave (separadas por vírgula), Criado e Modificado internos, Páginas, e os campos de `extra`. Nomes conhecidos ganham rótulo: `creator` "Criado com", `producer` "Produtor", `version` "Versão do PDF", `comments` "Comentários", `revision` "Revisão"; os outros (front matter do MD) aparecem com o próprio nome, e listas viram texto separado por vírgula |
+| Conversão | "Convertido de" com o original e "Derivados" com a lista. Cada item: o nome como link (estilo de link do app), e abaixo, em 12px `--tx-8`, "PDF → MD · {data}". Os avisos de desatualizado vêm embaixo do item, em 12px `--tx-7` com o ícone Lucide `triangle-alert` 12px. Clicar no nome fecha o diálogo e abre o documento |
+
+Mensagens em 12px `--tx-8`, no lugar das linhas:
+
+| Situação | Mensagem |
+|---|---|
+| Documento protegido | "Protegido por senha: metadados não extraídos" |
+| Documento inválido | "Este arquivo não é um {formato} válido" (a mesma do palco) |
+| Válido, sem proteção, sem metadados (conteúdo ilegível) | "Não foi possível ler os metadados" |
+| Metadados extraídos, mas vazios (TXT, MD sem front matter) | "Nenhum metadado no arquivo" |
+| Sem nenhuma conversão | "Nenhuma conversão" |
+
+Avisos de desatualizado (`specs/04-documentos.md`): "O original mudou depois da conversão" e "O derivado foi modificado depois da conversão".

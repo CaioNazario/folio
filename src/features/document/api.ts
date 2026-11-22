@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import type { DisplayText } from '@/lib/bindings/DisplayText'
+import type { DocumentProperties } from '@/lib/bindings/DocumentProperties'
 import type { DocumentView } from '@/lib/bindings/DocumentView'
 import type { LinkTarget } from '@/lib/bindings/LinkTarget'
 import type { MarkdownContent } from '@/lib/bindings/MarkdownContent'
@@ -37,4 +38,9 @@ export function savePosition(id: string, position: ReadingPosition): Promise<voi
 // system browser or mail app; the rest is left to the UI.
 export function followLink(id: string, href: string): Promise<LinkTarget> {
   return invoke<LinkTarget>('follow_link', { id, href })
+}
+
+// Everything the Properties dialog shows, in one command (specs/07-reader.md).
+export function getProperties(id: string): Promise<DocumentProperties> {
+  return invoke<DocumentProperties>('get_properties', { id })
 }

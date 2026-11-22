@@ -35,6 +35,14 @@ Padding 14, borda 1px `--line-4`, raio 18, fundo `--surf-2`. Hover: borda `--lin
 ## Dropdown
 Fundo `--pop`, borda 1px `--bar`, raio 18, padding 5, sombra `--shadow-2`, z-index 40. Itens com raio 12, `padding: 7px 9px`, 13px, hover `--hover-3`. Abre 38px abaixo do topo do grupo de botões, sem animação.
 
+## Diálogo
+- Painel com a aparência do dropdown e do toast: fundo `--pop`, borda 1px `--bar`, raio 18, sombra `--shadow-2`
+- Largura 440 (no máximo a janela menos 32), `padding: 18px`, altura máxima 80% da janela com rolagem interna, centralizado, z-index 50 (acima do dropdown, abaixo do toast)
+- Fundo escurecido: `--bg` com 60% de opacidade
+- Título no estilo do título do documento (15/600 `--tx-1`); à direita, o botão Fechar no estilo "Ícone pequeno" do botão secundário, com o ícone Lucide `x` e title "Fechar"
+- Fecha com `Esc`, clique fora ou o botão Fechar; o foco volta para quem abriu
+- Sem animação de entrada ou saída
+
 ## Toast
 - Absoluto: `left: 50%; bottom: 26px; transform: translateX(-50%)`, z-index 60
 - Flex, gap 11, `padding: 10px 14px`, raio 18, fundo `--pop`, borda 1px `--bar`, sombra `--shadow-2`

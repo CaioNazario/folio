@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { formatDateTime, formatNumber, formatPercent, formatRelativeTime, formatSize } from './format'
+import { formatDateTime, formatFullDateTime, formatNumber, formatPercent, formatRelativeTime, formatSize } from './format'
 
 // Formatters bound to the active language; re-render on language change.
 export function useFormat() {
@@ -11,5 +11,6 @@ export function useFormat() {
     size: (bytes: number) => formatSize(bytes, language),
     relativeTime: (date: Date, now: Date) => formatRelativeTime(date, now, language),
     dateTime: (date: Date) => formatDateTime(date, language),
+    fullDateTime: (date: Date) => formatFullDateTime(date, language),
   }
 }

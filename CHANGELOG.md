@@ -35,3 +35,4 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 - Home screen, shown when no document is open and reached from the logo: quick actions, recent documents to continue reading, and project cards that open the project in the sidebar.
 - Links to a heading inside a Markdown document scroll to that heading.
 - Projects and Recent in the sidebar say when they are empty.
+- Properties dialog, from the More menu: file facts, the document's own metadata (title, author, pages and more) and its conversions, with warnings when the original or the converted file changed; a converted document opens from there.
