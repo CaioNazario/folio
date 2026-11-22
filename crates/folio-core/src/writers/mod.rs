@@ -1,9 +1,11 @@
 //! Writers: turn the document model into a file of one format (spec 08,
 //! "Escritores"). They return bytes or text and never touch the disk.
 
+mod docx;
 mod md;
 mod txt;
 
+pub use docx::write_docx;
 pub use md::{MdDocument, MdImage, write_md};
 pub use txt::write_txt;
 

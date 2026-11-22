@@ -54,7 +54,7 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 |---|---|---|
 | TXT | — | Imprimir o texto (regras abaixo) |
 | MD | `comrak` (impressão de CommonMark a partir da árvore) + `saphyr` (front matter) | Montar a árvore do comrak a partir do modelo (regras abaixo) |
-| DOCX | `docx-rs` | Traduzir o modelo em parágrafos com os estilos do Word ("Heading 1"…, "Normal"), listas numeradas e com marcadores, tabelas e imagens; metadados vão para `docProps/core.xml` |
+| DOCX | `zip` + `quick-xml` (os mesmos do leitor de DOCX) | Montar o pacote do Word a partir do modelo (regras abaixo). O `docx-rs` foi descartado: não grava título, assunto, autor nem palavras-chave, e grava autor "unknown" e datas de 1970 quando faltam |
 | PDF | `typst` (biblioteca, via `typst-as-lib`) + `typst-pdf` | Um template Typst fixo (página, margens, fontes, tamanhos) e a tradução do modelo em dados para ele: dicionários com o tipo de cada bloco e de cada trecho, passados em `sys.inputs`. O template monta o documento a partir desses dados, então o texto do documento nunca é interpretado como código Typst e não precisa de escape |
 
 **TXT:** texto em UTF-8 sem BOM, linhas terminadas em `\n`. É o único destino sem marcação; o que o texto puro não representa, como ênfase, metadados e páginas, se perde:
@@ -83,6 +83,21 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 - **Imagem:** um parágrafo só com `![texto alternativo](pasta/imagem-N.ext)`, com N contado a partir de 1 na ordem do documento e a extensão do tipo (`png`, `jpg`, `gif`, `webp`, `svg`).
 - **Separador:** quebra temática.
 - **Quebra de página:** some.
+
+**DOCX:** um pacote do Word montado pelo Folio, só com as partes necessárias: `[Content_Types].xml`, as relações, `word/document.xml`, `word/styles.xml`, `word/numbering.xml` (quando há lista), as imagens em `word/media/` e `docProps/core.xml` (quando há metadados). Relido pelo leitor de DOCX (spec 07), o modelo volta igual, menos o que esse leitor não reconhece: código, separador e código inline, que voltam como texto comum ou somem.
+
+- **Página:** A4, margens de 2,5 cm, como no PDF.
+- **Estilos:** os nomes internos do Word, que o Word e o LibreOffice mostram traduzidos: "Normal", "heading 1" a "heading 6" e "Quote", mais "Code" para código. Texto em Calibri 11 pt (o LibreOffice usa a Carlito, de mesmas medidas); código em Courier New.
+- **Parágrafo e título:** um parágrafo com o estilo; a quebra de linha vira `w:br`. Negrito e itálico viram `w:b` e `w:i`; código inline, um trecho em Courier New.
+- **Link:** externo, por uma relação com `TargetMode="External"`; `#âncora`, por `w:anchor`.
+- **Lista:** parágrafos numerados, com o nível (`w:ilvl`) dado pelo aninhamento, com marcador ou número decimal. Cada lista numerada começa do 1. Os blocos de um item depois do primeiro saem recuados até o texto do item, sem número; relidos, ficam fora da lista, porque o leitor só reconhece como item o parágrafo numerado.
+- **Citação:** os parágrafos e títulos dela com o estilo "Quote"; os outros blocos dentro dela saem como se estivessem fora.
+- **Código:** um parágrafo com o estilo "Code", com as linhas separadas por `w:br` e os espaços preservados.
+- **Tabela:** grade com bordas, com a primeira linha como cabeçalho repetido em cada página. Linhas com menos células são completadas com células vazias.
+- **Imagem:** embutida no ponto em que aparece, com o texto alternativo em `descr`. O tamanho é o da imagem a 96 dpi, reduzido proporcionalmente para caber na largura do texto; a largura e a altura vêm do cabeçalho do arquivo (PNG, JPEG, GIF, WebP). SVG, que o Word só aceita acompanhado de uma cópia em PNG, e imagem cujo tamanho não se consegue ler viram o texto alternativo entre colchetes, como no TXT; sem texto alternativo, somem.
+- **Separador:** um parágrafo vazio com borda inferior.
+- **Quebra de página:** `w:br` de página.
+- **Metadados:** em `docProps/core.xml`, só os que existem: título, autor (`dc:creator`), assunto, palavras-chave (separadas por `; `), criação e modificação (W3CDTF, UTC). Sem nenhum desses, o pacote não tem `core.xml`.
 
 **Fontes do PDF:** embarcadas no app, nunca as do sistema. Padrão: as fontes livres do `typst-assets` (Libertinus Serif no corpo, DejaVu Sans Mono no código). Georgia, usada na página do protótipo, é licenciada pela Microsoft e não pode ser embarcada.
 
