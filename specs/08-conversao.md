@@ -52,10 +52,24 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 
 | Formato | Base | O que é nosso |
 |---|---|---|
-| TXT | — | Imprimir o texto: títulos e parágrafos separados por linha em branco, itens de lista com `- ` ou `1. ` |
+| TXT | — | Imprimir o texto (regras abaixo) |
 | MD | `comrak` (impressão de CommonMark a partir da árvore) | Montar a árvore do comrak a partir do modelo; metadados viram front matter |
 | DOCX | `docx-rs` | Traduzir o modelo em parágrafos com os estilos do Word ("Heading 1"…, "Normal"), listas numeradas e com marcadores, tabelas e imagens; metadados vão para `docProps/core.xml` |
 | PDF | `typst` (biblioteca, via `typst-as-lib`) + `typst-pdf` | Um template Typst fixo (página, margens, fontes, tamanhos) e a tradução do modelo em dados para ele: dicionários com o tipo de cada bloco e de cada trecho, passados em `sys.inputs`. O template monta o documento a partir desses dados, então o texto do documento nunca é interpretado como código Typst e não precisa de escape |
+
+**TXT:** texto em UTF-8 sem BOM, linhas terminadas em `\n`. É o único destino sem marcação; o que o texto puro não representa, como ênfase, metadados e páginas, se perde:
+
+- **Blocos:** separados por uma linha em branco. O arquivo termina numa quebra de linha; modelo sem blocos gera arquivo vazio.
+- **Título:** só o texto, numa linha.
+- **Parágrafo:** o texto dos trechos; a quebra de linha vira `\n`. Ênfase e código inline ficam só com o texto.
+- **Link:** o texto seguido do endereço entre parênteses, `Folio (https://example.org)`. Quando o texto já é o endereço, ele aparece uma vez só; link interno (`#...`) fica só com o texto.
+- **Lista:** um item por linha, com `- ` ou `1. `, `2. `…, sem linha em branco entre os itens. O resto do item (outra linha, outro bloco, uma sublista) é recuado até o começo do texto do item.
+- **Citação:** cada linha começa com `> `.
+- **Código:** as linhas como estão, recuadas 4 espaços; a linguagem se perde.
+- **Tabela:** uma linha por linha da tabela, com as células separadas por tabulação, para colar numa planilha. Quebra de linha dentro da célula vira espaço.
+- **Imagem:** ver "Imagens".
+- **Separador:** uma linha `---`.
+- **Quebra de página e metadados:** somem.
 
 **Fontes do PDF:** embarcadas no app, nunca as do sistema. Padrão: as fontes livres do `typst-assets` (Libertinus Serif no corpo, DejaVu Sans Mono no código). Georgia, usada na página do protótipo, é licenciada pela Microsoft e não pode ser embarcada.
 

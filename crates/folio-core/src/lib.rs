@@ -23,5 +23,6 @@ pub mod services;
 #[cfg(test)]
 mod testing;
 pub mod workspace;
+pub mod writers;
 
 pub use error::{Error, Result};
