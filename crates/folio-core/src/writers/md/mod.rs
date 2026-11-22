@@ -344,4 +344,11 @@ mod tests {
             ]
         );
     }
+
+    #[test]
+    fn write_md_returns_no_images_when_model_has_none() {
+        let document = write_blocks(vec![paragraph("Só texto."), Block::Separator], "D.assets");
+
+        assert_eq!(document.images, []);
+    }
 }
