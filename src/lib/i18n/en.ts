@@ -172,6 +172,7 @@ export const en = {
     InvalidDocument: 'This file is not a valid document',
     ReadFailed: 'This document could not be read',
     WriteFailed: 'This document could not be converted',
+    ConversionCancelled: 'Conversion cancelled',
     ConversionUnavailable: 'This conversion is not available',
     PasswordRequired: 'This document is protected by a password',
     WrongPassword: 'Wrong password',

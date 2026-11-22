@@ -72,6 +72,10 @@ pub enum BridgeError {
     WriteFailed {
         id: String,
     },
+    /// The user cancelled the conversion: a toast, not an error message.
+    ConversionCancelled {
+        id: String,
+    },
     /// The document cannot be converted to `target` in this version.
     ConversionUnavailable {
         id: String,
@@ -148,6 +152,7 @@ fn document_only(error: &Error) -> Option<BridgeError> {
 fn conversion(error: &Error) -> Option<BridgeError> {
     let bridged = match error {
         Error::WriteFailed(id) => BridgeError::WriteFailed { id: id.to_string() },
+        Error::ConversionCancelled(id) => BridgeError::ConversionCancelled { id: id.to_string() },
         Error::ConversionUnavailable(id, target) => BridgeError::ConversionUnavailable {
             id: id.to_string(),
             target: *target,
@@ -300,6 +305,16 @@ mod tests {
         assert_eq!(
             bridged(Error::WriteFailed(id)),
             json!({ "kind": "WriteFailed", "id": "00000000-0000-0000-0000-000000000007" })
+        );
+    }
+
+    #[test]
+    fn bridge_error_of_conversion_cancelled_carries_document_id() {
+        let id = uuid::Uuid::from_u128(7);
+
+        assert_eq!(
+            bridged(Error::ConversionCancelled(id)),
+            json!({ "kind": "ConversionCancelled", "id": "00000000-0000-0000-0000-000000000007" })
         );
     }
 

@@ -13,4 +13,7 @@ pub enum ReadError {
     /// The password given does not open the document.
     #[error("wrong password")]
     WrongPassword,
+    /// Whoever asked for the document stopped the reading.
+    #[error("reading cancelled")]
+    Cancelled,
 }

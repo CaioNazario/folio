@@ -8,6 +8,8 @@ use std::path::{Path, PathBuf};
 
 use tempfile::TempDir;
 
+use super::Control;
+use super::write::WriteFailure;
 use crate::integrity::{publish_new_file, rename_no_replace, with_suffix};
 use crate::model::DocumentModel;
 use crate::writers::{MdDocument, write_md};
@@ -20,18 +22,24 @@ pub fn publish_md(
     dest_dir: &Path,
     name: &OsStr,
     model: &DocumentModel,
-) -> Result<PathBuf> {
+    control: &Control,
+) -> std::result::Result<PathBuf, WriteFailure> {
     let plain = write_md(model, "");
-    if plain.images.is_empty() {
-        return publish_new_file(tmp_dir, dest_dir, name, |file| {
-            file.write_all(plain.text.as_bytes())
-        });
+    if control.is_cancelled() {
+        return Err(WriteFailure::Cancelled);
     }
-    let dirs = Dirs {
-        tmp: tmp_dir,
-        dest: dest_dir,
+    let published = if plain.images.is_empty() {
+        publish_new_file(tmp_dir, dest_dir, name, |file| {
+            file.write_all(plain.text.as_bytes())
+        })
+    } else {
+        let dirs = Dirs {
+            tmp: tmp_dir,
+            dest: dest_dir,
+        };
+        publish_with_assets(&dirs, name, model, rename_no_replace)
     };
-    publish_with_assets(&dirs, name, model, rename_no_replace)
+    published.map_err(WriteFailure::Publish)
 }
 
 /// Where the Markdown and its folder are born and where they go.

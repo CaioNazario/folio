@@ -42,6 +42,8 @@ pub enum Error {
     WrongPassword(uuid::Uuid),
     #[error("conversion of {0} to {1:?} is not available")]
     ConversionUnavailable(uuid::Uuid, crate::documents::Format),
+    #[error("conversion of document {0} was cancelled")]
+    ConversionCancelled(uuid::Uuid),
     #[error("the writer could not convert document {0}")]
     WriteFailed(uuid::Uuid),
     #[error("reading position does not fit the document format")]
@@ -91,6 +93,7 @@ impl Error {
         match error {
             ReadError::PasswordRequired => Self::PasswordRequired(id),
             ReadError::WrongPassword => Self::WrongPassword(id),
+            ReadError::Cancelled => Self::ConversionCancelled(id),
             ReadError::Failed(_) => {
                 log::warn!("cannot read document {id}: {error}");
                 Self::ReadFailed(id)

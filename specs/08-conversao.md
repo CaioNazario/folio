@@ -146,8 +146,8 @@ A dificuldade vem quase toda do leitor. Sair de PDF é difícil porque o leitor 
 
 - **Em segundo plano:** a conversão roda numa thread do core e nunca trava a interface. O usuário pode continuar lendo e navegando.
 - **Fila, uma por vez:** pedir outra conversão enquanto uma roda coloca a nova na fila. Uma de cada vez mantém o uso de memória previsível (o modelo de um documento grande, com imagens, ocupa memória) e simplifica a ordem dos sufixos de colisão.
-- **Progresso:** o core informa a etapa (lendo, escrevendo) e, quando dá para medir, a fração (páginas do PDF lidas, blocos escritos), por um canal que o `src-tauri` repassa como evento. A interface mostra um toast que não some sozinho enquanto a conversão roda: "Convertendo {nome} para {formato}… 40%", com "Cancelar". Itens na fila aparecem como "Na fila".
-- **Cancelar:** o core confere o pedido de cancelamento entre páginas e entre blocos. Cancelada, a conversão descarta o temporário, não registra relação e não abre nada; o toast confirma "Conversão cancelada". Um item na fila sai dela sem começar.
+- **Progresso:** o core informa a etapa (lendo, escrevendo) e, quando dá para medir, a fração: na 0.1.0, só as páginas lidas de um PDF, a única leitura longa. A escrita não tem fração: o Typst compila o PDF de uma vez, e os outros escritores são rápidos. Os eventos da fila (`Queued`, `Started`, `Progress`, `Finished`, `Failed`, `Cancelled`, por id do pedido) saem por um canal que o `src-tauri` repassa à interface. A interface mostra um toast que não some sozinho enquanto a conversão roda: "Convertendo {nome} para {formato}… 40%", com "Cancelar". Itens na fila aparecem como "Na fila".
+- **Cancelar:** o core confere o pedido de cancelamento entre as páginas de um PDF lido e logo antes de publicar o derivado. Cancelada, a conversão descarta o temporário, não registra relação e não abre nada; o toast confirma "Conversão cancelada". Um item na fila sai dela sem começar.
 - Fechar o app com conversão em andamento a interrompe; o temporário é limpo na próxima abertura (spec 01).
 
 ## Imagens

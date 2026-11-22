@@ -3,6 +3,7 @@
 use hayro_interpret::font::{Glyph as Drawn, GlyphRun, PositionedGlyph};
 use hayro_interpret::hayro_cmap::BfString;
 use hayro_interpret::hayro_syntax::Pdf;
+use hayro_interpret::hayro_syntax::page::Page;
 
 use super::fonts::{Fonts, Style};
 use hayro_font::FontCache;
@@ -26,25 +27,40 @@ pub struct Glyph {
     pub style: Style,
 }
 
-/// The glyphs of every page of `pdf`.
-pub fn pages(pdf: &Pdf) -> Vec<Vec<Glyph>> {
+/// The glyphs of every page of `pdf`. After each page, `on_page(read,
+/// total)` says whether to go on; `None` when it stopped.
+pub fn pages(pdf: &Pdf, on_page: &mut dyn FnMut(usize, usize) -> bool) -> Option<Vec<Vec<Glyph>>> {
     let cache = InterpreterCache::new();
     let fonts = FontCache::new();
     let settings = InterpreterSettings::default();
+    let all = pdf.pages();
     let mut pages = Vec::new();
-    for page in pdf.pages().iter() {
-        let (width, height) = page.render_dimensions();
-        let area = Rect::new(0.0, 0.0, f64::from(width), f64::from(height));
-        let transform = page.initial_transform(true).to_kurbo();
-        let mut context = Context::new(transform, area, &cache, page.xref(), settings.clone());
-        let mut collector = Collector {
-            glyphs: Vec::new(),
-            fonts: Fonts::of(page.resources(), &fonts, &settings),
-        };
-        interpret_page(page, &mut context, &mut collector);
-        pages.push(collector.glyphs);
+    for page in all.iter() {
+        pages.push(glyphs_of(page, &cache, &fonts, &settings));
+        if !on_page(pages.len(), all.len()) {
+            return None;
+        }
     }
-    pages
+    Some(pages)
+}
+
+/// The glyphs hayro draws on one page.
+fn glyphs_of<'a>(
+    page: &Page<'a>,
+    cache: &InterpreterCache<'a>,
+    fonts: &FontCache<'a>,
+    settings: &InterpreterSettings,
+) -> Vec<Glyph> {
+    let (width, height) = page.render_dimensions();
+    let area = Rect::new(0.0, 0.0, f64::from(width), f64::from(height));
+    let transform = page.initial_transform(true).to_kurbo();
+    let mut context = Context::new(transform, area, cache, page.xref(), settings.clone());
+    let mut collector = Collector {
+        glyphs: Vec::new(),
+        fonts: Fonts::of(page.resources(), fonts, settings),
+    };
+    interpret_page(page, &mut context, &mut collector);
+    collector.glyphs
 }
 
 /// A device that keeps the glyphs and ignores everything else.

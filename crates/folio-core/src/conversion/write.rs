@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 
 use uuid::Uuid;
 
+use super::Control;
 use super::md_assets::publish_md;
 use crate::documents::Format;
 use crate::integrity::publish_new_file;
@@ -19,6 +20,8 @@ pub enum WriteFailure {
     Writer(String),
     /// Publishing failed (disk, collision handling...).
     Publish(Error),
+    /// The user cancelled before the derivative was published.
+    Cancelled,
 }
 
 impl WriteFailure {
@@ -27,6 +30,7 @@ impl WriteFailure {
         match self {
             Self::Writer(reason) => Error::write(id, &reason),
             Self::Publish(error) => error,
+            Self::Cancelled => Error::ConversionCancelled(id),
         }
     }
 }
@@ -39,16 +43,20 @@ pub fn publish_derivative(
     name: &OsStr,
     model: &DocumentModel,
     target: Format,
+    control: &Control,
 ) -> std::result::Result<PathBuf, WriteFailure> {
     let bytes = match target {
         // A Markdown with images also needs its `.assets` folder.
         Format::Md => {
-            return publish_md(tmp_dir, dest_dir, name, model).map_err(WriteFailure::Publish);
+            return publish_md(tmp_dir, dest_dir, name, model, control);
         }
         Format::Txt => write_txt(model).into_bytes(),
         Format::Docx => write_docx(model).map_err(WriteFailure::Writer)?,
         Format::Pdf => write_pdf(model).map_err(WriteFailure::Writer)?,
     };
+    if control.is_cancelled() {
+        return Err(WriteFailure::Cancelled);
+    }
     publish(tmp_dir, dest_dir, name, &bytes).map_err(WriteFailure::Publish)
 }
 

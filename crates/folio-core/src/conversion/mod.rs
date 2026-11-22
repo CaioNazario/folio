@@ -1,7 +1,9 @@
 //! Conversion: a reader, the document model, then a writer, published as a
 //! new file next to the original (spec 08, "Fluxo").
 
+mod control;
 mod md_assets;
+mod queue;
 mod read;
 mod write;
 
@@ -16,6 +18,8 @@ use crate::model::DocumentModel;
 use crate::paths::RelativePath;
 use crate::workspace::Workspace;
 use crate::{Error, Result};
+pub use control::{Control, Progress, Stage};
+pub use queue::{ConversionEvent, ConversionQueue, Emitter, Job, Runner};
 use read::read_model;
 use write::publish_derivative;
 
@@ -24,10 +28,24 @@ impl Workspace {
     /// the original's directory, and returns it as indexed. `password`
     /// opens a protected original.
     pub fn convert(&self, id: Uuid, target: Format, password: Option<&str>) -> Result<Document> {
+        self.convert_with(id, target, password, &Control::silent())
+    }
+
+    /// [`Workspace::convert`], reporting progress to `control` and stopping
+    /// when it is cancelled.
+    pub fn convert_with(
+        &self,
+        id: Uuid,
+        target: Format,
+        password: Option<&str>,
+        control: &Control,
+    ) -> Result<Document> {
         let (original, bytes) = self.read_original(id, target)?;
-        let model =
-            read_model(original.format, &bytes, password).map_err(|e| Error::read(id, e))?;
-        let published = self.publish(&original, target, &model)?;
+        control.report(Stage::Reading, None);
+        let model = read_model(original.format, &bytes, password, control)
+            .map_err(|e| Error::read(id, e))?;
+        control.report(Stage::Writing, None);
+        let published = self.publish(&original, target, &model, control)?;
         let path = RelativePath::from_absolute(self.root(), &published)?;
         // The name keeps the original's stem, so it is always a document.
         let derivative = self.index_file(&path)?.expect("a derivative is a document");
@@ -57,11 +75,12 @@ impl Workspace {
         original: &Document,
         target: Format,
         model: &DocumentModel,
+        control: &Control,
     ) -> Result<std::path::PathBuf> {
         let full = original.path.resolve(self.root());
         let dir = full.parent().unwrap_or(self.root());
         let name = derivative_name(original, target);
-        publish_derivative(self.tmp_dir(), dir, &name, model, target)
+        publish_derivative(self.tmp_dir(), dir, &name, model, target, control)
             .map_err(|failure| failure.into_error(original.id))
     }
 }
@@ -303,5 +322,102 @@ mod tests {
 
         let link = workspace.converted_from(derivative.id).unwrap().unwrap();
         assert!(!link.source_changed);
+    }
+
+    /// A control that keeps every progress it receives.
+    fn recording() -> (
+        std::sync::Arc<Control>,
+        std::sync::Arc<std::sync::Mutex<Vec<Progress>>>,
+    ) {
+        let seen = std::sync::Arc::new(std::sync::Mutex::new(Vec::new()));
+        let sink = seen.clone();
+        let control = Control::new(move |progress| sink.lock().unwrap().push(progress));
+        (std::sync::Arc::new(control), seen)
+    }
+
+    #[test]
+    fn convert_reports_reading_then_writing() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let txt = indexed(&workspace, "Aula.txt", b"texto\n");
+        let (control, seen) = recording();
+
+        workspace
+            .convert_with(txt, Format::Md, None, &control)
+            .unwrap();
+
+        let stages: Vec<_> = seen.lock().unwrap().iter().map(|p| p.stage).collect();
+        assert_eq!(stages, [Stage::Reading, Stage::Writing]);
+    }
+
+    /// A control that cancels itself when it hears `stage`.
+    fn cancelling_at(stage: Stage) -> std::sync::Arc<Control> {
+        let slot = std::sync::Arc::new(std::sync::OnceLock::<std::sync::Weak<Control>>::new());
+        let me = slot.clone();
+        let control = std::sync::Arc::new(Control::new(move |progress| {
+            let control = me.get().and_then(std::sync::Weak::upgrade);
+            if progress.stage == stage {
+                control.inspect(|control| control.cancel());
+            }
+        }));
+        slot.set(std::sync::Arc::downgrade(&control)).unwrap();
+        control
+    }
+
+    #[test]
+    fn cancelled_conversion_leaves_no_file_no_link_and_no_temp() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let docx = indexed(&workspace, "Aula.docx", &docx_with_image());
+
+        let result = workspace.convert_with(docx, Format::Md, None, &cancelling_at(Stage::Writing));
+
+        assert!(matches!(result, Err(Error::ConversionCancelled(id)) if id == docx));
+        assert!(!workspace.root().join("Aula.md").exists());
+        assert!(!workspace.root().join("Aula.assets").exists());
+        assert!(workspace.derivatives(docx).unwrap().is_empty());
+        assert!(is_empty(workspace.tmp_dir()));
+    }
+
+    fn two_page_pdf() -> Vec<u8> {
+        use crate::readers::test_pdf::{pdf, text};
+        pdf(&[
+            vec![text("Primeira", 72.0, 700.0)],
+            vec![text("Segunda", 72.0, 700.0)],
+        ])
+    }
+
+    #[test]
+    fn reading_pdf_reports_fraction_of_pages_read() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let pdf = indexed(&workspace, "Ata.pdf", &two_page_pdf());
+        let (control, seen) = recording();
+
+        workspace
+            .convert_with(pdf, Format::Txt, None, &control)
+            .unwrap();
+
+        let reading: Vec<_> = seen
+            .lock()
+            .unwrap()
+            .iter()
+            .filter(|p| p.stage == Stage::Reading)
+            .map(|p| p.fraction)
+            .collect();
+        assert_eq!(reading, [None, Some(0.5), Some(1.0)]);
+    }
+
+    #[test]
+    fn cancel_while_reading_pdf_stops_before_next_page() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let pdf = indexed(&workspace, "Ata.pdf", &two_page_pdf());
+        let control = cancelling_at(Stage::Reading);
+
+        let result = workspace.convert_with(pdf, Format::Txt, None, &control);
+
+        assert!(matches!(result, Err(Error::ConversionCancelled(id)) if id == pdf));
+        assert!(!workspace.root().join("Ata.txt").exists());
     }
 }

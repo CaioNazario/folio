@@ -173,6 +173,7 @@ export const pt = {
     InvalidDocument: 'Este arquivo não é um documento válido',
     ReadFailed: 'Não foi possível ler este documento',
     WriteFailed: 'Não foi possível converter este documento',
+    ConversionCancelled: 'Conversão cancelada',
     ConversionUnavailable: 'Esta conversão não está disponível',
     PasswordRequired: 'Este documento é protegido por senha',
     WrongPassword: 'Senha incorreta',

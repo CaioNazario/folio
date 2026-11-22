@@ -25,11 +25,19 @@ use crate::model::DocumentModel;
 
 /// The document model of a PDF file; `password` opens a protected one.
 pub fn read_pdf(bytes: &[u8], password: Option<&str>) -> Result<DocumentModel, ReadError> {
+    read_pdf_with(bytes, password, &mut |_, _| true)
+}
+
+/// [`read_pdf`], calling `on_page(read, total)` after each page; it
+/// returns false to stop, and the read fails with [`ReadError::Cancelled`].
+pub fn read_pdf_with(
+    bytes: &[u8],
+    password: Option<&str>,
+    on_page: &mut dyn FnMut(usize, usize) -> bool,
+) -> Result<DocumentModel, ReadError> {
     let pdf = open::open(bytes, password)?;
-    let pages = glyphs::pages(&pdf)
-        .into_iter()
-        .map(lines::lines_of)
-        .collect();
+    let glyphs = glyphs::pages(&pdf, on_page).ok_or(ReadError::Cancelled)?;
+    let pages = glyphs.into_iter().map(lines::lines_of).collect();
     Ok(DocumentModel {
         metadata: metadata::metadata_of(&pdf),
         blocks: blocks::blocks_of(pages),
