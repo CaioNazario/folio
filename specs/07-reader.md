@@ -307,20 +307,20 @@ Nenhuma engine depende de binário do sistema. pdf.js e docx-preview rodam no we
 
 ## Critérios de aceite
 
-- [ ] Os quatro formatos abrem no palco com a aparência de `Design/specs/05-document-view.md`, nos temas escuro e claro.
+- [x] Os quatro formatos abrem no palco com a aparência de `Design/specs/05-document-view.md`, nos temas escuro e claro.
 - [x] PDF: página atual e total corretos, zoom e navegação entre páginas, texto selecionável.
 - [x] DOCX: título, parágrafos, listas, tabelas e imagens aparecem com layout reconhecível.
-- [ ] MD: um `.md` com `<script>` ou `onerror=` não executa nada; o front matter aparece como metadados.
+- [x] MD: um `.md` com `<script>` ou `onerror=` não executa nada; o front matter aparece como metadados.
 - [x] TXT em Windows-1252 e em UTF-16 com BOM abre com acentos corretos.
 - [x] Cada leitor tem testes com arquivos de exemplo e produz o modelo esperado: TXT, MD e DOCX com arquivos em `crates/folio-core/tests/fixtures/`; PDF com documentos gerados no próprio teste (`tests/readers_pdf.rs`, pelo `krilla` com as fontes do `typst-assets`, e PDFs escritos à mão nos testes do leitor), sem PDF versionado.
-- [ ] PDF digitalizado abre na exibição e produz documento vazio no leitor, sem erro.
+- [x] PDF digitalizado abre na exibição e produz documento vazio no leitor, sem erro.
 - [x] PDF e DOCX protegidos por senha abrem com a senha certa; o DOCX é decifrado em memória.
 - [x] Os metadados de PDF, DOCX e MD dos arquivos de exemplo (gerados no teste, no PDF) chegam ao cache conforme a tabela de metadados.
-- [ ] O documento reabre na posição em que o usuário parou.
-- [ ] Um link `https:` abre no navegador do sistema; um link relativo para outro documento do workspace abre no Folio; nenhum link navega o webview.
+- [x] O documento reabre na posição em que o usuário parou.
+- [x] Um link `https:` abre no navegador do sistema; um link relativo para outro documento do workspace abre no Folio; nenhum link navega o webview.
 - [x] Imagem relativa dentro do workspace aparece no MD; imagem remota não é baixada e vira espaço reservado.
 - [x] Um TXT de 50 MB abre sem travar, com o aviso de corte.
-- [ ] Cada estado do palco (carregando, senha, inválido, não encontrado, falha ao exibir, vazio) aparece na situação certa.
+- [x] Cada estado do palco (carregando, senha, inválido, não encontrado, falha ao exibir, vazio) aparece na situação certa.
 - [ ] Propriedades mostra arquivo, metadados e conversões, com os avisos de desatualizado.
 - [x] Os atalhos de teclado funcionam e não disparam enquanto o foco está num campo de texto.
 - [x] A CSP está definida no `tauri.conf.json` e nenhum documento consegue carregar recurso da rede.
