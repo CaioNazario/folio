@@ -25,13 +25,18 @@ const CODE: &str = concat!(
     r#"<w:rPr><w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>"#,
     r#"<w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr></w:style>"#,
 );
+/// The text of a link: blue and underlined, as in Word.
+const HYPERLINK: &str = concat!(
+    r#"<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/>"#,
+    r#"<w:rPr><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr></w:style>"#,
+);
 /// The size of each heading level, in half-points.
 const HEADING_SIZES: [u8; 6] = [32, 28, 26, 24, 22, 22];
 
 /// The content of `w:styles`.
 pub fn styles() -> String {
     let headings: String = (1..=6).map(heading).collect();
-    format!("{DEFAULTS}{NORMAL}{headings}{QUOTE}{CODE}")
+    format!("{DEFAULTS}{NORMAL}{headings}{QUOTE}{CODE}{HYPERLINK}")
 }
 
 /// The style "heading N", with the id `HeadingN`.

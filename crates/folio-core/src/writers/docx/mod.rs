@@ -319,4 +319,20 @@ mod tests {
 
         assert_eq!(read_back(blocks.clone()), blocks);
     }
+
+    #[test]
+    fn write_docx_styles_links_as_hyperlink() {
+        let blocks = vec![Block::Paragraph(vec![link("https://example.org", "site")])];
+        let docx = docx_of(blocks);
+
+        let link_run = r#"<w:r><w:rPr><w:rStyle w:val="Hyperlink"/></w:rPr><w:t xml:space="preserve">site</w:t></w:r>"#;
+        assert!(part(&docx, "word/document.xml").contains(link_run));
+        let styles = part(&docx, "word/styles.xml");
+        assert!(
+            styles.contains(
+                r#"<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/>"#
+            ),
+            "{styles}"
+        );
+    }
 }

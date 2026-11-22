@@ -87,9 +87,9 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 **DOCX:** um pacote do Word montado pelo Folio, só com as partes necessárias: `[Content_Types].xml`, as relações, `word/document.xml`, `word/styles.xml`, `word/numbering.xml` (quando há lista), as imagens em `word/media/` e `docProps/core.xml` (quando há metadados). Relido pelo leitor de DOCX (spec 07), o modelo volta igual, menos o que esse leitor não reconhece: código, separador e código inline, que voltam como texto comum ou somem.
 
 - **Página:** A4, margens de 2,5 cm, como no PDF.
-- **Estilos:** os nomes internos do Word, que o Word e o LibreOffice mostram traduzidos: "Normal", "heading 1" a "heading 6" e "Quote", mais "Code" para código. Texto em Calibri 11 pt (o LibreOffice usa a Carlito, de mesmas medidas); código em Courier New.
+- **Estilos:** os nomes internos do Word, que o Word e o LibreOffice mostram traduzidos: "Normal", "heading 1" a "heading 6", "Quote" e "Hyperlink", mais "Code" para código. Texto em Calibri 11 pt (o LibreOffice usa a Carlito, de mesmas medidas); código em Courier New.
 - **Parágrafo e título:** um parágrafo com o estilo; a quebra de linha vira `w:br`. Negrito e itálico viram `w:b` e `w:i`; código inline, um trecho em Courier New.
-- **Link:** externo, por uma relação com `TargetMode="External"`; `#âncora`, por `w:anchor`.
+- **Link:** externo, por uma relação com `TargetMode="External"`; `#âncora`, por `w:anchor`. O texto do link leva o estilo de caractere "Hyperlink" (azul e sublinhado), como o Word faz.
 - **Lista:** parágrafos numerados, com o nível (`w:ilvl`) dado pelo aninhamento, com marcador ou número decimal. Cada lista numerada começa do 1. Os blocos de um item depois do primeiro saem recuados até o texto do item, sem número; relidos, ficam fora da lista, porque o leitor só reconhece como item o parágrafo numerado.
 - **Citação:** os parágrafos e títulos dela com o estilo "Quote"; os outros blocos dentro dela saem como se estivessem fora.
 - **Código:** um parágrafo com o estilo "Code", com as linhas separadas por `w:br` e os espaços preservados.

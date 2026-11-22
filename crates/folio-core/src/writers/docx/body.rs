@@ -145,7 +145,7 @@ impl Body {
             None => format!(r#"r:id="{}""#, self.hyperlink(target)),
         };
         self.xml.push_str(&format!("<w:hyperlink {destination}>"));
-        self.inlines(content, format);
+        self.inlines(content, format.link());
         self.xml.push_str("</w:hyperlink>");
     }
 
@@ -180,6 +180,7 @@ struct Format {
     bold: bool,
     italic: bool,
     code: bool,
+    link: bool,
 }
 
 impl Format {
@@ -198,10 +199,15 @@ impl Format {
         Self { code: true, ..self }
     }
 
+    fn link(self) -> Self {
+        Self { link: true, ..self }
+    }
+
     /// The run's `w:rPr`, or nothing for plain text. The order of the
     /// elements is the schema's.
     fn properties(self) -> String {
         let parts = [
+            (self.link, r#"<w:rStyle w:val="Hyperlink"/>"#),
             (self.code, CODE_FONT),
             (self.bold, "<w:b/>"),
             (self.italic, "<w:i/>"),
