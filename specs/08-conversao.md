@@ -53,7 +53,7 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 | Formato | Base | O que é nosso |
 |---|---|---|
 | TXT | — | Imprimir o texto (regras abaixo) |
-| MD | `comrak` (impressão de CommonMark a partir da árvore) | Montar a árvore do comrak a partir do modelo; metadados viram front matter |
+| MD | `comrak` (impressão de CommonMark a partir da árvore) + `saphyr` (front matter) | Montar a árvore do comrak a partir do modelo (regras abaixo) |
 | DOCX | `docx-rs` | Traduzir o modelo em parágrafos com os estilos do Word ("Heading 1"…, "Normal"), listas numeradas e com marcadores, tabelas e imagens; metadados vão para `docProps/core.xml` |
 | PDF | `typst` (biblioteca, via `typst-as-lib`) + `typst-pdf` | Um template Typst fixo (página, margens, fontes, tamanhos) e a tradução do modelo em dados para ele: dicionários com o tipo de cada bloco e de cada trecho, passados em `sys.inputs`. O template monta o documento a partir desses dados, então o texto do documento nunca é interpretado como código Typst e não precisa de escape |
 
@@ -70,6 +70,19 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 - **Imagem:** ver "Imagens".
 - **Separador:** uma linha `---`.
 - **Quebra de página e metadados:** somem.
+
+**MD:** CommonMark com tabelas do GitHub, em UTF-8 sem BOM, linhas terminadas em `\n`. O escritor monta a árvore do comrak a partir do modelo e o comrak a imprime, então o escape do Markdown é o do comrak. O escritor devolve o texto do MD e as imagens a gravar na pasta `.assets`, e recebe o nome final dessa pasta (ver "Imagens"):
+
+- **Metadados:** viram front matter YAML entre linhas `---`, só com os campos que existem: `title`, `author`, `subject`, `tags` (lista, das palavras-chave) e `date` (a data de criação, em RFC 3339 UTC). Sem nenhum desses campos, o arquivo não tem front matter. O `extra` não entra: é próprio do formato de origem.
+- **Texto:** os caracteres que o Markdown leria como marcação (`*`, `_`, `#`, `[`, `<`...) saem escapados. Relido pelo leitor de MD, o texto é o mesmo.
+- **Título, parágrafo, ênfase, código inline e link:** a marcação do Markdown (`#` a `######`, `**`, `*`, crases, `[texto](endereço)`). A quebra de linha vira quebra forçada.
+- **Lista:** `-` ou `1.`, com aninhamento.
+- **Citação:** `>`.
+- **Código:** bloco cercado por crases, com a linguagem quando existe.
+- **Tabela:** tabela do GitHub; a primeira linha vira o cabeçalho. Linhas com menos células são completadas com células vazias, porque a tabela do GitHub exige o mesmo número de colunas em todas.
+- **Imagem:** um parágrafo só com `![texto alternativo](pasta/imagem-N.ext)`, com N contado a partir de 1 na ordem do documento e a extensão do tipo (`png`, `jpg`, `gif`, `webp`, `svg`).
+- **Separador:** quebra temática.
+- **Quebra de página:** some.
 
 **Fontes do PDF:** embarcadas no app, nunca as do sistema. Padrão: as fontes livres do `typst-assets` (Libertinus Serif no corpo, DejaVu Sans Mono no código). Georgia, usada na página do protótipo, é licenciada pela Microsoft e não pode ser embarcada.
 
