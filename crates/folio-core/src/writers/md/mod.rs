@@ -351,4 +351,67 @@ mod tests {
 
         assert_eq!(document.images, []);
     }
+
+    /// A paragraph with every kind of inline.
+    fn rich_paragraph() -> Block {
+        let link = Inline::Link {
+            target: "https://example.org".to_string(),
+            content: vec![text("link")],
+        };
+        Block::Paragraph(vec![
+            text("Texto "),
+            Inline::Bold(vec![text("forte")]),
+            text(", "),
+            Inline::Italic(vec![text("leve")]),
+            text(", "),
+            Inline::Code("código".to_string()),
+            text(" e "),
+            link,
+            Inline::LineBreak,
+            text("outra linha."),
+        ])
+    }
+
+    /// A list whose item has two paragraphs and a sublist.
+    fn loose_list() -> Block {
+        let steps = list(true, vec![vec![paragraph("Um")], vec![paragraph("Dois")]]);
+        list(
+            false,
+            vec![vec![
+                paragraph("Item"),
+                paragraph("Segundo parágrafo"),
+                steps,
+            ]],
+        )
+    }
+
+    /// One block of each kind the Markdown reader produces.
+    fn every_block() -> Vec<Block> {
+        let code = Block::Code {
+            language: Some("rust".to_string()),
+            text: "fn main() {}\n".to_string(),
+        };
+        let table = Block::Table {
+            rows: vec![row(&["Nome", "Nota"]), row(&["Ana", "9,5"])],
+        };
+        let quote = Block::Quote(vec![paragraph("Citação.")]);
+        vec![
+            heading(2, "Título"),
+            rich_paragraph(),
+            loose_list(),
+            quote,
+            code,
+            table,
+            Block::Separator,
+        ]
+    }
+
+    #[test]
+    fn write_md_document_reads_back_as_same_model() {
+        let blocks = every_block();
+
+        let read = crate::readers::read_md(markdown(blocks.clone()).as_bytes());
+
+        assert_eq!(read.blocks, blocks);
+    }
 }

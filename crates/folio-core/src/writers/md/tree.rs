@@ -94,7 +94,7 @@ impl<'a> Tree<'a> {
     }
 
     fn list(&self, ordered: bool, items: &[Vec<Block>]) -> Node<'a> {
-        let list = list_node(ordered);
+        let list = list_node(ordered, is_tight(items));
         let node = self.node(NodeValue::List(list));
         for blocks in items {
             node.append(self.with_blocks(NodeValue::Item(list), blocks));
@@ -167,7 +167,18 @@ fn link(target: &str) -> NodeValue {
     }))
 }
 
-fn list_node(ordered: bool) -> NodeList {
+/// A list is printed tight (no blank lines inside) only when no item has
+/// more than its first block besides sublists: two paragraphs of one item
+/// in a tight list would be read back as one.
+fn is_tight(items: &[Vec<Block>]) -> bool {
+    let rest_are_lists = |item: &Vec<Block>| {
+        let mut rest = item.iter().skip(1);
+        rest.all(|block| matches!(block, Block::List { .. }))
+    };
+    items.iter().all(rest_are_lists)
+}
+
+fn list_node(ordered: bool, tight: bool) -> NodeList {
     NodeList {
         list_type: if ordered {
             ListType::Ordered
@@ -175,7 +186,7 @@ fn list_node(ordered: bool) -> NodeList {
             ListType::Bullet
         },
         start: 1,
-        tight: true,
+        tight,
         ..NodeList::default()
     }
 }

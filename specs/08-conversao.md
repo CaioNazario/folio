@@ -76,7 +76,7 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 - **Metadados:** viram front matter YAML entre linhas `---`, só com os campos que existem: `title`, `author`, `subject`, `tags` (lista, das palavras-chave) e `date` (a data de criação, em RFC 3339 UTC). Sem nenhum desses campos, o arquivo não tem front matter. O `extra` não entra: é próprio do formato de origem.
 - **Texto:** os caracteres que o Markdown leria como marcação (`*`, `_`, `#`, `[`, `<`...) saem escapados. Relido pelo leitor de MD, o texto é o mesmo.
 - **Título, parágrafo, ênfase, código inline e link:** a marcação do Markdown (`#` a `######`, `**`, `*`, crases, `[texto](endereço)`). A quebra de linha vira quebra forçada.
-- **Lista:** `-` ou `1.`, com aninhamento.
+- **Lista:** `-` ou `1.`, com aninhamento. Sem linha em branco entre os itens, a não ser que algum item tenha mais de um bloco além das sublistas (dois parágrafos, um parágrafo e um código): aí a lista sai espaçada, com linha em branco entre os blocos, senão os parágrafos de um item se juntariam ao reler.
 - **Citação:** `>`.
 - **Código:** bloco cercado por crases, com a linguagem quando existe.
 - **Tabela:** tabela do GitHub; a primeira linha vira o cabeçalho. Linhas com menos células são completadas com células vazias, porque a tabela do GitHub exige o mesmo número de colunas em todas.
