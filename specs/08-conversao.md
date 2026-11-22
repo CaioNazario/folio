@@ -20,7 +20,21 @@ Resolver antes de implementar a parte que cada spike bloqueia. O resultado vai p
 4. Escape: texto com `#`, `$`, `*`, `_`, `@` e `<` sai literal
 5. Compila para Android (`aarch64-linux-android`)
 
-**Resultado:** pendente.
+**Resultado (Linux, 2026-11-22):** o Typst fica. Medido com o protótipo do escritor e um MD de 22.465 palavras (45 páginas no PDF):
+
+| Medida | Sem Typst | Com Typst |
+|---|---|---|
+| Binário de release | 28,1 MB | 90,3 MB |
+| Binário de release sem símbolos (`strip`) | 21,2 MB | 69,9 MB |
+| Binário compactado com xz (perto do download) | 8,2 MB | 22,8 MB |
+| Build limpo do workspace (dev) | 4 min 23 s | 11 min 48 s |
+| Build incremental (dev, `-j 2`) | 23,7 s | 46 s |
+
+1. **Tamanho:** +62 MB no binário, aceito. São ~22 MB de código e ~18 MB de dados (9,6 MB de fontes, mais destaque de sintaxe, hifenização e tabelas Unicode). Os crates do Typst não têm features para desligar partes, e LTO não reduz o binário. Decisões: todas as fontes do `typst-assets` ficam (não só as duas usadas), e os perfis de build não mudam (as informações de depuração ficam, no dev e no release).
+2. **Compilação:** os binários de teste passam de ~570 MB e cada link usa ~1,7 GB de memória. Builds locais limitam os jobs (`-j 2` ou `-j 3`) para não esgotar a memória.
+3. **Tempo:** 0,5 a 0,7 s para as 45 páginas (a leitura do MD leva 3 a 6 ms).
+4. **Escape:** `#`, `$`, `*`, `_`, `@`, `<` e `[` saem literais (conferido com `pdftotext`). O texto do documento nunca entra no código Typst: o modelo vai para o template como dados, em `sys.inputs` (ver "Escritores").
+5. **Android:** pendente, junto com o teste do S2 e do S4 no Android, ao fechar a 0.1.0.
 
 ## Arquitetura
 
@@ -41,7 +55,7 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 | TXT | — | Imprimir o texto: títulos e parágrafos separados por linha em branco, itens de lista com `- ` ou `1. ` |
 | MD | `comrak` (impressão de CommonMark a partir da árvore) | Montar a árvore do comrak a partir do modelo; metadados viram front matter |
 | DOCX | `docx-rs` | Traduzir o modelo em parágrafos com os estilos do Word ("Heading 1"…, "Normal"), listas numeradas e com marcadores, tabelas e imagens; metadados vão para `docProps/core.xml` |
-| PDF | `typst` (biblioteca, via `typst-as-lib`) + `typst-pdf` | Gerar o texto-fonte do Typst a partir do modelo e um template de página (margens, fontes, tamanhos). Todo texto do documento entra escapado: nunca é interpretado como código Typst |
+| PDF | `typst` (biblioteca, via `typst-as-lib`) + `typst-pdf` | Um template Typst fixo (página, margens, fontes, tamanhos) e a tradução do modelo em dados para ele: dicionários com o tipo de cada bloco e de cada trecho, passados em `sys.inputs`. O template monta o documento a partir desses dados, então o texto do documento nunca é interpretado como código Typst e não precisa de escape |
 
 **Fontes do PDF:** embarcadas no app, nunca as do sistema. Padrão: as fontes livres do `typst-assets` (Libertinus Serif no corpo, DejaVu Sans Mono no código). Georgia, usada na página do protótipo, é licenciada pela Microsoft e não pode ser embarcada.
 
