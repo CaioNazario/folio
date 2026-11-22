@@ -99,6 +99,21 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 - **Quebra de página:** `w:br` de página.
 - **Metadados:** em `docProps/core.xml`, só os que existem: título, autor (`dc:creator`), assunto, palavras-chave (separadas por `; `), criação e modificação (W3CDTF, UTC). Sem nenhum desses, o pacote não tem `core.xml`.
 
+**PDF:** o modelo vira dados (`sys.inputs`) para um template Typst fixo, e o `typst-pdf` gera o arquivo. O texto do documento nunca é código Typst. Relido pelo leitor de PDF (spec 07), o texto volta na mesma ordem; a estrutura volta até onde esse leitor a deduz (títulos, parágrafos, listas e ênfase).
+
+- **Página e texto:** A4, margens de 2,5 cm; Libertinus Serif 11 pt, justificado e **sem hifenização**: o leitor de PDF mantém o hífen de fim de linha, e um texto hifenizado ganharia hífens no meio das palavras ao ser relido ou convertido de novo.
+- **Títulos:** em negrito, com um tamanho por nível, todos a partir de 1,16 vez o corpo, para que o leitor de PDF os reconheça como títulos (ele exige 1,15).
+- **Ênfase e código inline:** negrito, itálico e DejaVu Sans Mono.
+- **Link:** externo, clicável; `#âncora` sai só com o texto, porque o modelo não marca o destino.
+- **Lista:** marcadores `•`, `◦` e `▪` por nível (os que o leitor de PDF reconhece) ou números `1.`, com aninhamento recuado.
+- **Citação:** bloco recuado.
+- **Código:** DejaVu Sans Mono 9 pt, com as quebras de linha do original.
+- **Tabela:** grade com bordas, com a primeira linha como cabeçalho repetido em cada página. Linhas com menos células são completadas com células vazias.
+- **Imagem:** no tamanho próprio, reduzida para caber na largura do texto. PNG, JPEG, GIF, WebP e SVG entram; imagem de outro tipo ou cujo tamanho não se consegue ler vira o texto alternativo entre colchetes, como no TXT, e sem texto alternativo some.
+- **Separador:** uma linha horizontal da largura do texto.
+- **Quebra de página:** começa uma página nova, sem gerar página em branco.
+- **Metadados:** título, autor, assunto, palavras-chave e data de criação, só os que existem. Sem data de criação no modelo, o PDF não tem data (o Typst usaria a de hoje).
+
 **Fontes do PDF:** embarcadas no app, nunca as do sistema. Padrão: as fontes livres do `typst-assets` (Libertinus Serif no corpo, DejaVu Sans Mono no código). Georgia, usada na página do protótipo, é licenciada pela Microsoft e não pode ser embarcada.
 
 ## As 12 conversões

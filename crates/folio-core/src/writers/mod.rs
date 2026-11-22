@@ -4,10 +4,12 @@
 mod docx;
 mod image_size;
 mod md;
+mod pdf;
 mod txt;
 
 pub use docx::write_docx;
 pub use md::{MdDocument, MdImage, write_md};
+pub use pdf::write_pdf;
 pub use txt::write_txt;
 
 /// The file name extension of an image of type `mime`, for the files a
