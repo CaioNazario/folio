@@ -59,3 +59,106 @@ fn rfc3339(millis: i64) -> Option<String> {
         .ok()
         .map(|instant| instant.to_string())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::model::{Block, DocumentModel, Inline};
+    use crate::writers::write_md;
+
+    fn paragraph(content: &str) -> Block {
+        Block::Paragraph(vec![Inline::Text(content.to_string())])
+    }
+
+    /// 2026-03-18T21:30:00Z.
+    const CREATED: i64 = 1_773_869_400_000;
+
+    fn with_metadata(metadata: Metadata) -> String {
+        let model = DocumentModel {
+            metadata,
+            blocks: vec![paragraph("Texto.")],
+        };
+        write_md(&model, "Doc.assets").text
+    }
+
+    #[test]
+    fn write_md_writes_metadata_as_front_matter() {
+        let metadata = Metadata {
+            title: Some("Relatório".to_string()),
+            author: Some("Ana".to_string()),
+            subject: Some("Física".to_string()),
+            keywords: vec!["ótica".to_string(), "luz".to_string()],
+            created_at: Some(CREATED),
+            ..Metadata::default()
+        };
+
+        assert_eq!(
+            with_metadata(metadata),
+            "---\ntitle: Relatório\nauthor: Ana\nsubject: Física\ntags:\n  - ótica\n  - luz\n\
+             date: \"2026-03-18T21:30:00Z\"\n---\n\nTexto.\n"
+        );
+    }
+
+    #[test]
+    fn write_md_omits_absent_metadata_fields() {
+        let metadata = Metadata {
+            author: Some("Ana".to_string()),
+            ..Metadata::default()
+        };
+
+        assert_eq!(with_metadata(metadata), "---\nauthor: Ana\n---\n\nTexto.\n");
+    }
+
+    #[test]
+    fn write_md_has_no_front_matter_without_metadata() {
+        let mut metadata = Metadata {
+            pages: Some(3),
+            modified_at: Some(CREATED),
+            ..Metadata::default()
+        };
+        metadata.extra.insert("producer".to_string(), "Word".into());
+
+        assert_eq!(with_metadata(metadata), "Texto.\n");
+    }
+
+    #[test]
+    fn write_md_escapes_yaml_in_front_matter() {
+        let metadata = Metadata {
+            title: Some("Física: uma introdução #1".to_string()),
+            author: Some("O'Brien".to_string()),
+            keywords: vec!["- lista".to_string(), "true".to_string(), "42".to_string()],
+            ..Metadata::default()
+        };
+
+        let read = crate::readers::read_md(with_metadata(metadata.clone()).as_bytes()).metadata;
+
+        assert_eq!(
+            (read.title, read.author, read.keywords),
+            (metadata.title, metadata.author, metadata.keywords)
+        );
+    }
+
+    #[test]
+    fn write_md_front_matter_reads_back_as_same_metadata() {
+        let metadata = Metadata {
+            title: Some("Relatório".to_string()),
+            author: Some("Ana".to_string()),
+            subject: Some("Física".to_string()),
+            keywords: vec!["ótica".to_string(), "luz".to_string()],
+            created_at: Some(CREATED),
+            ..Metadata::default()
+        };
+
+        let read = crate::readers::read_md(with_metadata(metadata.clone()).as_bytes()).metadata;
+
+        // The Markdown reader keeps `subject` among the other fields (spec 07).
+        let mut expected = Metadata {
+            subject: None,
+            ..metadata
+        };
+        expected
+            .extra
+            .insert("subject".to_string(), "Física".into());
+        assert_eq!(read, expected);
+    }
+}
