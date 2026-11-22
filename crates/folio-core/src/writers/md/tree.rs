@@ -10,6 +10,7 @@ use comrak::nodes::{
 
 use super::MdImage;
 use crate::model::{Block, Inline};
+use crate::writers::image_extension;
 
 type Node<'a> = &'a AstNode<'a>;
 
@@ -70,7 +71,7 @@ impl<'a> Tree<'a> {
     /// A paragraph with the image alone, pointing to its file in `assets`.
     fn image(&self, bytes: &[u8], mime: &str, alt: &str) -> Node<'a> {
         let mut images = self.images.borrow_mut();
-        let name = format!("imagem-{}.{}", images.len() + 1, extension(mime));
+        let name = format!("imagem-{}.{}", images.len() + 1, image_extension(mime));
         let url = format!("{}/{name}", self.assets);
         images.push(MdImage {
             name,
@@ -210,13 +211,4 @@ fn table_node(columns: usize, rows: usize) -> NodeValue {
         num_rows: rows,
         num_nonempty_cells: 0,
     }))
-}
-
-/// The file extension of an image of type `mime`.
-fn extension(mime: &str) -> &str {
-    match mime {
-        "image/jpeg" => "jpg",
-        "image/svg+xml" => "svg",
-        _ => mime.rsplit('/').next().unwrap_or(mime),
-    }
 }
