@@ -12,7 +12,7 @@ O Folio é um leitor e gerenciador local de documentos. Os documentos são arqui
 | Stack | Rust + Tauri 2 + React |
 | Plataformas, em ordem de prioridade | 1. Linux (alvo de referência: Omarchy/Arch) · 2. Windows · 3. Android |
 | Plataforma da 0.1.0 | Linux. Windows e Android vêm depois, mas a arquitetura já é escrita para as três |
-| Licença | MIT |
+| Licença | GPL-3.0-or-later |
 
 Estas specs cobrem o comportamento do backend. A aparência está em `Design/specs/` (comece por `Design/specs/00-visao-geral.md`).
 
@@ -31,7 +31,7 @@ Cada camada tem uma única responsabilidade e uma única fonte de verdade.
 3. **O filesystem é a verdade da hierarquia.** Projetos e pastas são diretórios reais; o SQLite indexa e cacheia o que está no disco e pode ser reconstruído escaneando o workspace.
 4. **Tudo que é derivado pode ser reconstruído:** cache de metadados e índice de busca são recalculáveis a partir dos arquivos.
 5. **Pronto para git sem implementá-lo:** como todo documento é um arquivo real, o versionamento futuro só precisa apontar para o workspace. A 0.1.0 não cria abstrações de versionamento por antecipação.
-6. **Nenhuma engine depende de binário do sistema** (LibreOffice, Pandoc, poppler...). Biblioteca nativa, se necessária, vai embarcada no app. **Dependências com licença AGPL ou GPL (ex.: MuPDF) são proibidas:** o Folio é MIT.
+6. **Nenhuma engine depende de binário do sistema** (LibreOffice, Pandoc, poppler...). Biblioteca nativa, se necessária, vai embarcada no app. **Dependências precisam ter licença compatível com a GPL-3.0:** o Folio é GPL-3.0-or-later.
 
 ## Glossário
 

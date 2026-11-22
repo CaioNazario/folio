@@ -7,7 +7,7 @@ members = ["crates/folio-core", "src-tauri"]
 version = "0.0.0"
 edition = "2024"
 rust-version = "1.90"
-license = "MIT"
+license = "GPL-3.0-or-later"
 repository = "https://github.com/CaioNazario/folio"
 
 [workspace.lints.rust]

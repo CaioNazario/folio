@@ -4,6 +4,10 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 
 ## [Unreleased]
 
+### Changed
+
+- Folio is now licensed under the GPL-3.0-or-later (previously MIT).
+
 ### Security
 
 - The app window has a content security policy: documents cannot load anything from the network.
