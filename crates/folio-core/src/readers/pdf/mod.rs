@@ -79,6 +79,17 @@ mod tests {
     }
 
     #[test]
+    fn read_pdf_joins_line_ending_in_space_without_doubling_it() {
+        // Typst keeps the space at the end of a justified line.
+        let page = vec![
+            text("Aos dez dias ", 72.0, 700.0),
+            text("do mês de março.", 72.0, 686.0),
+        ];
+
+        assert_eq!(blocks(&[page]), [para("Aos dez dias do mês de março.")]);
+    }
+
+    #[test]
     fn read_pdf_splits_paragraphs_by_vertical_gap() {
         let page = vec![
             text("Foi aprovada", 72.0, 700.0),

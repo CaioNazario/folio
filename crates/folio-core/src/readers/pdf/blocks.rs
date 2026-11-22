@@ -93,11 +93,14 @@ fn part_of(group: Group, headings: &Headings) -> Part {
 }
 
 /// The pieces of `lines`, joined by a plain space, or by nothing after a
-/// line that ends in a hyphen.
+/// line that ends in a hyphen or already in a space.
 fn joined(lines: &[Line]) -> Vec<Piece> {
     let mut pieces: Vec<Piece> = Vec::new();
     for line in lines {
-        if pieces.last().is_some_and(|last| !last.text.ends_with('-')) {
+        if pieces
+            .last()
+            .is_some_and(|last| !last.text.ends_with(['-', ' ']))
+        {
             push(&mut pieces, Style::default(), " ");
         }
         for piece in line.pieces() {
