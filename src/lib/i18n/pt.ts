@@ -172,6 +172,8 @@ export const pt = {
     DocumentNotFound: 'Este documento não está mais no disco',
     InvalidDocument: 'Este arquivo não é um documento válido',
     ReadFailed: 'Não foi possível ler este documento',
+    WriteFailed: 'Não foi possível converter este documento',
+    ConversionUnavailable: 'Esta conversão não está disponível',
     PasswordRequired: 'Este documento é protegido por senha',
     WrongPassword: 'Senha incorreta',
     InvalidPosition: 'A posição de leitura não corresponde a este documento',

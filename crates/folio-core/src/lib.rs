@@ -4,6 +4,7 @@
 
 pub mod bridge_error;
 pub mod clock;
+pub mod conversion;
 pub mod db;
 pub mod display;
 pub mod documents;

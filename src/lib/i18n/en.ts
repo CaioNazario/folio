@@ -171,6 +171,8 @@ export const en = {
     DocumentNotFound: 'This document is no longer on disk',
     InvalidDocument: 'This file is not a valid document',
     ReadFailed: 'This document could not be read',
+    WriteFailed: 'This document could not be converted',
+    ConversionUnavailable: 'This conversion is not available',
     PasswordRequired: 'This document is protected by a password',
     WrongPassword: 'Wrong password',
     InvalidPosition: 'The reading position does not match this document',

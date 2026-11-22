@@ -8,6 +8,7 @@ use serde::Serialize;
 use ts_rs::TS;
 
 use crate::Error;
+use crate::documents::Format;
 use crate::paths::InvalidRelativePath;
 use crate::workspace::InvalidName;
 
@@ -66,6 +67,16 @@ pub enum BridgeError {
     WrongPassword {
         id: String,
     },
+    /// The writer could not convert the document; the reason goes to the
+    /// log.
+    WriteFailed {
+        id: String,
+    },
+    /// The document cannot be converted to `target` in this version.
+    ConversionUnavailable {
+        id: String,
+        target: Format,
+    },
     InvalidPosition,
     MoveIntoItself,
     InvalidName {
@@ -92,6 +103,7 @@ impl From<&Error> for BridgeError {
     fn from(error: &Error) -> Self {
         path_only(error)
             .or_else(|| document_only(error))
+            .or_else(|| conversion(error))
             .unwrap_or_else(|| with_other_data(error))
     }
 }
@@ -132,6 +144,19 @@ fn document_only(error: &Error) -> Option<BridgeError> {
     Some(bridged)
 }
 
+/// The errors of a conversion (spec 08).
+fn conversion(error: &Error) -> Option<BridgeError> {
+    let bridged = match error {
+        Error::WriteFailed(id) => BridgeError::WriteFailed { id: id.to_string() },
+        Error::ConversionUnavailable(id, target) => BridgeError::ConversionUnavailable {
+            id: id.to_string(),
+            target: *target,
+        },
+        _ => return None,
+    };
+    Some(bridged)
+}
+
 fn with_other_data(error: &Error) -> BridgeError {
     match error {
         Error::AlreadyExists(path) => BridgeError::AlreadyExists {
@@ -148,7 +173,7 @@ fn with_other_data(error: &Error) -> BridgeError {
         Error::WorkspaceInUse => BridgeError::WorkspaceInUse,
         Error::InvalidPosition => BridgeError::InvalidPosition,
         Error::MoveIntoItself => BridgeError::MoveIntoItself,
-        _ => unreachable!("other errors are bridged by `path_only` or `document_only`"),
+        _ => unreachable!("other errors are bridged by the functions above"),
     }
 }
 
@@ -265,6 +290,31 @@ mod tests {
         assert_eq!(
             bridged(Error::ReadFailed(id)),
             json!({ "kind": "ReadFailed", "id": "00000000-0000-0000-0000-000000000007" })
+        );
+    }
+
+    #[test]
+    fn bridge_error_of_write_failed_carries_document_id() {
+        let id = uuid::Uuid::from_u128(7);
+
+        assert_eq!(
+            bridged(Error::WriteFailed(id)),
+            json!({ "kind": "WriteFailed", "id": "00000000-0000-0000-0000-000000000007" })
+        );
+    }
+
+    #[test]
+    fn bridge_error_of_conversion_unavailable_carries_id_and_target() {
+        let id = uuid::Uuid::from_u128(7);
+        let error = Error::ConversionUnavailable(id, crate::documents::Format::Docx);
+
+        assert_eq!(
+            bridged(error),
+            json!({
+                "kind": "ConversionUnavailable",
+                "id": "00000000-0000-0000-0000-000000000007",
+                "target": "docx",
+            })
         );
     }
 

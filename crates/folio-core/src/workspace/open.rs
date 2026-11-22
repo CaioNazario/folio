@@ -31,7 +31,7 @@ pub struct Workspace {
     // Declared before the guard: fields drop in order, so the database
     // closes before the lock is released.
     conn: Mutex<Connection>,
-    _guard: WorkspaceGuard,
+    guard: WorkspaceGuard,
 }
 
 impl Workspace {
@@ -62,7 +62,7 @@ impl Workspace {
             ids: services.ids.clone(),
             clock: services.clock.clone(),
             conn: Mutex::new(db.conn),
-            _guard: guard,
+            guard,
         }
     }
 
@@ -114,6 +114,11 @@ impl Workspace {
     /// The workspace directory.
     pub fn root(&self) -> &Path {
         &self.root
+    }
+
+    /// `.folio/tmp/`, where new files are born (spec 01, guarantee 2).
+    pub(crate) fn tmp_dir(&self) -> &Path {
+        self.guard.tmp_dir()
     }
 }
 

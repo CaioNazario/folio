@@ -30,6 +30,30 @@ pub struct ConversionLink {
 }
 
 impl Workspace {
+    /// Records that `target` was just converted from `source`, with both
+    /// files' mtimes as they are now. The derivative is already on disk, so
+    /// a failure here is only logged (spec 01, guarantee 5).
+    pub(crate) fn record_conversion(&self, source: &Document, target: &Document) {
+        let id = self.ids.new_id().to_string();
+        let converted_at = self.clock.now_millis();
+        self.update_index_after_disk(|conn| {
+            conn.execute(
+                "INSERT INTO conversions VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                (
+                    id,
+                    source.id.to_string(),
+                    target.id.to_string(),
+                    source.format,
+                    target.format,
+                    converted_at,
+                    source.modified_at,
+                    target.modified_at,
+                ),
+            )
+            .map(drop)
+        });
+    }
+
     /// The document `id` was converted from, if any.
     pub fn converted_from(&self, id: Uuid) -> Result<Option<ConversionLink>> {
         let sql = format!(

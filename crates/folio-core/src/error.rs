@@ -40,6 +40,10 @@ pub enum Error {
     PasswordRequired(uuid::Uuid),
     #[error("wrong password for document {0}")]
     WrongPassword(uuid::Uuid),
+    #[error("conversion of {0} to {1:?} is not available")]
+    ConversionUnavailable(uuid::Uuid, crate::documents::Format),
+    #[error("the writer could not convert document {0}")]
+    WriteFailed(uuid::Uuid),
     #[error("reading position does not fit the document format")]
     InvalidPosition,
     #[error("cannot move a directory into itself or a descendant")]
@@ -92,6 +96,13 @@ impl Error {
                 Self::ReadFailed(id)
             }
         }
+    }
+
+    /// A writer failure while converting the document `id`. The technical
+    /// reason only goes to the log.
+    pub fn write(id: uuid::Uuid, reason: &str) -> Self {
+        log::warn!("cannot convert document {id}: {reason}");
+        Self::WriteFailed(id)
     }
 
     /// True when a rename failed because source and destination are on
