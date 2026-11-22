@@ -6,9 +6,9 @@ use quick_xml::escape::escape;
 use super::Body;
 use crate::model::Inline;
 use crate::writers::docx::TEXT_WIDTH;
-use crate::writers::docx::image_size::image_size;
 use crate::writers::docx::package::Relationship;
 use crate::writers::image_extension;
+use crate::writers::image_size::image_size;
 
 /// An image file of `word/media`.
 pub struct Media {

@@ -2,6 +2,7 @@
 //! "Escritores"). They return bytes or text and never touch the disk.
 
 mod docx;
+mod image_size;
 mod md;
 mod txt;
 

@@ -1,5 +1,5 @@
-//! The pixel size of an image, read from its file header: Word needs it to
-//! place the image (spec 08, "Escritores").
+//! The pixel size of an image, read from its file header: the writers need
+//! it to place the image (spec 08, "Escritores").
 
 /// The width and height of the PNG, JPEG, GIF or WebP image in `bytes`, in
 /// pixels; `None` for other formats and for a header cut short.

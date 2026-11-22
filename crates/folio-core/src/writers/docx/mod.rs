@@ -3,7 +3,6 @@
 
 mod body;
 mod core;
-mod image_size;
 mod numbering;
 mod package;
 mod styles;
