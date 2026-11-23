@@ -17,7 +17,7 @@ pub use docx::{package_bytes as docx_package_bytes, read_docx, read_docx_metadat
 pub use error::ReadError;
 pub use image::image_mime;
 pub(crate) use md::options as markdown_options;
-pub use md::read_md;
+pub use md::{ImageLookup, read_md, read_md_with};
 #[cfg(test)]
 pub(crate) use pdf::test_pdf;
 pub use pdf::{needs_password as pdf_needs_password, read_pdf, read_pdf_metadata, read_pdf_with};

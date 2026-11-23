@@ -3,7 +3,7 @@
 //! (spec 08, "Escritores").
 
 #[cfg(test)]
-mod drawn;
+pub(crate) mod drawn;
 mod inputs;
 #[cfg(test)]
 mod test_png;

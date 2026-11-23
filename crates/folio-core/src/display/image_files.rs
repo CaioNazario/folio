@@ -5,7 +5,7 @@ use std::fs;
 
 use super::markdown::{ImageOutcome, Unshown};
 use crate::paths::{RelativePath, href_scheme, resolve_href};
-use crate::readers::image_mime;
+use crate::readers::{ImageLookup, image_mime};
 use crate::workspace::Workspace;
 
 /// A single image larger than this is not embedded.
@@ -39,6 +39,23 @@ impl<'a> ImageResolver<'a> {
             return unshown(Unshown::Outside);
         };
         self.embed(&path).unwrap_or_else(unshown)
+    }
+
+    /// What the image at `url` is for a reader (spec 08, "Imagens"): the
+    /// same rules as the display, so a conversion takes exactly the images
+    /// the Reader shows.
+    pub fn lookup(&mut self, url: &str) -> ImageLookup {
+        match self.resolve(url) {
+            ImageOutcome::Embedded { mime, bytes } => ImageLookup::Found {
+                bytes,
+                mime: mime.to_string(),
+            },
+            ImageOutcome::Placeholder {
+                reason: Unshown::Remote,
+                ..
+            } => ImageLookup::Remote,
+            ImageOutcome::Placeholder { .. } => ImageLookup::Unavailable,
+        }
     }
 
     fn embed(&mut self, path: &RelativePath) -> Result<ImageOutcome, Unshown> {

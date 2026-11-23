@@ -12,6 +12,7 @@ mod text;
 mod view;
 mod workspace;
 
+pub(crate) use image_files::ImageResolver;
 pub use links::LinkTarget;
 pub use markdown::MarkdownContent;
 pub use properties::DocumentProperties;

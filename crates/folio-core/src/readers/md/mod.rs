@@ -9,19 +9,38 @@ mod yaml_json;
 use comrak::nodes::{AstNode, NodeValue};
 use comrak::{Arena, Options, parse_document};
 use front_matter::metadata_of;
+use inlines::Images;
 
 use super::decode_text;
 use crate::model::{DocumentModel, Metadata};
 
-/// The document model of a Markdown file.
-pub fn read_md(bytes: &[u8]) -> DocumentModel {
+/// What the image at an address of the document is, as whoever reads the
+/// Markdown resolves it: the reader itself never touches the disk.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ImageLookup {
+    /// An image file to embed.
+    Found { bytes: Vec<u8>, mime: String },
+    /// A web image, never downloaded: it becomes a link with the alt text.
+    Remote,
+    /// Missing, outside the workspace, too large or not an image: the alt
+    /// text stays.
+    Unavailable,
+}
+
+/// [`read_md`], with each image address resolved by `images`.
+pub fn read_md_with(bytes: &[u8], images: &mut dyn FnMut(&str) -> ImageLookup) -> DocumentModel {
     let text = decode_text(bytes);
     let arena = Arena::new();
     let root = parse_document(&arena, &text, &options());
     DocumentModel {
         metadata: front_matter_of(root).map_or_else(Metadata::default, |yaml| metadata_of(&yaml)),
-        blocks: blocks::blocks_of(root),
+        blocks: blocks::blocks_of(root, &Images::new(images)),
     }
+}
+
+/// The document model of a Markdown file; images become their alt text.
+pub fn read_md(bytes: &[u8]) -> DocumentModel {
+    read_md_with(bytes, &mut |_| ImageLookup::Unavailable)
 }
 
 /// The raw front matter block, when the document starts with one.
@@ -225,7 +244,7 @@ mod tests {
     }
 
     #[test]
-    fn read_md_maps_image_to_alt_text_until_images_are_supported() {
+    fn read_md_without_resolver_maps_image_to_alt_text() {
         assert_eq!(
             blocks("Veja ![o gráfico](g.png) aqui\n"),
             [Block::Paragraph(vec![
@@ -244,6 +263,70 @@ mod tests {
                 level: 1,
                 content: vec![text("Corpo")]
             }]
+        );
+    }
+
+    const PNG: &[u8] = b"\x89PNG\r\n\x1a\n";
+
+    /// Reads `markdown` finding every image except `remota.png`, a web one.
+    fn blocks_with_images(markdown: &str) -> Vec<Block> {
+        let mut images = |url: &str| match url {
+            "https://exemplo.org/remota.png" => ImageLookup::Remote,
+            "sumiu.png" => ImageLookup::Unavailable,
+            _ => ImageLookup::Found {
+                bytes: PNG.to_vec(),
+                mime: "image/png".to_string(),
+            },
+        };
+        read_md_with(markdown.as_bytes(), &mut images).blocks
+    }
+
+    fn image(alt: &str) -> Block {
+        Block::Image {
+            bytes: PNG.to_vec(),
+            mime: "image/png".to_string(),
+            alt: alt.to_string(),
+        }
+    }
+
+    #[test]
+    fn read_md_with_turns_found_image_alone_in_paragraph_into_image_block() {
+        assert_eq!(
+            blocks_with_images("![o gráfico](g.png)\n"),
+            [image("o gráfico")]
+        );
+    }
+
+    #[test]
+    fn read_md_with_splits_paragraph_around_found_image() {
+        assert_eq!(
+            blocks_with_images("Antes ![g](g.png) depois\n"),
+            [
+                Block::Paragraph(vec![text("Antes ")]),
+                image("g"),
+                Block::Paragraph(vec![text(" depois")]),
+            ]
+        );
+    }
+
+    #[test]
+    fn read_md_with_turns_remote_image_into_link_with_alt_text() {
+        let link = Inline::Link {
+            target: "https://exemplo.org/remota.png".to_string(),
+            content: vec![text("logo")],
+        };
+
+        assert_eq!(
+            blocks_with_images("![logo](https://exemplo.org/remota.png)\n"),
+            [Block::Paragraph(vec![link])]
+        );
+    }
+
+    #[test]
+    fn read_md_with_keeps_alt_text_of_unavailable_image() {
+        assert_eq!(
+            blocks_with_images("Veja ![sumiu](sumiu.png)\n"),
+            [Block::Paragraph(vec![text("Veja "), text("sumiu")])]
         );
     }
 }

@@ -9,6 +9,8 @@ mod txt;
 
 pub use docx::write_docx;
 pub use md::{MdDocument, MdImage, write_md};
+#[cfg(test)]
+pub(crate) use pdf::drawn::drawn as pdf_drawn;
 pub use pdf::write_pdf;
 pub use txt::write_txt;
 

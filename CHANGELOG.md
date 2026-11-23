@@ -22,6 +22,7 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 ### Added
 
 - Convert the open document to PDF, Word, Markdown or plain text from the Converter menu. The new file is created next to the original, which is never changed, and opens when ready. Conversions run in the background one at a time, show their progress and can be cancelled; converting a password-protected document warns that the copy will have no password.
+- Converting a Markdown document keeps its local images in the Word and PDF copies; web images are not downloaded and become links.
 - Interface in Portuguese and English, following the system language.
 - Window with the sidebar and the Folio logo.
 - Sidebar with Favorites, Projects, Recent and footer, showing the open workspace: lazily loaded project tree, pins, recent documents and workspace totals.

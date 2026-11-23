@@ -13,6 +13,7 @@ use std::path::Path;
 
 use uuid::Uuid;
 
+use crate::display::ImageResolver;
 use crate::documents::{Document, Format};
 use crate::model::DocumentModel;
 use crate::paths::RelativePath;
@@ -42,8 +43,11 @@ impl Workspace {
     ) -> Result<Document> {
         let (original, bytes) = self.read_original(id, target)?;
         control.report(Stage::Reading, None);
-        let model = read_model(original.format, &bytes, password, control)
-            .map_err(|e| Error::read(id, e))?;
+        let mut images = ImageResolver::new(self, &original.path);
+        let model = read_model(original.format, &bytes, password, control, &mut |url| {
+            images.lookup(url)
+        })
+        .map_err(|e| Error::read(id, e))?;
         control.report(Stage::Writing, None);
         let published = self.publish(&original, target, &model, control)?;
         let path = RelativePath::from_absolute(self.root(), &published)?;
@@ -419,5 +423,70 @@ mod tests {
 
         assert!(matches!(result, Err(Error::ConversionCancelled(id)) if id == pdf));
         assert!(!workspace.root().join("Ata.txt").exists());
+    }
+
+    #[test]
+    fn md_local_image_reaches_docx() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        write_doc(&workspace, "Notas/img/g.png", &png());
+        let md = indexed(&workspace, "Notas/Aula.md", b"![Diagrama](img/g.png)\n");
+
+        let docx = workspace.convert(md, Format::Docx, None).unwrap();
+
+        let bytes = fs::read(docx.path.resolve(workspace.root())).unwrap();
+        let model = crate::readers::read_docx(&bytes, None).unwrap();
+        assert!(
+            matches!(&model.blocks[..], [Block::Image { alt, .. }] if alt == "Diagrama"),
+            "{:?}",
+            model.blocks
+        );
+    }
+
+    /// A real 1 × 1 PNG, which Typst decodes.
+    const PIXEL: &[u8] = &[
+        0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44,
+        0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1f,
+        0x15, 0xc4, 0x89, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0xf8,
+        0xcf, 0xc0, 0xf0, 0x1f, 0x00, 0x05, 0x00, 0x01, 0xff, 0x89, 0x99, 0x3d, 0x1d, 0x00, 0x00,
+        0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
+    ];
+
+    #[test]
+    fn md_local_image_reaches_pdf() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        write_doc(&workspace, "Notas/g.png", PIXEL);
+        let md = indexed(
+            &workspace,
+            "Notas/Aula.md",
+            b"Texto\n\n![Diagrama](g.png)\n",
+        );
+
+        let pdf = workspace.convert(md, Format::Pdf, None).unwrap();
+
+        let bytes = fs::read(pdf.path.resolve(workspace.root())).unwrap();
+        assert_eq!(crate::writers::pdf_drawn(&bytes).image_widths.len(), 1);
+    }
+
+    #[test]
+    fn md_remote_image_is_not_downloaded_and_becomes_link() {
+        let env = TestEnv::new();
+        let workspace = env.open_workspace();
+        let md = indexed(
+            &workspace,
+            "Aula.md",
+            b"![logo](https://exemplo.org/logo.png)\n",
+        );
+
+        let docx = workspace.convert(md, Format::Docx, None).unwrap();
+
+        let bytes = fs::read(docx.path.resolve(workspace.root())).unwrap();
+        let model = crate::readers::read_docx(&bytes, None).unwrap();
+        let link = crate::model::Inline::Link {
+            target: "https://exemplo.org/logo.png".to_string(),
+            content: vec![crate::model::Inline::Text("logo".to_string())],
+        };
+        assert_eq!(model.blocks, [Block::Paragraph(vec![link])]);
     }
 }

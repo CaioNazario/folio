@@ -2,39 +2,46 @@
 
 use comrak::nodes::{AstNode, ListType, NodeCodeBlock, NodeList, NodeValue};
 
-use super::inlines::inlines_of;
+use super::inlines::{Images, inlines_of, paragraph};
 use crate::model::{Block, Inline};
 
 /// The model blocks for the children of `parent`.
-pub fn blocks_of<'a>(parent: &'a AstNode<'a>) -> Vec<Block> {
-    parent.children().filter_map(block).collect()
+pub fn blocks_of<'a>(parent: &'a AstNode<'a>, images: &Images) -> Vec<Block> {
+    parent
+        .children()
+        .flat_map(|node| blocks(node, images))
+        .collect()
 }
 
-/// The block for `node`, or `None` for nodes the model leaves out.
-fn block<'a>(node: &'a AstNode<'a>) -> Option<Block> {
+/// The blocks for `node`: a paragraph may split around its images; none
+/// for nodes the model leaves out.
+fn blocks<'a>(node: &'a AstNode<'a>, images: &Images) -> Vec<Block> {
     let block = match &node.data().value {
+        NodeValue::Paragraph => return paragraph(node, images),
         NodeValue::Heading(heading) => Block::Heading {
             level: heading.level,
-            content: inlines_of(node),
+            content: inlines_of(node, images),
         },
-        NodeValue::Paragraph => Block::Paragraph(inlines_of(node)),
-        NodeValue::List(list) => list_block(node, list),
-        NodeValue::BlockQuote => Block::Quote(blocks_of(node)),
+        NodeValue::List(list) => list_block(node, list, images),
+        NodeValue::BlockQuote => Block::Quote(blocks_of(node, images)),
         NodeValue::CodeBlock(code) => code_block(code),
         NodeValue::Table(_) => Block::Table {
-            rows: node.children().map(cells).collect(),
+            rows: node.children().map(|row| cells(row, images)).collect(),
         },
         NodeValue::ThematicBreak => Block::Separator,
-        _ => return None,
+        _ => return Vec::new(),
     };
-    Some(block)
+    vec![block]
 }
 
 /// Each item (plain or task) holds blocks, so lists nest.
-fn list_block<'a>(node: &'a AstNode<'a>, list: &NodeList) -> Block {
+fn list_block<'a>(node: &'a AstNode<'a>, list: &NodeList, images: &Images) -> Block {
     Block::List {
         ordered: list.list_type == ListType::Ordered,
-        items: node.children().map(blocks_of).collect(),
+        items: node
+            .children()
+            .map(|item| blocks_of(item, images))
+            .collect(),
     }
 }
 
@@ -46,8 +53,10 @@ fn code_block(code: &NodeCodeBlock) -> Block {
 }
 
 /// The inlines of each cell of a table row.
-fn cells<'a>(row: &'a AstNode<'a>) -> Vec<Vec<Inline>> {
-    row.children().map(inlines_of).collect()
+fn cells<'a>(row: &'a AstNode<'a>, images: &Images) -> Vec<Vec<Inline>> {
+    row.children()
+        .map(|cell| inlines_of(cell, images))
+        .collect()
 }
 
 /// The first word of a fenced block's info string (```` ```rust ````).
