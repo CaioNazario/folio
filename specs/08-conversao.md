@@ -198,15 +198,15 @@ Erros de disco (cheio, sem permissão) seguem a spec 01.
 ## Critérios de aceite
 
 - [ ] As 12 conversões que passarem no critério mínimo funcionam pela interface, cada uma com teste de integração no `folio-core`.
-- [ ] O original tem o mesmo hash antes e depois de qualquer conversão, inclusive das que falham.
-- [ ] Uma conversão interrompida no meio não deixa arquivo final nem relação no índice.
-- [ ] Colisão de nome nunca sobrescreve.
-- [ ] Texto com caracteres especiais do Typst (`#`, `$`, `*`, `_`, `@`, `<`) sai literal no PDF.
+- [x] O original tem o mesmo hash antes e depois de qualquer conversão, inclusive das que falham.
+- [x] Uma conversão interrompida no meio não deixa arquivo final nem relação no índice.
+- [x] Colisão de nome nunca sobrescreve.
+- [x] Texto com caracteres especiais do Typst (`#`, `$`, `*`, `_`, `@`, `<`) sai literal no PDF.
 - [ ] Converter um documento protegido avisa que o derivado não terá senha e só começa depois da confirmação.
 - [ ] Converter um PDF grande não trava a interface e mostra o progresso.
-- [ ] Cancelar descarta o temporário: nenhum arquivo final, nenhuma relação, original intacto.
-- [ ] Duas conversões pedidas em seguida rodam uma depois da outra, sem colisão de nome.
+- [x] Cancelar descarta o temporário: nenhum arquivo final, nenhuma relação, original intacto.
+- [x] Duas conversões pedidas em seguida rodam uma depois da outra, sem colisão de nome.
 - [ ] O derivado nasce no diretório do original e abre no Reader, com o toast de confirmação.
-- [ ] Imagem remota de um MD não é baixada na conversão; imagem local entra no DOCX e no PDF.
-- [ ] Converter para MD um documento com imagens grava as imagens em `{nome}.assets/`, o MD as referencia por caminho relativo e o Folio as exibe.
-- [ ] Se o nome do MD ou da pasta já existir, os dois ganham o mesmo sufixo; uma falha ao publicar o MD não deixa a pasta no workspace.
+- [x] Imagem remota de um MD não é baixada na conversão; imagem local entra no DOCX e no PDF.
+- [x] Converter para MD um documento com imagens grava as imagens em `{nome}.assets/`, o MD as referencia por caminho relativo e o Folio as exibe.
+- [x] Se o nome do MD ou da pasta já existir, os dois ganham o mesmo sufixo; uma falha ao publicar o MD não deixa a pasta no workspace.
