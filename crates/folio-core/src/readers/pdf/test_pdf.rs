@@ -145,6 +145,86 @@ pub fn pdf_with_image() -> Vec<u8> {
     writer.finish()
 }
 
+/// A PDF whose page shows "Antes" at the top, then a 100 pt square image
+/// in the middle (y 400 to 500 from the bottom), then "Depois" at the
+/// bottom.
+pub fn pdf_with_text_and_image() -> Vec<u8> {
+    pdf_with_image_amid(
+        &[text("Antes", 72.0, 700.0)],
+        &[text("Depois", 72.0, 200.0)],
+    )
+}
+
+/// A PDF whose page shows the `before` texts, then draws a 100 pt square
+/// image (y 400 to 500 from the bottom), then shows the `after` texts.
+pub fn pdf_with_image_amid(before: &[Text], after: &[Text]) -> Vec<u8> {
+    let mut writer = Writer::default();
+    let dict = "/Type /XObject /Subtype /Image /Width 2 /Height 2 /ColorSpace /DeviceGray /BitsPerComponent 8";
+    let image = writer.stream(dict, &[0, 255, 255, 0]);
+    let resources = format!("/XObject << /Im1 {image} 0 R >>");
+    let mut page = content(before);
+    page.extend(b"q 100 0 0 100 100 400 cm /Im1 Do Q\n");
+    page.extend(content(after));
+    writer.document(&[page], &resources, "<< >>");
+    writer.finish()
+}
+
+/// A PDF whose page is a 2 × 2 gray image drawn `width` × `height` pt.
+pub fn pdf_with_sized_image(width: f64, height: f64) -> Vec<u8> {
+    let mut writer = Writer::default();
+    let dict = "/Type /XObject /Subtype /Image /Width 2 /Height 2 /ColorSpace /DeviceGray /BitsPerComponent 8";
+    let image = writer.stream(dict, &[0, 255, 255, 0]);
+    let resources = format!("/XObject << /Im1 {image} 0 R >>");
+    let content = format!("q {width} 0 0 {height} 100 400 cm /Im1 Do Q").into_bytes();
+    writer.document(&[content], &resources, "<< >>");
+    writer.finish()
+}
+
+/// A PDF whose page draws a 6000 × 5000 gray image (30 megapixels), all
+/// zeros, run-length encoded so that it stays small.
+pub fn pdf_with_huge_image() -> Vec<u8> {
+    let mut writer = Writer::default();
+    let dict = "/Type /XObject /Subtype /Image /Width 6000 /Height 5000 /ColorSpace /DeviceGray \
+                /BitsPerComponent 8 /Filter /RunLengthDecode";
+    // 129 repeats the next byte 128 times; 128 ends the data.
+    let runs = (6000 * 5000) / 128 + 1;
+    let data: Vec<u8> = [129, 0].repeat(runs).into_iter().chain([128]).collect();
+    let image = writer.stream(dict, &data);
+    let resources = format!("/XObject << /Im1 {image} 0 R >>");
+    let content = b"q 100 0 0 100 100 400 cm /Im1 Do Q".to_vec();
+    writer.document(&[content], &resources, "<< >>");
+    writer.finish()
+}
+
+/// A PDF whose page paints an 8 × 8 stencil mask (`/ImageMask`).
+pub fn pdf_with_stencil_mask() -> Vec<u8> {
+    let mut writer = Writer::default();
+    let dict =
+        "/Type /XObject /Subtype /Image /Width 8 /Height 8 /ImageMask true /BitsPerComponent 1";
+    let image = writer.stream(dict, &[0xAA; 8]);
+    let resources = format!("/XObject << /Im1 {image} 0 R >>");
+    let content = b"q 100 0 0 100 100 400 cm /Im1 Do Q".to_vec();
+    writer.document(&[content], &resources, "<< >>");
+    writer.finish()
+}
+
+/// A PDF whose page is a 2 × 2 RGB image with a soft mask (alpha).
+pub fn pdf_with_soft_masked_image() -> Vec<u8> {
+    let mut writer = Writer::default();
+    let mask = writer.stream(
+        "/Type /XObject /Subtype /Image /Width 2 /Height 2 /ColorSpace /DeviceGray /BitsPerComponent 8",
+        &[0, 85, 170, 255],
+    );
+    let dict = format!(
+        "/Type /XObject /Subtype /Image /Width 2 /Height 2 /ColorSpace /DeviceRGB /BitsPerComponent 8 /SMask {mask} 0 R"
+    );
+    let image = writer.stream(&dict, &[200; 12]);
+    let resources = format!("/XObject << /Im1 {image} 0 R >>");
+    let content = b"q 100 0 0 100 100 400 cm /Im1 Do Q".to_vec();
+    writer.document(&[content], &resources, "<< >>");
+    writer.finish()
+}
+
 /// Finishes `writer` with one page that draws a form XObject, which shows
 /// `text` in `font`, declared only by the form as `/FX`.
 fn form_document(mut writer: Writer, font: usize, text: &str) -> Vec<u8> {

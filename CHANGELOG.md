@@ -4,6 +4,10 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 
 ## [Unreleased]
 
+### Added
+
+- Converting a PDF keeps its images: they are extracted in reading order, and a scanned PDF becomes a document of images (Closes #1).
+
 ### Changed
 
 - Folio is now licensed under the GPL-3.0-or-later (previously MIT).

@@ -1,11 +1,15 @@
 //! Lines grouped into the blocks of the document model.
 
 use super::fonts::Style;
+use super::glyphs::PageContent;
 use super::headings::{Headings, key};
+use super::images::PageImage;
 use super::inlines::{Piece, inlines_of, push, unbold_whole};
-use super::lines::Line;
+use super::lines::{Line, lines_of};
 use super::lists::{Item, Marker, Part, group, marker_of, strip_marker};
 use crate::model::Block;
+use std::iter::{self, Peekable};
+use std::vec;
 
 /// Baselines farther apart than this share of the font size (1.5 times
 /// the usual leading of 1.2) start a new paragraph.
@@ -18,27 +22,59 @@ struct Group {
     marker: Option<Marker>,
 }
 
+impl Group {
+    fn glyph_count(&self) -> usize {
+        self.lines.iter().map(Line::glyph_count).sum()
+    }
+}
+
 /// The blocks of the lines of each page, in order, with a page break
 /// between pages.
-pub fn blocks_of(pages: Vec<Vec<Line>>) -> Vec<Block> {
-    let headings = Headings::of(&pages);
+pub fn blocks_of(pages: Vec<PageContent>) -> Vec<Block> {
+    let (lines, images): (Vec<_>, Vec<_>) = pages
+        .into_iter()
+        .map(|page| (lines_of(page.glyphs), page.images))
+        .unzip();
+    let headings = Headings::of(&lines);
     let mut blocks = Vec::new();
-    for (i, lines) in pages.into_iter().enumerate() {
+    for (i, (lines, images)) in lines.into_iter().zip(images).enumerate() {
         if i > 0 {
             blocks.push(Block::PageBreak);
         }
-        blocks.extend(page_blocks(lines, &headings));
+        blocks.extend(page_blocks(lines, images, &headings));
     }
     blocks
 }
 
-/// The blocks of the `lines` of one page.
-fn page_blocks(lines: Vec<Line>, headings: &Headings) -> Vec<Block> {
-    let parts = groups_of(lines)
-        .into_iter()
-        .map(|group| part_of(group, headings))
-        .collect();
+fn image_block(image: PageImage) -> Block {
+    Block::Image {
+        bytes: image.png,
+        mime: "image/png".to_string(),
+        alt: String::new(),
+    }
+}
+
+/// The blocks of the `lines` and `images` of one page, in content order:
+/// an image comes after the block whose text the page drew before it.
+fn page_blocks(lines: Vec<Line>, images: Vec<PageImage>, headings: &Headings) -> Vec<Block> {
+    let mut images = images.into_iter().peekable();
+    let mut parts: Vec<Part> = drawn_by(&mut images, 0).collect();
+    let mut drawn = 0;
+    for group in groups_of(lines) {
+        drawn += group.glyph_count();
+        parts.push(part_of(group, headings));
+        parts.extend(drawn_by(&mut images, drawn));
+    }
     group(parts)
+}
+
+/// The next of `images` that the page drew by its `glyphs`-th glyph.
+fn drawn_by(
+    images: &mut Peekable<vec::IntoIter<PageImage>>,
+    glyphs: usize,
+) -> impl Iterator<Item = Part> + '_ {
+    iter::from_fn(move || images.next_if(|image| image.after <= glyphs))
+        .map(|image| Part::Block(image_block(image)))
 }
 
 /// `lines` split where a block ends; a marker always starts a new one.

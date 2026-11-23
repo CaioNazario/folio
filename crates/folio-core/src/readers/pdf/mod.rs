@@ -6,6 +6,7 @@ mod blocks;
 mod fonts;
 mod glyphs;
 mod headings;
+mod images;
 mod inlines;
 mod lines;
 mod lists;
@@ -36,8 +37,7 @@ pub fn read_pdf_with(
     on_page: &mut dyn FnMut(usize, usize) -> bool,
 ) -> Result<DocumentModel, ReadError> {
     let pdf = open::open(bytes, password)?;
-    let glyphs = glyphs::pages(&pdf, on_page).ok_or(ReadError::Cancelled)?;
-    let pages = glyphs.into_iter().map(lines::lines_of).collect();
+    let pages = glyphs::pages(&pdf, on_page).ok_or(ReadError::Cancelled)?;
     Ok(DocumentModel {
         metadata: metadata::metadata_of(&pdf),
         blocks: blocks::blocks_of(pages),
@@ -47,7 +47,9 @@ pub fn read_pdf_with(
 #[cfg(test)]
 mod tests {
     use super::test_pdf::{
-        pdf, pdf_with_form, pdf_with_image, pdf_with_info, pdf_with_latex_fonts, pdf_with_password,
+        pdf, pdf_with_form, pdf_with_huge_image, pdf_with_image, pdf_with_image_amid,
+        pdf_with_info, pdf_with_latex_fonts, pdf_with_password, pdf_with_sized_image,
+        pdf_with_soft_masked_image, pdf_with_stencil_mask, pdf_with_text_and_image,
         pdf_without_unicode, text,
     };
     use super::*;
@@ -271,10 +273,117 @@ mod tests {
     }
 
     #[test]
-    fn read_pdf_of_page_without_text_is_empty() {
-        let model = read_pdf(&pdf_with_image(), None).unwrap();
+    fn read_pdf_extracts_image_as_block_image() {
+        let model = read_pdf(&pdf_with_text_and_image(), None).unwrap();
+
+        let images: Vec<&Block> = model
+            .blocks
+            .iter()
+            .filter(|b| matches!(b, Block::Image { .. }))
+            .collect();
+        let [Block::Image { bytes, mime, alt }] = images[..] else {
+            panic!("expected one image, got {images:?}");
+        };
+        assert_eq!(mime, "image/png");
+        assert_eq!(alt, "");
+        assert_eq!(&bytes[..8], b"\x89PNG\r\n\x1a\n");
+    }
+
+    #[test]
+    fn read_pdf_places_image_between_text_blocks_in_content_order() {
+        let model = read_pdf(&pdf_with_text_and_image(), None).unwrap();
+
+        let [before, Block::Image { .. }, after] = &model.blocks[..] else {
+            panic!("expected text, image, text, got {:?}", model.blocks);
+        };
+        assert_eq!((before, after), (&para("Antes"), &para("Depois")));
+    }
+
+    #[test]
+    fn read_pdf_keeps_text_order_of_columns_around_image() {
+        // The left column, with the image in its middle, then the right one.
+        let before = [text("A1", 72.0, 700.0)];
+        let after = [
+            text("A2", 72.0, 300.0),
+            text("B1", 320.0, 700.0),
+            text("B2", 320.0, 300.0),
+        ];
+        let model = read_pdf(&pdf_with_image_amid(&before, &after), None).unwrap();
+
+        let [a1, Block::Image { .. }, a2, b1, b2] = &model.blocks[..] else {
+            panic!("expected A1, image, A2, B1, B2, got {:?}", model.blocks);
+        };
+        assert_eq!(
+            [a1, a2, b1, b2],
+            [&para("A1"), &para("A2"), &para("B1"), &para("B2")]
+        );
+    }
+
+    #[test]
+    fn read_pdf_puts_image_drawn_amid_a_paragraph_after_it() {
+        let before = [
+            text("linha um", 250.0, 480.0),
+            text("linha dois", 250.0, 466.0),
+        ];
+        let after = [
+            text("linha tres", 250.0, 452.0),
+            text("linha quatro", 250.0, 438.0),
+        ];
+        let model = read_pdf(&pdf_with_image_amid(&before, &after), None).unwrap();
+
+        let [paragraph, Block::Image { .. }] = &model.blocks[..] else {
+            panic!("expected paragraph, image, got {:?}", model.blocks);
+        };
+        assert_eq!(
+            paragraph,
+            &para("linha um linha dois linha tres linha quatro")
+        );
+    }
+
+    #[test]
+    fn read_pdf_keeps_alpha_of_soft_masked_image() {
+        let model = read_pdf(&pdf_with_soft_masked_image(), None).unwrap();
+
+        let [Block::Image { bytes, .. }] = &model.blocks[..] else {
+            panic!("expected one image, got {:?}", model.blocks);
+        };
+        // Byte 25 of a PNG is the color type of its header: 6 is RGBA.
+        assert_eq!(bytes[25], 6);
+    }
+
+    #[test]
+    fn read_pdf_skips_images_smaller_than_24pt_on_both_sides() {
+        let model = read_pdf(&pdf_with_sized_image(20.0, 20.0), None).unwrap();
 
         assert_eq!(model.blocks, []);
+    }
+
+    #[test]
+    fn read_pdf_skips_images_over_pixel_limit() {
+        let model = read_pdf(&pdf_with_huge_image(), None).unwrap();
+
+        assert_eq!(model.blocks, []);
+    }
+
+    #[test]
+    fn read_pdf_keeps_image_drawn_larger_than_24pt() {
+        let model = read_pdf(&pdf_with_sized_image(30.0, 30.0), None).unwrap();
+
+        assert!(matches!(&model.blocks[..], [Block::Image { .. }]));
+    }
+
+    #[test]
+    fn read_pdf_ignores_stencil_masks() {
+        let model = read_pdf(&pdf_with_stencil_mask(), None).unwrap();
+
+        assert_eq!(model.blocks, []);
+    }
+
+    #[test]
+    fn read_pdf_of_page_with_only_image_yields_the_image() {
+        let model = read_pdf(&pdf_with_image(), None).unwrap();
+
+        assert!(matches!(&model.blocks[..], [Block::Image { .. }]));
     }
 
     #[test]

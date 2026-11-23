@@ -1685,6 +1685,7 @@ dependencies = [
  "md-5",
  "office-crypto",
  "percent-encoding",
+ "png",
  "quick-xml 0.42.0",
  "rusqlite",
  "rustix",

@@ -156,6 +156,7 @@ As imagens que o leitor de origem reconhece (spec 07) entram no destino que acei
 
 - **Do MD:** as mesmas regras da exibição (spec 07, "Imagens no Markdown"). Imagem local dentro do workspace entra no destino, imagem remota **não é baixada**: o destino recebe o texto alternativo no lugar dela, e o endereço como link quando o formato aceita link.
 - **Do DOCX:** as imagens embutidas no próprio arquivo.
+- **Do PDF:** as imagens raster que o leitor extrai (spec 07), em PNG; um PDF digitalizado vira um documento só de imagens, sem texto.
 - **Para TXT:** imagem vira o texto alternativo entre colchetes (`[Diagrama da arquitetura]`); sem texto alternativo, some.
 - **Para MD:** o MD não embute imagem. As imagens são gravadas numa pasta ao lado do derivado, `{nome do derivado}.assets/`, com nomes sequenciais e a extensão do tipo (`Trabalho.assets/imagem-1.png`), e o MD aponta para cada uma por caminho relativo: `![Diagrama](Trabalho.assets/imagem-1.png)`. O nome da pasta é o mesmo em qualquer idioma (convenção do Typora). Sem imagens, não há pasta.
 
