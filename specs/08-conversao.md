@@ -178,6 +178,11 @@ Uma conversão só entra na 0.1.0 se, num corpus de documentos reais por formato
 
 A conversão que não atingir o critério sai da 0.1.0 em vez de atrasar o lançamento, e o dropdown deixa de oferecê-la.
 
+**Como verificar:**
+
+- Os itens 1 e 2 têm teste de integração por conversão (`crates/folio-core/tests/conversions.rs`), com uma amostra por formato de origem: o derivado é relido e comparado com o original, palavra por palavra e em títulos, listas e ênfase (menos no TXT, que não tem marcação).
+- No corpus real, `cargo run -p folio-core --example conversion_corpus -- <corpus> <saída>` converte cada documento para os outros três formatos num workspace novo em `<saída>/Folio`, e `scripts/check-derivatives.sh <saída>/Folio <corpus>` abre os derivados nos programas de referência (item 3). Os itens 1 e 2 no corpus são conferidos à mão.
+
 ## Erros
 
 Além dos da spec 04 (`InvalidDocument`, `PasswordRequired`, `WrongPassword`) e da 07 (`ReadFailed`):
