@@ -27,7 +27,7 @@ async function load(id: string, password: string | null): Promise<Omit<Loaded, '
 // Until open_document answers (or when it fails), the header shows what the
 // sidebar knows.
 function placeholder(ref: DocumentRef): OpenDocument {
-  return { ...ref, format: 'txt', folders: [], derived: false, conversions: [], valid: true, position: null }
+  return { ...ref, format: 'txt', folders: [], derived: false, conversions: [], valid: true, protected: false, position: null }
 }
 
 // Records the opening once something is shown; reports a missing file.
@@ -69,5 +69,5 @@ export function useDocument(ref: DocumentRef | null, events: DocumentEvents) {
   const id = ref?.id ?? null
   const submitPassword = useCallback((value: string) => setAttempt(({ count }) => ({ count: count + 1, id, password: value })), [id])
   const document = fresh?.document ?? (ref && placeholder(ref))
-  return { document, content: fresh?.content ?? ({ status: 'loading' } as StageContent), retry, submitPassword }
+  return { document, content: fresh?.content ?? ({ status: 'loading' } as StageContent), retry, submitPassword, password }
 }

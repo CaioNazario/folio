@@ -38,6 +38,7 @@ const DOC: OpenDocument = {
   derived: false,
   conversions: [],
   valid: true,
+  protected: false,
   position: null,
 }
 

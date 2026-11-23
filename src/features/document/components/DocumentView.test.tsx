@@ -14,6 +14,7 @@ const DOC: OpenDocument = {
   derived: false,
   conversions: ['pdf', 'txt'],
   valid: true,
+  protected: false,
   position: null,
 }
 

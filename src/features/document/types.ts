@@ -19,6 +19,8 @@ export type OpenDocument = {
   /** Formats this document can be converted to; empty when invalid. */
   conversions: DocumentFormat[]
   valid: boolean
+  /** Opening needs a password (specs/04-documentos.md). */
+  protected: boolean
   /** Where the reader stopped: a page (PDF) or a scroll fraction (MD, TXT). */
   position: ReadingPosition | null
 }

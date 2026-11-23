@@ -61,6 +61,19 @@ export const en = {
       en: 'English',
     },
   },
+  conversion: {
+    running: 'Converting {{name}} to {{format}}…',
+    runningPercent: 'Converting {{name}} to {{format}}… {{percent}}',
+    waiting: '{{running}} · {{count, number}} queued',
+    cancel: 'Cancel',
+    done: '{{derivative}} created · {{original}} kept',
+    protected: {
+      title: 'Convert protected document',
+      warning: 'The converted document will not have a password.',
+      convert: 'Convert',
+      close: 'Close',
+    },
+  },
   document: {
     breadcrumb: 'Document location',
     derived: 'derived',

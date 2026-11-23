@@ -8,7 +8,9 @@ use rusqlite::types::{FromSql, FromSqlError, FromSqlResult, ToSql, ToSqlOutput, 
 use crate::paths::os_bytes;
 
 /// A format Folio reads in 0.1.0.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, ts_rs::TS)]
+#[derive(
+    Debug, Clone, Copy, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, ts_rs::TS,
+)]
 #[serde(rename_all = "lowercase")]
 #[ts(export)]
 pub enum Format {

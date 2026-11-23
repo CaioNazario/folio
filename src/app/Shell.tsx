@@ -1,5 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { ToastViewport } from '@/components/ui/toast'
+import { ProtectedConvertDialog } from '@/features/conversion/components/ProtectedConvertDialog'
+import { useConversions } from '@/features/conversion/useConversions'
+import { useConvertAction } from '@/features/conversion/useConvertAction'
 import { DocumentView } from '@/features/document/components/DocumentView'
 import { PropertiesDialog } from '@/features/document/components/PropertiesDialog'
 import { useProperties } from '@/features/document/properties/useProperties'
@@ -12,13 +15,13 @@ import type { HomeActions } from '@/features/home/types'
 import { Sidebar } from '@/features/sidebar/components/Sidebar'
 import type { DocumentRef } from '@/features/sidebar/types'
 import type { ConversionLink } from '@/lib/bindings/ConversionLink'
+import type { Document } from '@/lib/bindings/Document'
 import { useSidebar } from '@/features/sidebar/useSidebar'
 
 const noop = () => undefined
 
-// Menu actions arrive with their commands (specs 04, 08 and 10).
-const PENDING_ACTIONS: Omit<DocumentActions, 'onRetry' | 'onLink' | 'onPassword' | 'onProperties'> = {
-  onConvert: noop,
+// Menu actions arrive with their commands (specs 04 and 10).
+const PENDING_ACTIONS: Omit<DocumentActions, 'onRetry' | 'onLink' | 'onPassword' | 'onProperties' | 'onConvert'> = {
   onRename: noop,
   onShowInFolder: noop,
   onCopyFile: noop,
@@ -42,7 +45,16 @@ export function Shell() {
   const [openRef, setOpenRef] = useState<DocumentRef | null>(null)
   const { reload, reloadRecents } = sidebar
   const events = useMemo(() => ({ onRecorded: reloadRecents, onNotFound: reload }), [reloadRecents, reload])
-  const { document, content, retry, submitPassword } = useDocument(openRef, events)
+  const { document, content, retry, submitPassword, password } = useDocument(openRef, events)
+  // A finished conversion opens the derivative, which the sidebar now lists.
+  const openDerivative = useCallback(
+    ({ id, name }: Document) => {
+      setOpenRef({ id, name })
+      reload()
+    },
+    [reload],
+  )
+  const conversion = useConvertAction(document, useConversions(openDerivative))
   const reader = useReaderState()
   const onLink = useLinkHandler(openRef?.id ?? null, setOpenRef)
   const properties = useProperties(openRef?.id ?? null)
@@ -59,10 +71,11 @@ export function Shell() {
       <Sidebar data={sidebar.data} tree={sidebar.tree} actions={actions} selectedId={openRef?.id ?? null} now={now} />
       <main className="relative flex min-w-0 flex-1 flex-col">
         {document ? (
-          <DocumentView document={document} content={content} reader={reader} actions={{ ...PENDING_ACTIONS, onRetry: retry, onLink, onPassword: submitPassword, onProperties: properties.open }} />
+          <DocumentView document={document} content={content} reader={reader} actions={{ ...PENDING_ACTIONS, onConvert: conversion.onConvert, onRetry: retry, onLink, onPassword: submitPassword, onProperties: properties.open }} />
         ) : (
           <Home data={homeData} actions={homeActions} now={now} />
         )}
+        <ProtectedConvertDialog open={conversion.dialogOpen} knownPassword={password} onConfirm={conversion.confirm} onClose={conversion.close} />
         <PropertiesDialog properties={properties.properties} onClose={properties.close} onOpenDocument={openLinked} />
         <ToastViewport />
       </main>

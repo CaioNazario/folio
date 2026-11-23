@@ -26,10 +26,11 @@ Posição: absoluta, `top: 38px; right: 66px`, largura 196, z-index 40. Estilo b
 | Chip | Rótulo |
 |---|---|
 | PDF | PDF |
+| DOCX | Documento do Word |
 | MD | Markdown |
 | TXT | Texto simples |
-| PNG | Imagem PNG |
-| JPG | Imagem JPG |
+
+PNG e JPG, do protótipo, ficam fora da 0.1.0: a spec 08 só converte entre PDF, DOCX, MD e TXT.
 
 - Nota de rodapé: `margin: 5px 9px 4px; padding-top: 7px; border-top: 1px solid --bar`, 11px `--tx-9`, line-height 1.45. Texto: "O original é preservado. O novo arquivo é criado ao lado dele." (a menção à timeline do protótipo sai: versionamento está fora da 0.1.0)
 - Só aparecem os formatos para os quais o documento aberto pode ser convertido (`specs/08-conversao.md`); sem nenhum, o botão Converter fica desabilitado

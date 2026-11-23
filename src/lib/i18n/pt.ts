@@ -62,6 +62,19 @@ export const pt = {
       en: 'English',
     },
   },
+  conversion: {
+    running: 'Convertendo {{name}} para {{format}}…',
+    runningPercent: 'Convertendo {{name}} para {{format}}… {{percent}}',
+    waiting: '{{running}} · {{count, number}} na fila',
+    cancel: 'Cancelar',
+    done: '{{derivative}} criado · {{original}} preservado',
+    protected: {
+      title: 'Converter documento protegido',
+      warning: 'O documento convertido não terá senha.',
+      convert: 'Converter',
+      close: 'Fechar',
+    },
+  },
   document: {
     breadcrumb: 'Local do documento',
     derived: 'derivado',

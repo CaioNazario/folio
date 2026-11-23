@@ -32,13 +32,12 @@
 - O protótipo **não fecha** com clique fora nem com Esc. Implementar os dois
 
 ## Conversão
-Ao clicar no formato X do dropdown:
-1. `base` = título atual sem extensão; `nome` = `base + '.' + x.toLowerCase()`
-2. Cria um TimelineItem `{ id: 'c' + timestamp, kind: 'derived', ext: X, title: nome, sub: 'Convertido de ' + título original, date: 'agora', blocks e docDate herdados }`
-3. Insere logo **depois** do item atual em `tl`
-4. `sel = novo id`, fecha o dropdown
-5. Toast: "{nome} criado · {título original} preservado"
-6. O badge de versão mostra "derivado"
+O protótipo criava um item de timeline; o produto segue `specs/08-conversao.md`. Ao clicar no formato X do dropdown:
+1. O dropdown fecha. Documento protegido por senha: abre o diálogo "Converter documento protegido", com o aviso "O documento convertido não terá senha." e, se o core ainda não tem a senha (PDF, que o pdf.js abriu), o campo de senha. "Converter" segue; fechar desiste
+2. O pedido entra na fila do core, que responde por eventos
+3. Enquanto roda: toast fixo (ver [toast](06-components.md#toast)) "Convertendo {nome} para {formato}…", com a porcentagem quando o core a informa e " · {n} na fila" quando há pedidos esperando, e o botão "Cancelar"
+4. Terminou: o derivado abre no Reader, a sidebar recarrega e o toast diz "{nome do derivado} criado · {nome do original} preservado"
+5. Cancelada: toast "Conversão cancelada". Falhou: toast com a mensagem do erro
 
 ## Favoritos
 - O pin alterna `pinned[nome]`. A chave é o nome (no produto, usar id estável)

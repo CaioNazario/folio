@@ -48,6 +48,8 @@ Fundo `--pop`, borda 1px `--bar`, raio 18, padding 5, sombra `--shadow-2`, z-ind
 - Flex, gap 11, `padding: 10px 14px`, raio 18, fundo `--pop`, borda 1px `--bar`, sombra `--shadow-2`
 - Ponto 7×7 circular `--teal` + texto 12.5px
 - Some sozinho após 2600ms. Um toast novo substitui o anterior e reinicia o timer
+- **Fixo:** um toast fixo não some sozinho; fica até outro toast substituí-lo (a conversão em andamento, `specs/08-conversao.md`)
+- **Ação:** um botão de texto opcional no fim ("Cancelar"): 12.5px/500 `--tx-1`, `padding: 2px 6px`, raio 10, hover e foco `--hover-3`
 - Sem animação de entrada ou saída no protótipo
 
 ## Chip de formato / badge

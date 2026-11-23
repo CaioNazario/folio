@@ -5,7 +5,7 @@ import type { OpenDocument, StageContent } from './types'
 
 export function toOpenDocument({ document, folders, derived, conversionTargets, position }: DocumentView): OpenDocument {
   const { id, name, format, valid } = document
-  return { id, name, format, folders, derived, conversions: conversionTargets, valid, position }
+  return { id, name, format, folders, derived, conversions: conversionTargets, valid, protected: document.protected, position }
 }
 
 // Which stage state a failed load shows (specs/07-reader.md, "Estados do palco").

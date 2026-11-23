@@ -28,10 +28,13 @@ macro_rules! command_list {
             $crate::commands::documents::get_properties,
             $crate::commands::documents::follow_link,
             $crate::commands::documents::save_position,
+            $crate::commands::conversion::convert_document,
+            $crate::commands::conversion::cancel_conversion,
         ]
     };
 }
 
+pub mod conversion;
 pub mod documents;
 pub mod library;
 pub mod preferences;

@@ -2,9 +2,21 @@ import { createContext, useContext } from 'react'
 
 export const TOAST_DURATION_MS = 2600
 
+/** A button inside the toast, such as "Cancelar". */
+export type ToastAction = { label: string; onClick: () => void }
+
+export type ToastOptions = {
+  /** Stays until another toast replaces it or it is dismissed. */
+  sticky?: boolean
+  action?: ToastAction
+}
+
+export type Toast = { message: string; action?: ToastAction }
+
 export type ToastContextValue = {
-  message: string | null
-  show: (message: string) => void
+  toast: Toast | null
+  show: (message: string, options?: ToastOptions) => void
+  dismiss: () => void
 }
 
 export const ToastContext = createContext<ToastContextValue | null>(null)

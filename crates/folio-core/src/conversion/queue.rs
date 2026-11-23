@@ -29,12 +29,31 @@ pub struct Job {
 #[serde(tag = "kind", rename_all = "camelCase")]
 #[ts(export)]
 pub enum ConversionEvent {
-    Queued { job: u32 },
-    Started { job: u32 },
-    Progress { job: u32, progress: Progress },
-    Finished { job: u32, document: Document },
-    Failed { job: u32, error: BridgeError },
-    Cancelled { job: u32 },
+    /// Emitted before the job can start, so the UI learns which document
+    /// and format each job id is.
+    Queued {
+        job: u32,
+        document: Uuid,
+        target: Format,
+    },
+    Started {
+        job: u32,
+    },
+    Progress {
+        job: u32,
+        progress: Progress,
+    },
+    Finished {
+        job: u32,
+        document: Document,
+    },
+    Failed {
+        job: u32,
+        error: BridgeError,
+    },
+    Cancelled {
+        job: u32,
+    },
 }
 
 /// Runs one job, reporting to its control.
@@ -94,7 +113,11 @@ impl ConversionQueue {
         let mut state = self.shared.lock();
         state.last_id += 1;
         let id = state.last_id;
-        (self.shared.emit)(ConversionEvent::Queued { job: id });
+        (self.shared.emit)(ConversionEvent::Queued {
+            job: id,
+            document,
+            target,
+        });
         let job = Job {
             id,
             workspace,
@@ -213,6 +236,17 @@ mod tests {
         events.recv_timeout(Duration::from_secs(10)).unwrap()
     }
 
+    /// The document of the next `Finished` event, past any progress.
+    fn finished_document(events: &Receiver<ConversionEvent>) -> Document {
+        loop {
+            match next(events) {
+                ConversionEvent::Progress { .. } => continue,
+                ConversionEvent::Finished { document, .. } => return document,
+                other => panic!("expected Finished, got {other:?}"),
+            }
+        }
+    }
+
     #[test]
     fn job_is_queued_started_and_finished_with_its_derivative() {
         let env = TestEnv::new();
@@ -223,17 +257,14 @@ mod tests {
 
         let job = queue.enqueue(workspace.clone(), txt, Format::Md, None);
 
-        assert_eq!(next(&events), ConversionEvent::Queued { job });
+        let queued = ConversionEvent::Queued {
+            job,
+            document: txt,
+            target: Format::Md,
+        };
+        assert_eq!(next(&events), queued);
         assert_eq!(next(&events), ConversionEvent::Started { job });
-        let finished = loop {
-            match next(&events) {
-                ConversionEvent::Progress { .. } => continue,
-                other => break other,
-            }
-        };
-        let ConversionEvent::Finished { document, .. } = finished else {
-            panic!("expected Finished, got {finished:?}");
-        };
+        let document = finished_document(&events);
         assert_eq!(document.path.display(), "Aula.md");
     }
 
@@ -333,7 +364,7 @@ mod tests {
         let (queue, _open, events) = gated_queue();
         let env = env();
         let job = enqueue(&queue, &env);
-        assert_eq!(next(&events), ConversionEvent::Queued { job });
+        assert!(matches!(next(&events), ConversionEvent::Queued { .. }));
         assert_eq!(next(&events), ConversionEvent::Started { job });
 
         queue.cancel(job);
