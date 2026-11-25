@@ -3,6 +3,7 @@
 //! their position and font (spec 07, "Leitores").
 
 mod blocks;
+mod family;
 mod fonts;
 mod glyphs;
 mod headings;
@@ -17,6 +18,7 @@ mod test_crypt;
 #[cfg(test)]
 pub(crate) mod test_pdf;
 mod text_string;
+mod typography;
 
 pub use metadata::read_pdf_metadata;
 pub use open::needs_password;
@@ -38,9 +40,11 @@ pub fn read_pdf_with(
 ) -> Result<DocumentModel, ReadError> {
     let pdf = open::open(bytes, password)?;
     let pages = glyphs::pages(&pdf, on_page).ok_or(ReadError::Cancelled)?;
+    let (blocks, typography) = blocks::blocks_of(pages);
     Ok(DocumentModel {
         metadata: metadata::metadata_of(&pdf),
-        blocks: blocks::blocks_of(pages),
+        blocks,
+        typography,
     })
 }
 

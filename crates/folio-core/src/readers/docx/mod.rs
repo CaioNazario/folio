@@ -40,6 +40,7 @@ pub fn read_docx(bytes: &[u8], password: Option<&str>) -> Result<DocumentModel, 
     Ok(DocumentModel {
         metadata: metadata_of(&mut package, &document)?,
         blocks: blocks.unwrap_or_default(),
+        ..DocumentModel::default()
     })
 }
 

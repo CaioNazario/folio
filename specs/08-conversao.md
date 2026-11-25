@@ -46,7 +46,7 @@ origem ─▶ leitor do formato de origem ─▶ modelo de documento ─▶ escr
 
 Com 4 leitores e 4 escritores, as 12 conversões saem das combinações. Melhorar um leitor melhora todas as conversões que saem daquele formato. É a mesma arquitetura do Pandoc, reproduzida em Rust com bibliotecas embarcáveis.
 
-A conversão reconstrói o documento: preserva texto, ordem e estrutura (títulos, listas, ênfase, tabelas, imagens, conforme o leitor de origem reconhece), mas não a aparência exata da origem (posições, fontes, colunas).
+A conversão reconstrói o documento: preserva texto, ordem e estrutura (títulos, listas, ênfase, tabelas, imagens, conforme o leitor de origem reconhece), mas não a aparência exata da origem: posições, colunas, espaçamento, alinhamento, cor e a fonte de cada trecho se perdem. Do PDF para o DOCX, a tipografia do documento (fonte e tamanho do corpo e de cada nível de título) é preservada.
 
 ## Escritores
 
@@ -87,7 +87,7 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 **DOCX:** um pacote do Word montado pelo Folio, só com as partes necessárias: `[Content_Types].xml`, as relações, `word/document.xml`, `word/styles.xml`, `word/numbering.xml` (quando há lista), as imagens em `word/media/` e `docProps/core.xml` (quando há metadados). Relido pelo leitor de DOCX (spec 07), o modelo volta igual, menos o que esse leitor não reconhece: código, separador e código inline, que voltam como texto comum ou somem.
 
 - **Página:** A4, margens de 2,5 cm, como no PDF.
-- **Estilos:** os nomes internos do Word, que o Word e o LibreOffice mostram traduzidos: "Normal", "heading 1" a "heading 6", "Quote" e "Hyperlink", mais "Code" para código. Texto em Calibri 11 pt (o LibreOffice usa a Carlito, de mesmas medidas); código em Courier New.
+- **Estilos:** os nomes internos do Word, que o Word e o LibreOffice mostram traduzidos: "Normal", "heading 1" a "heading 6", "Quote" e "Hyperlink", mais "Code" para código. Texto na fonte e no tamanho do corpo da tipografia do modelo; sem eles, em Calibri 11 pt (o LibreOffice usa a Carlito, de mesmas medidas). Cada "heading N" usa o tamanho do nível na tipografia (sem ele, 16, 14, 13, 12, 11 e 11 pt), a fonte do nível só quando difere da do corpo, e negrito quando o nível é negrito ou não há tipografia. O tamanho é copiado como está, mesmo de página que não é A4: um título de 40 pt de um PDF de slides continua com 40 pt na página A4. O DOCX só nomeia a fonte, sem embuti-la: quem abre usa a fonte se ela estiver instalada, ou a substituta que o programa escolher. Código em Courier New.
 - **Parágrafo e título:** um parágrafo com o estilo; a quebra de linha vira `w:br`. Negrito e itálico viram `w:b` e `w:i`; código inline, um trecho em Courier New.
 - **Link:** externo, por uma relação com `TargetMode="External"`; `#âncora`, por `w:anchor`. O texto do link leva o estilo de caractere "Hyperlink" (azul e sublinhado), como o Word faz.
 - **Lista:** parágrafos numerados, com o nível (`w:ilvl`) dado pelo aninhamento, com marcador ou número decimal. Cada lista numerada começa do 1. Os blocos de um item depois do primeiro saem recuados até o texto do item, sem número; relidos, ficam fora da lista, porque o leitor só reconhece como item o parágrafo numerado.

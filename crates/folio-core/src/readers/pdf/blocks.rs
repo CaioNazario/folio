@@ -7,7 +7,8 @@ use super::images::PageImage;
 use super::inlines::{Piece, inlines_of, push, unbold_whole};
 use super::lines::{Line, lines_of};
 use super::lists::{Item, Marker, Part, group, marker_of, strip_marker};
-use crate::model::Block;
+use super::typography::typography_of;
+use crate::model::{Block, Typography};
 use std::iter::{self, Peekable};
 use std::vec;
 
@@ -29,13 +30,14 @@ impl Group {
 }
 
 /// The blocks of the lines of each page, in order, with a page break
-/// between pages.
-pub fn blocks_of(pages: Vec<PageContent>) -> Vec<Block> {
+/// between pages, and the typography of the document.
+pub fn blocks_of(pages: Vec<PageContent>) -> (Vec<Block>, Typography) {
     let (lines, images): (Vec<_>, Vec<_>) = pages
         .into_iter()
         .map(|page| (lines_of(page.glyphs), page.images))
         .unzip();
     let headings = Headings::of(&lines);
+    let typography = typography_of(&lines, &headings);
     let mut blocks = Vec::new();
     for (i, (lines, images)) in lines.into_iter().zip(images).enumerate() {
         if i > 0 {
@@ -43,7 +45,7 @@ pub fn blocks_of(pages: Vec<PageContent>) -> Vec<Block> {
         }
         blocks.extend(page_blocks(lines, images, &headings));
     }
-    blocks
+    (blocks, typography)
 }
 
 fn image_block(image: PageImage) -> Block {

@@ -7,6 +7,7 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 ### Added
 
 - Converting a PDF keeps its images: they are extracted in reading order, and a scanned PDF becomes a document of images (Closes #1).
+- Converting a PDF to DOCX keeps the font and size of the body and the size, font and weight of each heading level.
 
 ### Changed
 

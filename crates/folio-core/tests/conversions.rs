@@ -83,6 +83,13 @@ fn read(format: Format, bytes: &[u8]) -> DocumentModel {
 /// Converts the sample of `source` to `target`; returns the original's
 /// model and the derivative's, read back.
 fn convert(source: Format, target: Format) -> (DocumentModel, DocumentModel) {
+    let (original, written) = convert_bytes(source, target);
+    (read(source, &original), read(target, &written))
+}
+
+/// Converts the sample of `source` to `target`; returns the bytes of the
+/// original and of the derivative.
+fn convert_bytes(source: Format, target: Format) -> (Vec<u8>, Vec<u8>) {
     let env = env();
     let fixture = source_fixture(source);
     let original = fs::read(&fixture).unwrap();
@@ -97,7 +104,7 @@ fn convert(source: Format, target: Format) -> (DocumentModel, DocumentModel) {
         original,
         "the original changed"
     );
-    (read(source, &original), read(target, &written))
+    (original, written)
 }
 
 /// The words of a model, in order: runs of letters and digits.
@@ -235,4 +242,36 @@ conversions! {
     docx_to_pdf: Docx => Pdf,
     docx_to_txt: Docx => Txt,
     docx_to_md: Docx => Md,
+}
+
+/// The text of the part `name` of the DOCX package `docx`.
+fn docx_part(docx: &[u8], name: &str) -> String {
+    use std::io::Read;
+    let mut zip = zip::ZipArchive::new(std::io::Cursor::new(docx)).unwrap();
+    let mut text = String::new();
+    zip.by_name(name)
+        .unwrap()
+        .read_to_string(&mut text)
+        .unwrap();
+    text
+}
+
+/// The DOCX reader does not read fonts or sizes, so the styles part of
+/// the derivative is checked against the typography of the original.
+#[test]
+fn pdf_to_docx_keeps_body_and_heading_typography() {
+    let (original, docx) = convert_bytes(Format::Pdf, Format::Docx);
+    let typography = read(Format::Pdf, &original).typography;
+    let styles = docx_part(&docx, "word/styles.xml");
+
+    assert_eq!(typography.body.family.as_deref(), Some("Liberation Serif"));
+    let body_size = typography.body.size.unwrap();
+    assert!(styles.contains(&format!(
+        r#"<w:rFonts w:ascii="Liberation Serif" w:hAnsi="Liberation Serif" w:eastAsia="Liberation Serif" w:cs="Liberation Serif"/><w:sz w:val="{body_size}"/>"#
+    )), "{styles}");
+    let heading_size = typography.headings[0].size.unwrap();
+    assert!(
+        styles.contains(&format!(r#"<w:sz w:val="{heading_size}"/>"#)),
+        "{styles}"
+    );
 }

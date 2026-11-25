@@ -5,7 +5,7 @@ use hayro_interpret::hayro_cmap::BfString;
 use hayro_interpret::hayro_syntax::Pdf;
 use hayro_interpret::hayro_syntax::page::Page;
 
-use super::fonts::{Fonts, Style};
+use super::fonts::{FontFace, Fonts};
 use super::images::{self, PageImage};
 use hayro_font::FontCache;
 use hayro_interpret::kurbo::{Affine, BezPath, Point, Rect};
@@ -16,7 +16,7 @@ use hayro_interpret::{
 
 /// A glyph with the text it stands for, placed on the page: `x` and `y`
 /// are its origin on the baseline, from the top left; `end` is where the
-/// next glyph would start; `size` is the font size; `style` comes from the
+/// next glyph would start; `size` is the font size; `face` comes from the
 /// font dictionary.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Glyph {
@@ -25,7 +25,7 @@ pub struct Glyph {
     pub y: f64,
     pub end: f64,
     pub size: f64,
-    pub style: Style,
+    pub face: FontFace,
 }
 
 /// What one page draws: its glyphs and its images, in content order.
@@ -132,9 +132,9 @@ fn placed(glyph: &PositionedGlyph<'_>, transform: Affine, fonts: &Fonts<'_>) -> 
         y: origin.y,
         end: (to_page * Point::new(advance(glyph), 0.0)).x,
         size: (a * d - b * c).abs().sqrt() * 1000.0,
-        style: match &**glyph {
-            Drawn::Outline(outline) => fonts.style(outline),
-            Drawn::Type3(_) => Style::default(),
+        face: match &**glyph {
+            Drawn::Outline(outline) => fonts.face(outline),
+            Drawn::Type3(_) => FontFace::default(),
         },
     })
 }

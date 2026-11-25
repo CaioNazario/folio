@@ -35,6 +35,7 @@ pub fn read_md_with(bytes: &[u8], images: &mut dyn FnMut(&str) -> ImageLookup) -
     DocumentModel {
         metadata: front_matter_of(root).map_or_else(Metadata::default, |yaml| metadata_of(&yaml)),
         blocks: blocks::blocks_of(root, &Images::new(images)),
+        ..DocumentModel::default()
     }
 }
 

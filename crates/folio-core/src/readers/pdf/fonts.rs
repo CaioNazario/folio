@@ -2,9 +2,13 @@
 //! a glyph the identity of its font program, which is matched against the
 //! fonts of the page resources (spec 07, spike S1).
 
+use super::family::family_of;
+use super::text_string;
 use hayro_font::{Font, FontCache, FontGlyph, OutlineGlyph};
 use hayro_interpret::InterpreterSettings;
-use hayro_interpret::hayro_syntax::object::{Dict, Name, Stream};
+use std::rc::Rc;
+
+use hayro_interpret::hayro_syntax::object::{Dict, Name, Stream, String as PdfString};
 use hayro_interpret::hayro_syntax::page::Resources;
 
 /// A font weight from this one up is bold.
@@ -25,6 +29,14 @@ pub struct Style {
     pub italic: bool,
 }
 
+/// The family and emphasis of the font that drew a glyph; the family is
+/// shared by every glyph of the font.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct FontFace {
+    pub family: Option<Rc<str>>,
+    pub style: Style,
+}
+
 /// Form XObjects nested deeper than this are not searched for fonts,
 /// which also stops a form that draws itself.
 const MAX_FORM_DEPTH: usize = 8;
@@ -32,7 +44,7 @@ const MAX_FORM_DEPTH: usize = 8;
 /// The fonts a page declares, in its resources or in those of the forms
 /// it draws, each with its style.
 pub struct Fonts<'a> {
-    known: Vec<(Font<'a>, Style)>,
+    known: Vec<(Font<'a>, FontFace)>,
 }
 
 impl<'a> Fonts<'a> {
@@ -62,9 +74,9 @@ impl<'a> Fonts<'a> {
         }
     }
 
-    /// The style of the font that drew `glyph`; plain when no declared
-    /// font has its program.
-    pub fn style(&self, glyph: &OutlineGlyph) -> Style {
+    /// The face of the font that drew `glyph`; plain and without a family
+    /// when no declared font has its program.
+    pub fn face(&self, glyph: &OutlineGlyph) -> FontFace {
         let same_program = |font: &Font<'a>| match font.glyph(glyph.glyph_id(), glyph.char_code()) {
             FontGlyph::Outline(candidate) => candidate.identifier() == glyph.identifier(),
             FontGlyph::Type3(_) => false,
@@ -72,7 +84,7 @@ impl<'a> Fonts<'a> {
         self.known
             .iter()
             .find(|(font, _)| same_program(font))
-            .map(|(_, style)| *style)
+            .map(|(_, face)| face.clone())
             .unwrap_or_default()
     }
 }
@@ -84,10 +96,14 @@ struct Loader<'l, 'a> {
 }
 
 impl<'a> Loader<'_, 'a> {
-    fn load(&self, dict: &Dict<'a>) -> Option<(Font<'a>, Style)> {
+    fn load(&self, dict: &Dict<'a>) -> Option<(Font<'a>, FontFace)> {
         let resolvers = (&self.settings.font_resolver, &self.settings.cmap_resolver);
         let font = self.cache.font(dict, resolvers.0, resolvers.1)?;
-        Some((font, style_of(dict)))
+        let face = FontFace {
+            family: family_of_font(dict).map(Rc::from),
+            style: style_of(dict),
+        };
+        Some((font, face))
     }
 }
 
@@ -106,6 +122,16 @@ fn form_resources<'a>(resources: &Resources<'a>) -> Vec<Resources<'a>> {
         .filter_map(|stream| stream.dict().get::<Dict<'a>>(b"Resources"))
         .map(Resources::new)
         .collect()
+}
+
+/// The family of a font: the descriptor's `FontFamily`, or the one its
+/// `BaseFont` names.
+fn family_of_font(font: &Dict<'_>) -> Option<String> {
+    let descriptor = font.get::<Dict<'_>>(b"FontDescriptor").unwrap_or_default();
+    if let Some(family) = descriptor.get::<PdfString<'_>>(b"FontFamily") {
+        return Some(text_string::decode(family.as_bytes()));
+    }
+    family_of(font.get::<Name<'_>>(b"BaseFont")?.as_str())
 }
 
 /// What a font dictionary says about its weight and slant: the font

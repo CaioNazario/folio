@@ -2,7 +2,9 @@
 //! produce and writers consume (spec 07, "Modelo de documento").
 //!
 //! Left out in 0.1.0: footnotes, page headers and footers, columns, colors,
-//! fonts and sizes, comments and revisions, fields.
+//! fonts and sizes of each passage, comments and revisions, fields. The
+//! typography of the document as a whole is kept: the face of the body
+//! and of each heading level.
 
 use serde_json::{Map, Value};
 
@@ -11,6 +13,26 @@ use serde_json::{Map, Value};
 pub struct DocumentModel {
     pub metadata: Metadata,
     pub blocks: Vec<Block>,
+    pub typography: Typography,
+}
+
+/// The faces a document sets its text in, when the reader knows them.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Typography {
+    pub body: Face,
+    /// The face of each heading level, from level 1; shorter than six
+    /// when the document has fewer levels.
+    pub headings: Vec<Face>,
+}
+
+/// A font family, size and emphasis.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct Face {
+    pub family: Option<String>,
+    /// In half-points, the unit of `w:sz`.
+    pub size: Option<u16>,
+    pub bold: bool,
+    pub italic: bool,
 }
 
 /// What a document says about itself, as cached in `document_metadata`

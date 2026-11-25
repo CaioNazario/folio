@@ -77,6 +77,7 @@ mod tests {
         let model = DocumentModel {
             metadata,
             blocks: vec![paragraph("Texto.")],
+            ..DocumentModel::default()
         };
         write_md(&model, "Doc.assets").text
     }

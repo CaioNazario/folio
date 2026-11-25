@@ -79,6 +79,18 @@ pub fn pdf_with_info(pages: &[Vec<Text>], info: &str) -> Vec<u8> {
 /// Computer Modern: names without "bold" and no weight, only the stem
 /// width. `/F1` is CMR10, `/F2` CMBX10 and `/F3` CMTI10.
 pub fn pdf_with_latex_fonts(pages: &[Vec<Text>]) -> Vec<u8> {
+    pdf_with_described_fonts(pages, "")
+}
+
+/// [`pdf_with_latex_fonts`], with `/FontFamily (family)` in each font
+/// descriptor.
+pub fn pdf_with_font_family(pages: &[Vec<Text>], family: &str) -> Vec<u8> {
+    pdf_with_described_fonts(pages, &format!("/FontFamily ({family})"))
+}
+
+/// The fonts of [`pdf_with_latex_fonts`], with `entries` added to each
+/// font descriptor.
+fn pdf_with_described_fonts(pages: &[Vec<Text>], entries: &str) -> Vec<u8> {
     use typst_assets::pdf::{SERIF, SERIF_BOLD, SERIF_ITALIC};
     let mut writer = Writer::default();
     let fonts = [
@@ -90,7 +102,7 @@ pub fn pdf_with_latex_fonts(pages: &[Vec<Text>]) -> Vec<u8> {
         let file = writer.stream("/Subtype /Type1C", program);
         let descriptor = writer.add(format!(
             "<< /Type /FontDescriptor /FontName /ABCDEF+{name} /Flags 34 /FontBBox [0 -250 1000 750] \
-             /ItalicAngle {angle} /Ascent 694 /Descent -194 /CapHeight 683 /StemV {stem} /FontFile3 {file} 0 R >>"
+             /ItalicAngle {angle} /Ascent 694 /Descent -194 /CapHeight 683 /StemV {stem} /FontFile3 {file} 0 R {entries} >>"
         ));
         format!("<< /Type /Font /Subtype /Type1 /BaseFont /ABCDEF+{name} /Encoding /WinAnsiEncoding /FontDescriptor {descriptor} 0 R >>")
     });

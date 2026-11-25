@@ -362,6 +362,7 @@ mod tests {
                 Block::PageBreak,
                 paragraph("Página 2."),
             ],
+            ..DocumentModel::default()
         };
 
         assert_eq!(write_txt(&model), "Página 1.\n\nPágina 2.\n");

@@ -9,7 +9,7 @@ mod styles;
 #[cfg(test)]
 mod testing;
 
-use crate::model::DocumentModel;
+use crate::model::{DocumentModel, Typography};
 use body::{Body, Media, Written};
 use package::{Part, Relationship, content_types, relationships_part, zip};
 
@@ -32,7 +32,7 @@ pub const TEXT_WIDTH: u32 = PAGE.0 - 2 * MARGIN;
 pub fn write_docx(model: &DocumentModel) -> Result<Vec<u8>, String> {
     let mut body = Body::default();
     body.blocks(&model.blocks);
-    let mut parts = document_parts(body.finish());
+    let mut parts = document_parts(body.finish(), &model.typography);
     let core = core::core_properties(&model.metadata);
     parts.push(package_relationships(core.is_some()));
     parts.extend(core);
@@ -41,12 +41,12 @@ pub fn write_docx(model: &DocumentModel) -> Result<Vec<u8>, String> {
 }
 
 /// `document.xml`, the parts it points to and its relationships.
-fn document_parts(written: Written) -> Vec<Part> {
+fn document_parts(written: Written, typography: &Typography) -> Vec<Part> {
     let mut linked = Linked {
         parts: Vec::new(),
         relationships: written.relationships,
     };
-    linked.add("styles", xml_part("styles", &styles::styles()));
+    linked.add("styles", xml_part("styles", &styles::styles(typography)));
     if !written.lists.is_empty() {
         linked.add(
             "numbering",

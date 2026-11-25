@@ -165,6 +165,7 @@ mod tests {
         let model = DocumentModel {
             metadata,
             blocks: vec![paragraph("Texto.")],
+            ..DocumentModel::default()
         };
         crate::readers::read_pdf_metadata(&write_pdf(&model).unwrap()).unwrap()
     }

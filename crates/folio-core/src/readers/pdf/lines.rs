@@ -30,6 +30,10 @@ impl Line {
         self.glyphs[0].size
     }
 
+    pub fn glyphs(&self) -> &[Glyph] {
+        &self.glyphs
+    }
+
     pub fn glyph_count(&self) -> usize {
         self.glyphs.len()
     }
@@ -41,9 +45,9 @@ impl Line {
         for (i, glyph) in self.glyphs.iter().enumerate() {
             let gap = i > 0 && is_word_gap(&self.glyphs[i - 1], glyph);
             if gap && !pieces.last().is_some_and(|p: &Piece| p.text.ends_with(' ')) {
-                push(&mut pieces, self.glyphs[i - 1].style, " ");
+                push(&mut pieces, self.glyphs[i - 1].face.style, " ");
             }
-            push(&mut pieces, glyph.style, &glyph.text);
+            push(&mut pieces, glyph.face.style, &glyph.text);
         }
         pieces
     }
