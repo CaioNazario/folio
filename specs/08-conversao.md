@@ -108,7 +108,7 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 - **Lista:** marcadores `•`, `◦` e `▪` por nível (os que o leitor de PDF reconhece) ou números `1.`, com aninhamento recuado.
 - **Citação:** bloco recuado.
 - **Código:** DejaVu Sans Mono 9 pt, com as quebras de linha do original.
-- **Tabela:** grade com bordas, com a primeira linha como cabeçalho repetido em cada página. Linhas com menos células são completadas com células vazias.
+- **Tabela:** grade com bordas, com a primeira linha como cabeçalho repetido em cada página, e o texto das células em 9 pt: sem hifenização, uma palavra longa numa tabela de muitas colunas (`ESPECIFICAÇÃO` numa grade de sete) invadiria a célula vizinha. Uma palavra que nem em 9 pt cabe na coluna ainda invade. Linhas com menos células são completadas com células vazias.
 - **Imagem:** no tamanho próprio, reduzida para caber na largura do texto. PNG, JPEG, GIF, WebP e SVG entram; imagem de outro tipo ou cujo tamanho não se consegue ler vira o texto alternativo entre colchetes, como no TXT, e sem texto alternativo some.
 - **Separador:** uma linha horizontal da largura do texto.
 - **Quebra de página:** começa uma página nova, sem gerar página em branco.

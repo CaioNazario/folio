@@ -13,6 +13,7 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 
 - Words separated by a tab in a DOCX no longer run together when it is converted.
 - Text copied or extracted from a PDF made by a conversion no longer runs words together on tightly justified lines.
+- Long words in a table with many columns no longer run into the next cell when converting to PDF.
 
 ### Changed
 

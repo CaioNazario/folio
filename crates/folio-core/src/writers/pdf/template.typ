@@ -46,6 +46,9 @@
 #set list(marker: ([•], [◦], [▪]))
 
 // A grid with borders; the first row is a header repeated on each page.
+// Cells in 9 pt: with no hyphenation, a long word wider than its column
+// would run into the next cell.
+#show table: set text(size: 9pt)
 #let table-of(node) = {
   let rows = node.rows.map(row => row.map(inlines))
   table(columns: node.columns, table.header(..rows.first()), ..rows.slice(1).flatten())

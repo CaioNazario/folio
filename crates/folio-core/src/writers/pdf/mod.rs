@@ -274,6 +274,33 @@ mod tests {
         ]
     }
 
+    #[test]
+    fn write_pdf_keeps_long_words_of_a_wide_table_inside_their_cells() {
+        // The header of a real contract: seven columns, long capitals.
+        let header = row(&[
+            "ITEM",
+            "ESPECIFICAÇÃO",
+            "CATMAT",
+            "UNIDADE DE MEDIDA",
+            "QUANTIDADE",
+            "VALOR UNITÁRIO",
+            "VALOR TOTAL",
+        ]);
+        let table = Block::Table {
+            rows: vec![header, row(&["1", "", "", "", "", "", ""])],
+        };
+
+        let glyphs = crate::readers::pdf_glyphs(&pdf_of(vec![table]));
+
+        // Beyond kerning, a glyph that starts over the one before it on the
+        // same baseline is a word running into the next cell.
+        let overlapping = glyphs.windows(2).filter(|pair| {
+            let (before, glyph) = (&pair[0], &pair[1]);
+            glyph.y == before.y && glyph.x < before.end - before.size * 0.2
+        });
+        assert_eq!(overlapping.count(), 0);
+    }
+
     /// One block of each kind.
     fn every_block() -> Vec<Block> {
         let heading = Block::Heading {
