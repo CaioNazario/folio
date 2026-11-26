@@ -103,6 +103,8 @@ fn emphasized(mut content: Vec<Inline>, props: Option<&Element>) -> Vec<Inline> 
 fn content_inline(element: &Element) -> Option<Inline> {
     match element.name.as_str() {
         "t" => Some(Inline::Text(element.text())),
+        // The model has no tab stops: a tab only keeps its words apart.
+        "tab" => Some(Inline::Text(" ".to_string())),
         "br" => Some(Inline::LineBreak),
         _ => None,
     }
@@ -204,6 +206,13 @@ mod tests {
             inlines(runs),
             [text("Rua A"), Inline::LineBreak, text("Centro")]
         );
+    }
+
+    #[test]
+    fn read_docx_maps_tab_to_space() {
+        let runs = "<w:r><w:t>Júnior</w:t></w:r><w:r><w:tab/></w:r><w:r><w:t>Fev 2026</w:t></w:r>";
+
+        assert_eq!(inlines(runs), [text("Júnior Fev 2026")]);
     }
 
     #[test]

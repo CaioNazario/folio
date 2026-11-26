@@ -9,6 +9,10 @@ All notable changes to Folio. Format based on [Keep a Changelog](https://keepach
 - Converting a PDF keeps its images: they are extracted in reading order, and a scanned PDF becomes a document of images (Closes #1).
 - Converting a PDF to DOCX keeps the font and size of the body and the size, font and weight of each heading level.
 
+### Fixed
+
+- Words separated by a tab in a DOCX no longer run together when it is converted.
+
 ### Changed
 
 - Folio is now licensed under the GPL-3.0-or-later (previously MIT).
