@@ -101,7 +101,7 @@ A conversão reconstrói o documento: preserva texto, ordem e estrutura (título
 
 **PDF:** o modelo vira dados (`sys.inputs`) para um template Typst fixo, e o `typst-pdf` gera o arquivo. O texto do documento nunca é código Typst. Relido pelo leitor de PDF (spec 07), o texto volta na mesma ordem; a estrutura volta até onde esse leitor a deduz (títulos, parágrafos, listas e ênfase).
 
-- **Página e texto:** A4, margens de 2,5 cm; Libertinus Serif 11 pt, justificado e **sem hifenização**: o leitor de PDF mantém o hífen de fim de linha, e um texto hifenizado ganharia hífens no meio das palavras ao ser relido ou convertido de novo.
+- **Página e texto:** A4, margens de 2,5 cm; Libertinus Serif 11 pt, justificado e **sem hifenização**: o leitor de PDF mantém o hífen de fim de linha, e um texto hifenizado ganharia hífens no meio das palavras ao ser relido ou convertido de novo. A justificação só estica os espaços, nunca os encolhe: num espaço encolhido, os programas que extraem texto do PDF (`pdftotext`, a busca e a cópia dos leitores de PDF) deixam de ver o espaço e juntam as palavras.
 - **Títulos:** em negrito, com um tamanho por nível, todos a partir de 1,16 vez o corpo, para que o leitor de PDF os reconheça como títulos (ele exige 1,15).
 - **Ênfase e código inline:** negrito, itálico e DejaVu Sans Mono.
 - **Link:** externo, clicável; `#âncora` sai só com o texto, porque o modelo não marca o destino.

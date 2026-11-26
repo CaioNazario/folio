@@ -48,6 +48,15 @@ pub fn read_pdf_with(
     })
 }
 
+/// The glyphs of every page of `bytes`, in content order, for tests that
+/// look at where a writer placed its text.
+#[cfg(test)]
+pub(crate) fn glyphs_of(bytes: &[u8]) -> Vec<glyphs::Glyph> {
+    let pdf = open::open(bytes, None).unwrap();
+    let pages = glyphs::pages(&pdf, &mut |_, _| true).unwrap();
+    pages.into_iter().flat_map(|page| page.glyphs).collect()
+}
+
 #[cfg(test)]
 mod tests {
     use super::test_pdf::{

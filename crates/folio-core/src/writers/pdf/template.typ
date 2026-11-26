@@ -14,10 +14,11 @@
 )
 
 // A4 with 2.5 cm margins; justified text without hyphenation, because the
-// PDF reader keeps a line-end hyphen (spec 07).
+// PDF reader keeps a line-end hyphen (spec 07). Justifying only stretches
+// spaces: a shrunk one is too narrow for other programs to see a space.
 #set page(paper: "a4", margin: 2.5cm)
 #set text(font: "Libertinus Serif", size: 11pt, hyphenate: false)
-#set par(justify: true)
+#set par(justify: true, justification-limits: (spacing: (min: 100%, max: 150%)))
 #show raw: set text(font: "DejaVu Sans Mono", size: 9pt)
 
 // Each heading level its own size, all at least 1.16 times the body: the

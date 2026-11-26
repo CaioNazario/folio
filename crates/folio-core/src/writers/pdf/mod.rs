@@ -95,6 +95,25 @@ mod tests {
     }
 
     #[test]
+    fn write_pdf_never_shrinks_the_space_between_words() {
+        // Its first line nearly fits the width: justified by shrinking its
+        // spaces, its words would stand too close for other programs (such
+        // as pdftotext) to read them as apart.
+        let tight = paragraph(
+            "Ela determina que a organização cumpra a legislação estadual de prevenção \
+             contra incêndios e, quando aplicável, as normas técnicas oficiais.",
+        );
+
+        let glyphs = crate::readers::pdf_glyphs(&pdf_of(vec![tight]));
+
+        let shrunk = glyphs.windows(2).filter(|pair| {
+            let (space, next) = (&pair[0], &pair[1]);
+            space.text == " " && next.y == space.y && next.x < space.end - 0.01
+        });
+        assert_eq!(shrunk.count(), 0);
+    }
+
+    #[test]
     fn write_pdf_headings_read_back_with_levels() {
         let mut blocks = Vec::new();
         for level in 1..=6 {
