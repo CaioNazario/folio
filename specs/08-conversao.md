@@ -184,6 +184,12 @@ A conversão que não atingir o critério sai da 0.1.0 em vez de atrasar o lanç
 - Os itens 1 e 2 têm teste de integração por conversão (`crates/folio-core/tests/conversions.rs`), com uma amostra por formato de origem: o derivado é relido e comparado com o original, palavra por palavra e em títulos, listas e ênfase (menos no TXT, que não tem marcação).
 - No corpus real, `cargo run -p folio-core --example conversion_corpus -- <corpus> <saída>` converte cada documento para os outros três formatos num workspace novo em `<saída>/Folio`, e `scripts/check-derivatives.sh <saída>/Folio <corpus>` abre os derivados nos programas de referência (item 3). Os itens 1 e 2 no corpus são conferidos à mão.
 
+**Resultado (Linux, 2026-11-26):** as 12 conversões ficam na 0.1.0. O corpus foram os documentos dos spikes S2 e S4: 9 PDFs (entre eles um de 190 MB, um digitalizado, um com JPEG2000 e um protegido), 13 DOCX e os 12 PDFs que o LibreOffice gera desses DOCX. Não há MD nem TXT reais no corpus: essas origens ficam cobertas pelos testes de integração.
+
+1. **Abrir sem erro (item 3):** todos os derivados abrem no LibreOffice e no `pdftotext`, sem erro nem aviso. Os documentos protegidos falham com `PasswordRequired`, como esperado (o corpus não passa senha).
+2. **Texto e estrutura (itens 1 e 2):** PDF → DOCX, MD e TXT e DOCX → MD e TXT não perdem texto, e a estrutura chega igual; DOCX → PDF só difere pelos limites do leitor de PDF (abaixo). O corpus achou três bugs, corrigidos: tabulação do DOCX juntando palavras (spec 07), espaços encolhidos pela justificação do PDF e palavra longa invadindo a célula vizinha numa tabela do PDF ("Escritores").
+3. **Limites do leitor de PDF, não da conversão:** o derivado em PDF tem o texto inteiro, mas, relido, um número digitado no início do parágrafo vira item de lista (spec 07), e uma URL quebrada entre duas linhas volta com um espaço no ponto da quebra, porque o leitor junta as linhas com espaço.
+
 ## Erros
 
 Além dos da spec 04 (`InvalidDocument`, `PasswordRequired`, `WrongPassword`) e da 07 (`ReadFailed`):
