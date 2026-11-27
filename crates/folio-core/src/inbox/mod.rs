@@ -2,5 +2,7 @@
 //! it a workspace (spec 09, "Entrada").
 
 mod list;
+mod location;
 
 pub use list::{InboxDocument, list_inbox};
+pub use location::{default_inbox_dir, inbox_is_hidden};

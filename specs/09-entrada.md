@@ -13,11 +13,11 @@ A Entrada mostra os documentos da pasta Downloads sem transformá-la em workspac
 
 ### Pasta da Entrada
 
-- **Padrão:** `XDG_DOWNLOAD_DIR` (lido de `~/.config/user-dirs.dirs`), com fallback `~/Downloads`.
+- **Padrão:** `XDG_DOWNLOAD_DIR` (lido de `~/.config/user-dirs.dirs` pelo `download_dir` do Tauri, como a pasta de documentos da spec 03), com fallback `~/Downloads`.
 - Guardada no banco global, na preferência `inbox.location` (spec 02): é o único caminho absoluto fora da lista de workspaces, porque pertence à máquina, não ao workspace.
 - O usuário pode trocar a pasta pelo cabeçalho da Entrada ("Trocar pasta").
 - **Pasta que não existe:** a Entrada mostra "Pasta não encontrada: `<caminho>`", com "Escolher pasta".
-- **Pasta dentro do workspace aberto:** a Entrada some da sidebar. Aqueles documentos já estão no workspace, e mostrá-los duas vezes confundiria.
+- **Pasta dentro do workspace aberto** (ou a própria raiz dele, comparando o caminho por componentes): a Entrada some da sidebar. Aqueles documentos já estão no workspace, e mostrá-los duas vezes confundiria.
 
 ### O que aparece
 

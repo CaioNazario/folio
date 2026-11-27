@@ -73,7 +73,7 @@ Os dois bancos abrem do mesmo jeito:
 | Tabela | Colunas | Observações |
 |---|---|---|
 | `workspaces` | `id` (UUID), `location` (`Location`), `added_at`, `opened_at` | `location` única. Os recentes são os de `opened_at` mais novo. O último aberto é o que abre ao iniciar o app |
-| `preferences` | `key` (texto, PK), `value` (JSON) | Ex.: `inbox.location`, `theme`, `language`. Chave desconhecida é ignorada, não é erro. `language`: `"system"` (padrão), `"pt-BR"` ou `"en"`; `theme`: `"system"`, `"dark"` (padrão, como no design) ou `"light"`. Um valor gravado que não dá para ler vale como o padrão. Lidas pelo command `get_preferences` e gravadas por `set_language` e `set_theme` |
+| `preferences` | `key` (texto, PK), `value` (JSON) | Ex.: `inbox.location`, `theme`, `language`. Chave desconhecida é ignorada, não é erro. `language`: `"system"` (padrão), `"pt-BR"` ou `"en"`; `theme`: `"system"`, `"dark"` (padrão, como no design) ou `"light"`; `inbox.location` (spec 09): os bytes exatos do caminho, como lista de números, para que um nome que não é UTF-8 sobreviva. Um valor gravado que não dá para ler vale como o padrão. Lidas pelo command `get_preferences` e gravadas por `set_language` e `set_theme` |
 
 **Banco do workspace (cada uma definida pela spec dona):**
 
