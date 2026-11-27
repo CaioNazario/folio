@@ -22,6 +22,8 @@ pub enum Error {
     WorkspaceInUse,
     #[error("workspace not found: {0}")]
     WorkspaceNotFound(PathBuf),
+    #[error("inbox folder not found: {0}")]
+    InboxNotFound(PathBuf),
     #[error("{0} cannot be a workspace: it is the system root or the home")]
     ForbiddenRoot(PathBuf),
     #[error("directory is inside the workspace {ancestor}")]

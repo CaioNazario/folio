@@ -178,6 +178,7 @@ export const pt = {
     WorkspaceInUse: 'Este workspace já está aberto em outra janela',
     NoWorkspaceOpen: 'Nenhum workspace aberto',
     WorkspaceNotFound: 'Workspace não encontrado: {{path}}',
+    InboxNotFound: 'Pasta não encontrada: {{path}}',
     ForbiddenRoot: '{{path}} não pode ser um workspace: é a raiz do sistema ou a pasta pessoal',
     NestedWorkspace: 'Esta pasta fica dentro do workspace {{path}}',
     PermissionDenied: 'Sem permissão para ler e gravar {{path}}',

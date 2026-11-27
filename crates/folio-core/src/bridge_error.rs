@@ -36,6 +36,10 @@ pub enum BridgeError {
     WorkspaceNotFound {
         path: String,
     },
+    /// The inbox folder (spec 09) does not exist.
+    InboxNotFound {
+        path: String,
+    },
     ForbiddenRoot {
         path: String,
     },
@@ -119,6 +123,7 @@ fn path_only(error: &Error) -> Option<BridgeError> {
         Error::TrashUnavailable { path, .. } => BridgeError::TrashUnavailable { path: text(path) },
         Error::CopyMismatch(path) => BridgeError::CopyMismatch { path: text(path) },
         Error::WorkspaceNotFound(path) => BridgeError::WorkspaceNotFound { path: text(path) },
+        Error::InboxNotFound(path) => BridgeError::InboxNotFound { path: text(path) },
         Error::ForbiddenRoot(path) => BridgeError::ForbiddenRoot { path: text(path) },
         Error::NestedWorkspace { ancestor } => BridgeError::NestedWorkspace {
             path: text(ancestor),
@@ -370,13 +375,14 @@ mod tests {
     }
 
     /// Errors that carry a path, each with the `kind` it bridges to.
-    fn path_errors() -> [(Error, &'static str); 8] {
+    fn path_errors() -> [(Error, &'static str); 9] {
         let path = || PathBuf::from("/home/ana/Folio");
         let relative = crate::paths::RelativePath::from_bytes("Folio/atalho").unwrap();
         [
             (Error::NoAtomicSupport(path()), "NoAtomicSupport"),
             (Error::CopyMismatch(path()), "CopyMismatch"),
             (Error::WorkspaceNotFound(path()), "WorkspaceNotFound"),
+            (Error::InboxNotFound(path()), "InboxNotFound"),
             (Error::ForbiddenRoot(path()), "ForbiddenRoot"),
             (
                 Error::NestedWorkspace { ancestor: path() },

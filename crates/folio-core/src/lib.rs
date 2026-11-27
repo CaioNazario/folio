@@ -11,6 +11,7 @@ pub mod documents;
 mod error;
 pub mod favorites;
 pub mod ids;
+pub mod inbox;
 pub mod indexing;
 pub mod integrity;
 pub mod metadata;

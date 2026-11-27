@@ -177,6 +177,7 @@ export const en = {
     WorkspaceInUse: 'This workspace is already open in another window',
     NoWorkspaceOpen: 'No workspace is open',
     WorkspaceNotFound: 'Workspace not found: {{path}}',
+    InboxNotFound: 'Folder not found: {{path}}',
     ForbiddenRoot: '{{path}} cannot be a workspace: it is the system root or your home folder',
     NestedWorkspace: 'This folder is inside the workspace {{path}}',
     PermissionDenied: 'No permission to read and write {{path}}',
