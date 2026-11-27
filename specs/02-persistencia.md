@@ -82,6 +82,7 @@ Os dois bancos abrem do mesmo jeito:
 | `documents`, `document_metadata`, `conversions` | 04 (documentos) |
 | `icons` | 03 (workspace) |
 | `favorites`, `recent_documents` | 06 (busca, favoritos e recentes) |
+| `last_destination` | 09 (entrada e importação) |
 | `meta` (id do workspace, data de criação) | 02 (esta) |
 
 Não há tabela de hierarquia de pastas: a hierarquia vem do disco.

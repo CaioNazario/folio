@@ -45,7 +45,7 @@ Documentos da Entrada não estão em nenhum índice e não têm id estável. A i
 
 | Ação | Comportamento |
 |---|---|
-| Abrir | Abre no Reader (spec 07), como pré-visualização: não entra nos recentes, não guarda posição, não tem favorito |
+| Abrir | Abre no Reader (spec 07), como pré-visualização: não entra nos recentes, não guarda posição, não tem favorito nem conversão. O Reader recebe a origem do documento: um documento do workspace, pelo id, ou um arquivo da Entrada, pelo nome |
 | **Mover para…** | Escolhe um projeto ou pasta do workspace e **move** o arquivo (nunca copia, para não existir duas versões do mesmo documento). Usa a operação de mover da spec 04: sem sobrescrita, sufixo em colisão; entre filesystems diferentes, cópia conferida por hash antes de remover a origem (spec 01). O documento entra no índice com id novo, e o toast confirma "Movido para Faculdade/TCC" |
 | Mostrar na pasta | Spec 10 |
 | Mover para lixeira | Spec 01 |
@@ -58,6 +58,7 @@ O Folio não altera, renomeia nem converte arquivos na Entrada: para converter, 
 - **Área principal:** uma view nova, com cabeçalho ("Entrada", o caminho da pasta em Mono e "Trocar pasta") e a lista no estilo de "Continuar de onde parou" da Home (`Design/specs/04-home.md`): nome, chip de formato, tamanho e tempo relativo. Cada linha tem "Mover para…" e o menu Mais com as outras ações.
 - **Vazia:** "Nenhum documento novo em Downloads."
 - **Mover para…:** um dropdown com os projetos e as pastas do workspace, com o último destino usado no topo.
+- **Último destino:** guardado no banco do workspace, na tabela `last_destination` (uma linha só: o `RelativePath` da pasta), e atualizado a cada "Mover para…" e a cada importação. Segue a pasta quando o Folio a renomeia ou move; um destino que não existe mais não aparece no topo.
 
 ### Android
 
