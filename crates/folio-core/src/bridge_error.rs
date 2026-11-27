@@ -40,6 +40,10 @@ pub enum BridgeError {
     InboxNotFound {
         path: String,
     },
+    /// A file of the inbox is gone; `name` is its file name.
+    InboxDocumentNotFound {
+        name: String,
+    },
     ForbiddenRoot {
         path: String,
     },
@@ -171,6 +175,9 @@ fn with_other_data(error: &Error) -> BridgeError {
     match error {
         Error::AlreadyExists(path) => BridgeError::AlreadyExists {
             path: text(path),
+            name: file_name(path),
+        },
+        Error::InboxDocumentNotFound(path) => BridgeError::InboxDocumentNotFound {
             name: file_name(path),
         },
         Error::InvalidName(reason) => BridgeError::InvalidName {

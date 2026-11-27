@@ -178,6 +178,7 @@ export const en = {
     NoWorkspaceOpen: 'No workspace is open',
     WorkspaceNotFound: 'Workspace not found: {{path}}',
     InboxNotFound: 'Folder not found: {{path}}',
+    InboxDocumentNotFound: '{{name}} is no longer in the Inbox folder',
     ForbiddenRoot: '{{path}} cannot be a workspace: it is the system root or your home folder',
     NestedWorkspace: 'This folder is inside the workspace {{path}}',
     PermissionDenied: 'No permission to read and write {{path}}',

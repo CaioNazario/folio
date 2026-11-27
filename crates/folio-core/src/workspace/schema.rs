@@ -90,6 +90,12 @@ pub const MIGRATIONS: &[&str] = &[
          position REAL
      );
      CREATE INDEX recent_documents_by_opened_at ON recent_documents (opened_at);",
+    // Spec 09: the last destination of "Mover para…" and of imports, a
+    // single row that follows its directory like the other path tables.
+    "CREATE TABLE last_destination (
+         id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
+         path BLOB NOT NULL
+     );",
 ];
 
 #[cfg(test)]

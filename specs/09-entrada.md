@@ -39,7 +39,7 @@ Dentro do workspace não há watcher (spec 05): a Entrada é a única pasta obse
 
 ### Identidade
 
-Documentos da Entrada não estão em nenhum índice e não têm id estável. A interface se refere a eles pelo nome do arquivo, que é único dentro da pasta. Antes de qualquer ação, o core confere que o arquivo ainda existe; se não existe, devolve `DocumentNotFound` e relista.
+Documentos da Entrada não estão em nenhum índice e não têm id estável. A interface se refere a eles pelo nome do arquivo, que é único dentro da pasta. Antes de qualquer ação, o core confere que o nome é um nome de arquivo simples (sem `/`, sem ser `.` ou `..`, o que tiraria a ação da pasta; senão, `InvalidName`) e que o arquivo ainda existe; se não existe, devolve `InboxDocumentNotFound` e relista.
 
 ### Ações
 
@@ -82,6 +82,7 @@ Para documentos que estão em qualquer lugar do disco: um pendrive, outra pasta,
 | Erro | Quando |
 |---|---|
 | `InboxNotFound` | A pasta da Entrada não existe |
+| `InboxDocumentNotFound` | O arquivo da Entrada sumiu antes da ação (carrega o nome do arquivo: ele não tem id) |
 | `AlreadyInWorkspace` | Importar um arquivo que já está no workspace |
 
 Mais os das specs 01 e 04 (`AlreadyExists`, `CopyMismatch`, `DocumentNotFound`...).

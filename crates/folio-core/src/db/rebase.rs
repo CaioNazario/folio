@@ -14,6 +14,8 @@ pub enum PathTable {
     Documents,
     /// Only favorites of directories have a path (spec 06).
     Favorites,
+    /// The destination of the last move from the inbox or import (spec 09).
+    LastDestination,
 }
 
 impl PathTable {
@@ -22,6 +24,7 @@ impl PathTable {
             Self::Icons => "icons",
             Self::Documents => "documents",
             Self::Favorites => "favorites",
+            Self::LastDestination => "last_destination",
         }
     }
 }
